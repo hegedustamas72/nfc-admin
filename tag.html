@@ -77,17 +77,18 @@
 <body>
   <div id="app">Betöltés...</div>
 
-  <script type="module">
-    const supabase = supabase.createClient(
+  <script>
+    // Supabase kliens átnevezve, hogy ne ütközzön
+    const supabaseClient = supabase.createClient(
       "https://eogrnzuarpqlyjclkcqq.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U" // ide a tényleges Anon Public Key
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U" // ide az érvényes Anon Public Key
     );
 
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
 
     async function load() {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from("tags")
         .select("*")
         .eq("id", id)
