@@ -30,7 +30,7 @@
 
 <script>
 async function generate() {
-  const res = await fetch("IDE_MÁSOLJ_FUNCTION_URLT", {
+  const res = await fetch("https://eogrnzuarpqlyjclkcqq.supabase.co/functions/v1/create-tag", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
