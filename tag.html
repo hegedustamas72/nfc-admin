@@ -74,8 +74,7 @@
       }
 
       let html = `
-        <h1>Ez a biléta</h1>
-        <h2>${data.name}</h2>
+        <h1>${data.name}</h1>
 
         <a class="btn g1" href="tel:${data.guardian1_phone}">
           📞 ${data.guardian1_label}
@@ -90,7 +89,7 @@
         `;
       }
 
-      html += `<p>Ha megtalált, kérjük hívja fel!</p>`;
+      html += `<p>Ha nincsenek a közelben, kérem hívja a szülőket!</p>`;
 
       document.getElementById("app").innerHTML = html;
 
