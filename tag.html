@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Biléta</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      padding: 40px;
+      background: #a6e4f0;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 20px;
+      max-width: 400px;
+      margin: auto;
+    }
+
+    .btn {
+      display: block;
+      margin: 15px;
+      padding: 20px;
+      font-size: 20px;
+      border-radius: 15px;
+      text-decoration: none;
+      color: white;
+    }
+
+    .g1 { background: orange; }
+    .g2 { background: blue; }
+  </style>
+</head>
+
+<body>
+
+<div class="card" id="app">
+  Betöltés...
+</div>
+
+<script>
+const supabase = supabase.createClient(
+  "SUPABASE_URL",
+  "SUPABASE_ANON_KEY"
+)
+
+const params = new URLSearchParams(window.location.search)
+const id = params.get("id")
+
+async function load() {
+  const { data } = await supabase
+    .from("tags")
+    .select("*")
+    .eq("id", id)
+    .single()
+
+  if (!data) {
+    document.getElementById("app").innerHTML = "Nem található"
+    return
+  }
+
+  let html = `
+    <h1>Ez a biléta</h1>
+    <h2>${data.name}</h2>
+
+    <a class="btn g1" href="tel:${data.guardian1_phone}">
+      📞 ${data.guardian1_label}
+    </a>
+  `
+
+  if (data.guardian2_phone) {
+    html += `
+      <a class="btn g2" href="tel:${data.guardian2_phone}">
+        📞 ${data.guardian2_label}
+      </a>
+    `
+  }
+
+  html += `<p>Ha megtalált, kérjük hívja fel!</p>`
+
+  document.getElementById("app").innerHTML = html
+}
+
+load()
+</script>
+
+</body>
+</html>
