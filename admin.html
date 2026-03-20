@@ -83,7 +83,8 @@
           const text = document.getElementById("copyField").value;
 
           try {
-            await navigator.clipboard.writeText(text);
+            const trimmedText = text.replace(/^https?:\/\//, "");
+            await navigator.clipboard.writeText(trimmedText);
             alert("Kimásolva!");
           } catch {
             const field = document.getElementById("copyField");
