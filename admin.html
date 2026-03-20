@@ -49,7 +49,7 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzkzNDI5NiwiZXhwIjoyMDg5NTEwMjk2fQ.uDwhnsdyti-r7zMaLm0HCzNFEvRnrSW5KPYQoigFoso"  // ide a Service Role Key
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"  // ide a Service Role Key
           },
           body: JSON.stringify({
             name,
@@ -63,6 +63,15 @@
         if(!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const data = await res.json();
         linkDiv.textContent = data.url;
+
+// 🔹 automatikus másolás
+try {
+  await navigator.clipboard.writeText(data.url);
+  linkDiv.textContent += " ✅ (kimásolva)";
+} catch (err) {
+  console.error("Másolás sikertelen:", err);
+  linkDiv.textContent += " ⚠️ (nem sikerült kimásolni)";
+}
 
       } catch(err) {
         console.error(err);
