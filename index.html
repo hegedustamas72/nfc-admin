@@ -30,22 +30,35 @@
 
 <script>
 async function generate() {
-  const res = await fetch("https://eogrnzuarpqlyjclkcqq.supabase.co/functions/v1/create-tag", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name: document.getElementById("name").value,
-      g1_label: document.getElementById("g1_label").value,
-      g1_phone: document.getElementById("g1_phone").value,
-      g2_label: document.getElementById("g2_label").value,
-      g2_phone: document.getElementById("g2_phone").value
-    })
-  })
+  try {
+    const res = await fetch("https://eogrnzuarpqlyjclkcqq.supabase.co/functions/v1/create-tag", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: document.getElementById("name").value,
+        g1_label: document.getElementById("g1_label").value,
+        g1_phone: document.getElementById("g1_phone").value,
+        g2_label: document.getElementById("g2_label").value,
+        g2_phone: document.getElementById("g2_phone").value
+      })
+    });
 
-  const data = await res.json()
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
 
-  document.getElementById("result").innerHTML =
-    `<a href="${data.url}" target="_blank">${data.url}</a>`
+    const data = await res.json();
+
+    // Megjeleníti a linket a <h3 id="result"> elemben
+    document.getElementById("result").innerHTML =
+      `<a href="${data.url}" target="_blank">${data.url}</a>`;
+
+    // Extra: alert formában is jelzi a linket
+    alert(`Generált link:\n${data.url}`);
+  } catch (error) {
+    console.error("Hiba a link generálás közben:", error);
+    alert("Hiba történt a link generálásakor. Nézd meg a konzolt!");
+  }
 }
 </script>
 
