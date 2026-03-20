@@ -15,7 +15,7 @@
     body {
       margin: 0;
       font-family: 'DM Sans', sans-serif;
-      background: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), 
+      background: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
                   url('https://hegedustamas72.github.io/nfc-admin/wood-texture.png') center/cover no-repeat fixed;
       display: flex;
       justify-content: center;
@@ -28,9 +28,12 @@
     #app {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      align-items: center; /* horizontális közép minden elemhez */
+      justify-content: center; /* vertikális közép */
       gap: 12px;
+      text-align: center; /* több sor is középre lesz igazítva */
+      max-width: 90%; /* ne lógjon ki a képernyőről */
+      word-wrap: break-word; /* hosszú név sorba törik */
     }
 
     h1 {
@@ -105,7 +108,6 @@
     }
 
     img.icon { width: 20px; height: 20px; }
-
   </style>
 </head>
 <body>
@@ -148,7 +150,7 @@
       html += `<div id="note">Ha felügyelet nélkül van, kérjük hívja fel a fenti számo(ka)t!</div>`;
 
       html += `
-        <button class="secondaryBtn" onclick="window.location.href='https://example.com'">
+        <button class="secondaryBtn" onclick="window.location.href='https://hegedustamas72.github.io/kattkaland/'">
           <img src="https://hegedustamas72.github.io/nfc-admin/brand-icon.png" alt="Brand" class="icon"> Kattkaland
         </button>
       `;
