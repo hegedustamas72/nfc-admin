@@ -4,24 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NFC Link Generátor</title>
+
   <style>
     body { font-family: Arial, sans-serif; text-align:center; padding:40px; background:#f0f0f0; }
     .card { background:#fff; padding:35px; border-radius:15px; max-width:480px; margin:auto; box-shadow:0 8px 24px rgba(0,0,0,0.25); }
     input { width: 80%; padding:10px; margin:10px 0; font-size:16px; border-radius:8px; border:1px solid #ccc; }
     button { padding:15px 25px; font-size:18px; border:none; border-radius:10px; background:#42a5f5; color:white; cursor:pointer; margin-top:15px; }
     button:active { transform:scale(0.97); }
-    #link { margin-top:20px; word-break: break-all; font-weight:bold; color:#d32f2f; }
+    #link { margin-top:20px; word-break: break-all; }
+    .copyBtn { margin-top:10px; background:#4caf50; }
   </style>
 </head>
+
 <body>
   <div class="card">
     <h1>NFC Link Generátor</h1>
 
     <input type="text" id="childName" placeholder="Gyermek / Háziállat neve">
-    <input type="text" id="g1Label" placeholder="Gondviselő1 titulus (Apa, Anya, Gazdi1)">
+    <input type="text" id="g1Label" placeholder="Gondviselő1 titulus">
     <input type="tel" id="g1Phone" placeholder="Gondviselő1 telefon">
-    <input type="text" id="g2Label" placeholder="Gondviselő2 titulus (opcionális)">
-    <input type="tel" id="g2Phone" placeholder="Gondviselő2 telefon (opcionális)">
+    <input type="text" id="g2Label" placeholder="Gondviselő2 (opcionális)">
+    <input type="tel" id="g2Phone" placeholder="Gondviselő2 telefon">
 
     <button id="generateBtn">Link generálása</button>
 
@@ -39,8 +42,8 @@
       const g2_label = document.getElementById("g2Label").value.trim();
       const g2_phone = document.getElementById("g2Phone").value.trim();
 
-      if(!name || !g1_label || !g1_phone) {
-        linkDiv.textContent = "Kérlek töltsd ki legalább a gyermek nevét és gondviselő1 adatait!";
+      if (!name || !g1_label || !g1_phone) {
+        linkDiv.textContent = "Töltsd ki a kötelező mezőket!";
         return;
       }
 
@@ -49,7 +52,7 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"  // ide a Service Role Key
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8US"
           },
           body: JSON.stringify({
             name,
@@ -60,22 +63,40 @@
           })
         });
 
-        if(!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
         const data = await res.json();
-        linkDiv.textContent = data.url;
 
-// 🔹 automatikus másolás
-try {
-  await navigator.clipboard.writeText(data.url);
-  linkDiv.textContent += " ✅ (kimásolva)";
-} catch (err) {
-  console.error("Másolás sikertelen:", err);
-  linkDiv.textContent += " ⚠️ (nem sikerült kimásolni)";
-}
+        // 🔹 iPhone kompatibilis UI
+        linkDiv.innerHTML = `
+          <div><b>Generált link:</b></div>
 
-      } catch(err) {
+          <input id="copyField" value="${data.url}" readonly style="width:100%; margin-top:10px;">
+
+          <button id="copyBtn" class="copyBtn">
+            📋 Másolás
+          </button>
+        `;
+
+        // 🔹 Másolás gomb
+        document.getElementById("copyBtn").onclick = async () => {
+          const text = document.getElementById("copyField").value;
+
+          try {
+            await navigator.clipboard.writeText(text);
+            alert("Kimásolva!");
+          } catch {
+            // fallback: kijelölés
+            const field = document.getElementById("copyField");
+            field.select();
+            field.setSelectionRange(0, 99999);
+            alert("Másold ki kézzel!");
+          }
+        };
+
+      } catch (err) {
         console.error(err);
-        linkDiv.textContent = "Hiba a link generálás közben: " + err.message;
+        linkDiv.textContent = "Hiba: " + err.message;
       }
     };
   </script>
