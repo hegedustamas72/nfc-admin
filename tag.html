@@ -17,7 +17,8 @@
       padding: 40px 20px;
       font-family: Arial, sans-serif;
       text-align: center;
-      background: url('wood-texture.png') center/cover no-repeat fixed;
+      /* Háttér a GitHub Pages-ről */
+      background: url('https://hegedustamas72.github.io/nfc-admin/wood-texture.png') center/cover no-repeat fixed;
       color: #333;
     }
 
@@ -105,18 +106,18 @@
         <h1>Ez a biléta</h1>
         <h2>${data.name}</h2>
 
-        <a class="btn call-g1" href="tel:${data.g1_phone}">📞 ${data.g1_label}</a>
+        <a class="btn call-g1" href="tel:${data.guardian1_phone}">📞 ${data.guardian1_label}</a>
       `;
 
-      if (data.g2_phone) {
-        html += `<a class="btn call-g2" href="tel:${data.g2_phone}">📞 ${data.g2_label}</a>`;
+      if (data.guardian2_phone) {
+        html += `<a class="btn call-g2" href="tel:${data.guardian2_phone}">📞 ${data.guardian2_label}</a>`;
       }
 
       html += `<div id="note">Ha megtalált, kérjük hívja fel!</div>`;
 
       html += `
         <button class="secondaryBtn" onclick="window.location.href='https://example.com'">
-          <img src="brand-icon.png" alt="Brand" class="icon"> Kattkaland
+          <img src="https://hegedustamas72.github.io/nfc-admin/brand-icon.png" alt="Brand" class="icon"> Kattkaland
         </button>
       `;
 
