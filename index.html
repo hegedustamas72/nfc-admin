@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Biléta generátor</title>
+</head>
+<body style="font-family: Arial; padding:20px">
+
+<h2>Új NFC biléta</h2>
+
+<label>Név</label><br>
+<input id="name"><br><br>
+
+<label>Gondviselő 1 titulus</label><br>
+<input id="g1_label"><br>
+
+<label>Gondviselő 1 telefon</label><br>
+<input id="g1_phone"><br><br>
+
+<label>Gondviselő 2 titulus (opcionális)</label><br>
+<input id="g2_label"><br>
+
+<label>Gondviselő 2 telefon</label><br>
+<input id="g2_phone"><br><br>
+
+<button onclick="generate()">Link generálása</button>
+
+<h3 id="result"></h3>
+
+<script>
+async function generate() {
+  const res = await fetch("IDE_MÁSOLJ_FUNCTION_URLT", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: document.getElementById("name").value,
+      g1_label: document.getElementById("g1_label").value,
+      g1_phone: document.getElementById("g1_phone").value,
+      g2_label: document.getElementById("g2_label").value,
+      g2_phone: document.getElementById("g2_phone").value
+    })
+  })
+
+  const data = await res.json()
+
+  document.getElementById("result").innerHTML =
+    `<a href="${data.url}" target="_blank">${data.url}</a>`
+}
+</script>
+
+</body>
+</html>
