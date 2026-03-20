@@ -6,7 +6,7 @@
   <title>NFC Link Generátor</title>
 
   <style>
-    body { font-family: Arial, sans-serif; text-align:center; padding:40px; background:#f0f0f0; }
+    body { font-family: Arial; text-align:center; padding:40px; background:#f0f0f0; }
     .card { background:#fff; padding:35px; border-radius:15px; max-width:480px; margin:auto; box-shadow:0 8px 24px rgba(0,0,0,0.25); }
     input { width: 80%; padding:10px; margin:10px 0; font-size:16px; border-radius:8px; border:1px solid #ccc; }
     button { padding:15px 25px; font-size:18px; border:none; border-radius:10px; background:#42a5f5; color:white; cursor:pointer; margin-top:15px; }
@@ -52,7 +52,7 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"  // ← csak az anon kulcs
           },
           body: JSON.stringify({
             name,
@@ -86,7 +86,6 @@
             await navigator.clipboard.writeText(text);
             alert("Kimásolva!");
           } catch {
-            // fallback: kijelölés
             const field = document.getElementById("copyField");
             field.select();
             field.setSelectionRange(0, 99999);
@@ -96,7 +95,7 @@
 
       } catch (err) {
         console.error(err);
-        linkDiv.textContent = "Hiba: " + err.message;
+        linkDiv.textContent = "Hiba a link generálás közben: " + err.message;
       }
     };
   </script>
