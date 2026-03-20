@@ -13,25 +13,42 @@
 
   <style>
     body {
-           margin: 0;
+      margin: 0;
       font-family: 'DM Sans', sans-serif;
-      background: linear-gradient(rgba(255,255,255,0.92), rgba(255,255,255,0.92)), url('wood-texture.png');
-      background-size: cover;
-      background-position: center;
+      background: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), 
+                  url('https://hegedustamas72.github.io/nfc-admin/wood-texture.png') center/cover no-repeat fixed;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
       color: #424b54;
+      padding: 20px;
     }
 
-    h1 { font-size: 32px; margin-bottom: 10px; color: #222; }
-    h2 { font-size: 28px; margin-bottom: 20px; color: #444; }
+    #app {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin: 0;
+      color: #222;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    }
+
+    h2 {
+      font-size: 28px;
+      margin: 5px 0 20px 0;
+      color: #444;
+    }
 
     /* Hívógombok */
     .btn {
       display: block;
-      margin: 12px auto;
       padding: 16px;
       font-size: 20px;
       border-radius: 15px;
@@ -40,18 +57,26 @@
       font-weight: bold;
       width: 70%;
       max-width: 300px;
-      transition: 0.1s;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      text-align: center;
+      background-clip: padding-box;
     }
-    .btn:active { transform: scale(0.97); }
 
-    .call-g1 { background: rgba(66,165,245,0.9); } /* kék */
-    .call-g2 { background: rgba(245,124,0,0.9); }  /* narancs */
+    .btn:active { 
+      transform: scale(0.97); 
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .call-g1 { background: rgba(66,165,245,0.85); } /* kék */
+    .call-g2 { background: rgba(245,124,0,0.85); }  /* narancs */
 
     #note {
       margin-top: 15px;
       font-size: 16px;
       font-weight: bold;
+      text-align: center;
+      text-shadow: 0px 0px 3px rgba(0,0,0,0.2);
     }
 
     /* Kattkaland gomb alul */
@@ -60,7 +85,7 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      margin: 30px auto 0;
+      margin: 25px auto 0;
       padding: 12px 20px;
       font-size: 18px;
       border: none;
@@ -70,19 +95,24 @@
       cursor: pointer;
       font-family: 'Alex Brush', cursive;
       max-width: 250px;
-      transition: 0.1s;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+      transition: transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.25);
     }
-    .secondaryBtn:active { transform: scale(0.97); }
+
+    .secondaryBtn:active { 
+      transform: scale(0.97); 
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
 
     img.icon { width: 20px; height: 20px; }
+
   </style>
 </head>
 <body>
   <div id="app">Betöltés...</div>
 
   <script>
-    // Supabase kliens átnevezve, hogy ne ütközzön
+    // Supabase kliens
     const supabaseClient = supabase.createClient(
       "https://eogrnzuarpqlyjclkcqq.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U" // ide az érvényes Anon Public Key
