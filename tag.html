@@ -106,8 +106,7 @@
       }
 
       let html = `
-        <h1>Ez a biléta</h1>
-        <h2>${data.name}</h2>
+        <h1>${data.name}</h1>
 
         <a class="btn call-g1" href="tel:${data.guardian1_phone}">📞 ${data.guardian1_label}</a>
       `;
@@ -116,7 +115,7 @@
         html += `<a class="btn call-g2" href="tel:${data.guardian2_phone}">📞 ${data.guardian2_label}</a>`;
       }
 
-      html += `<div id="note">Ha megtalált, kérjük hívja fel!</div>`;
+      html += `<div id="note">Ha felügyelet nélkül van, kérjük hívja fel a fenti számo(ka)t!</div>`;
 
       html += `
         <button class="secondaryBtn" onclick="window.location.href='https://example.com'">
