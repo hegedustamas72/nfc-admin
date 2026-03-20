@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NFC Admin - Link generálás</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f0f8ff; }
+    h1 { text-align: center; color: #333; }
+    label { font-weight: bold; display: block; margin-top: 15px; }
+    input { padding: 8px; width: 100%; margin-top: 5px; box-sizing: border-box; }
+    button { margin-top: 20px; padding: 12px 20px; font-size: 16px; cursor: pointer; }
+    #result { margin-top: 20px; font-size: 18px; word-wrap: break-word; }
+  </style>
+</head>
+<body>
+  <h1>NFC Link generálás</h1>
+
+  <label>Gyermek / háziállat neve</label>
+  <input id="name" placeholder="Pl. Hegedűs Tamás Barnabás">
+
+  <label>Gondviselő 1 neve / titulus</label>
+  <input id="g1_label" placeholder="Pl. Apa, Anyuka, Gazdi1">
+
+  <label>Gondviselő 1 telefonszám</label>
+  <input id="g1_phone" placeholder="Pl. +36301234567">
+
+  <label>Gondviselő 2 neve / titulus (opcionális)</label>
+  <input id="g2_label" placeholder="Pl. Anya, Gazdi2">
+
+  <label>Gondviselő 2 telefonszám (opcionális)</label>
+  <input id="g2_phone" placeholder="Pl. +36307654321">
+
+  <button onclick="generate()">Link generálása</button>
+
+  <div id="result"></div>
+
+  <script>
+    async function generate() {
+      try {
+        const name = document.getElementById("name").value;
+        const g1_label = document.getElementById("g1_label").value;
+        const g1_phone = document.getElementById("g1_phone").value;
+        const g2_label = document.getElementById("g2_label").value;
+        const g2_phone = document.getElementById("g2_phone").value;
+
+        // Fetch a Supabase Edge Function-hez
+        const res = await fetch("https://eogrnzuarpqlyjclkcqq.supabase.co/functions/v1/create-tag", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, g1_label, g1_phone, g2_label, g2_phone })
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        // Megjelenítés és másolás lehetősége
+        document.getElementById("result").innerHTML =
+          `<strong>Generált link:</strong> <a href="${data.url}" target="_blank">${data.url}</a>`;
+        alert(`Generált link:\n${data.url}`);
+
+      } catch (error) {
+        console.error("Hiba a link generálás közben:", error);
+        alert("Hiba történt a link generálásakor. Nézd meg a konzolt!");
+      }
+    }
+  </script>
+</body>
+</html>
