@@ -45,10 +45,18 @@
         const g2_phone = document.getElementById("g2_phone").value;
 
         // Fetch a Supabase Edge Function-hez
-        const res = await fetch("https://eogrnzuarpqlyjclkcqq.supabase.co/functions/v1/create-tag", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, g1_label, g1_phone, g2_label, g2_phone })
+       const res = await fetch("https://eogrnzuarpqlyjclkcqq.supabase.co/functions/v1/create-tag", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${SERVICE_ROLE_KEY}`  // FONTOS
+  },
+  body: JSON.stringify({
+    name: childName,
+    g1_label: guardian1Label,
+    g1_phone: guardian1Phone,
+    g2_label: guardian2Label,
+    g2_phone: guardian2Phone
         });
 
         if (!res.ok) {
