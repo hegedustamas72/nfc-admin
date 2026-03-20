@@ -3,78 +3,72 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NFC Admin - Link generálás</title>
+  <title>NFC Link Generátor</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f0f8ff; }
-    h1 { text-align: center; color: #333; }
-    label { font-weight: bold; display: block; margin-top: 15px; }
-    input { padding: 8px; width: 100%; margin-top: 5px; box-sizing: border-box; }
-    button { margin-top: 20px; padding: 12px 20px; font-size: 16px; cursor: pointer; }
-    #result { margin-top: 20px; font-size: 18px; word-wrap: break-word; }
+    body { font-family: Arial, sans-serif; text-align:center; padding:40px; background:#f0f0f0; }
+    .card { background:#fff; padding:35px; border-radius:15px; max-width:480px; margin:auto; box-shadow:0 8px 24px rgba(0,0,0,0.25); }
+    input { width: 80%; padding:10px; margin:10px 0; font-size:16px; border-radius:8px; border:1px solid #ccc; }
+    button { padding:15px 25px; font-size:18px; border:none; border-radius:10px; background:#42a5f5; color:white; cursor:pointer; margin-top:15px; }
+    button:active { transform:scale(0.97); }
+    #link { margin-top:20px; word-break: break-all; font-weight:bold; color:#d32f2f; }
   </style>
 </head>
 <body>
-  <h1>NFC Link generálás</h1>
+  <div class="card">
+    <h1>NFC Link Generátor</h1>
 
-  <label>Gyermek / háziállat neve</label>
-  <input id="name" placeholder="Pl. Hegedűs Tamás Barnabás">
+    <input type="text" id="childName" placeholder="Gyermek / Háziállat neve">
+    <input type="text" id="g1Label" placeholder="Gondviselő1 titulus (Apa, Anya, Gazdi1)">
+    <input type="tel" id="g1Phone" placeholder="Gondviselő1 telefon">
+    <input type="text" id="g2Label" placeholder="Gondviselő2 titulus (opcionális)">
+    <input type="tel" id="g2Phone" placeholder="Gondviselő2 telefon (opcionális)">
 
-  <label>Gondviselő 1 neve / titulus</label>
-  <input id="g1_label" placeholder="Pl. Apa, Anyuka, Gazdi1">
+    <button id="generateBtn">Link generálása</button>
 
-  <label>Gondviselő 1 telefonszám</label>
-  <input id="g1_phone" placeholder="Pl. +36301234567">
+    <div id="link">Itt jelenik meg a generált link</div>
+  </div>
 
-  <label>Gondviselő 2 neve / titulus (opcionális)</label>
-  <input id="g2_label" placeholder="Pl. Anya, Gazdi2">
+  <script type="module">
+    const btn = document.getElementById("generateBtn");
+    const linkDiv = document.getElementById("link");
 
-  <label>Gondviselő 2 telefonszám (opcionális)</label>
-  <input id="g2_phone" placeholder="Pl. +36307654321">
+    btn.onclick = async () => {
+      const name = document.getElementById("childName").value.trim();
+      const g1_label = document.getElementById("g1Label").value.trim();
+      const g1_phone = document.getElementById("g1Phone").value.trim();
+      const g2_label = document.getElementById("g2Label").value.trim();
+      const g2_phone = document.getElementById("g2Phone").value.trim();
 
-  <button onclick="generate()">Link generálása</button>
+      if(!name || !g1_label || !g1_phone) {
+        linkDiv.textContent = "Kérlek töltsd ki legalább a gyermek nevét és gondviselő1 adatait!";
+        return;
+      }
 
-  <div id="result"></div>
-
-  <script>
-    async function generate() {
       try {
-        const name = document.getElementById("name").value;
-        const g1_label = document.getElementById("g1_label").value;
-        const g1_phone = document.getElementById("g1_phone").value;
-        const g2_label = document.getElementById("g2_label").value;
-        const g2_phone = document.getElementById("g2_phone").value;
-
-        // Fetch a Supabase Edge Function-hez
-       const res = await fetch("https://eogrnzuarpqlyjclkcqq.supabase.co/functions/v1/create-tag", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${SERVICE_ROLE_KEY}`  // FONTOS
-  },
-  body: JSON.stringify({
-    name: childName,
-    g1_label: guardian1Label,
-    g1_phone: guardian1Phone,
-    g2_label: guardian2Label,
-    g2_phone: guardian2Phone
+        const res = await fetch("https://eogrnzuarpqlyjclkcqq.supabase.co/functions/v1/create-tag", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer <SERVICE_ROLE_KEY>"  // ide a Service Role Key
+          },
+          body: JSON.stringify({
+            name,
+            g1_label,
+            g1_phone,
+            g2_label: g2_label || null,
+            g2_phone: g2_phone || null
+          })
         });
 
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-
+        if(!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const data = await res.json();
+        linkDiv.textContent = data.url;
 
-        // Megjelenítés és másolás lehetősége
-        document.getElementById("result").innerHTML =
-          `<strong>Generált link:</strong> <a href="${data.url}" target="_blank">${data.url}</a>`;
-        alert(`Generált link:\n${data.url}`);
-
-      } catch (error) {
-        console.error("Hiba a link generálás közben:", error);
-        alert("Hiba történt a link generálásakor. Nézd meg a konzolt!");
+      } catch(err) {
+        console.error(err);
+        linkDiv.textContent = "Hiba a link generálás közben: " + err.message;
       }
-    }
+    };
   </script>
 </body>
 </html>
