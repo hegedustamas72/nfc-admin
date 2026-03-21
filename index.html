@@ -1,81 +1,104 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="hu">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Segítség - Elveszett gyerek / Háziállat</title>
+  <title>NFC Link Generátor</title>
+
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 40px 20px; background-color: #a6e4f0; }
-    .card { background: #fff3e0; padding: 35px; border-radius: 25px; max-width: 480px; margin: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.25); border: 4px solid #ff6f61; }
-    h1 { color: #d32f2f; font-size: 32px; margin-bottom: 25px; }
-    .name { font-size: 28px; font-weight: bold; margin-bottom: 30px; color: #37474f; }
-    .btn { display: block; margin: 18px 0; padding: 22px; font-size: 24px; border-radius: 20px; text-decoration: none; color: white; font-weight: bold; transition: transform 0.1s, box-shadow 0.1s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-    .btn:active { transform: scale(0.95); box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
-    .call-mom { background: #ff7043; }
-    .call-dad { background: #42a5f5; }
-    .note { margin-top: 28px; font-size: 18px; color: #37474f; font-weight: bold; }
+    body { font-family: Arial; text-align:center; padding:40px; background:#f0f0f0; }
+    .card { background:#fff; padding:35px; border-radius:15px; max-width:480px; margin:auto; box-shadow:0 8px 24px rgba(0,0,0,0.25); }
+    input { width: 80%; padding:10px; margin:10px 0; font-size:16px; border-radius:8px; border:1px solid #ccc; }
+    button { padding:15px 25px; font-size:18px; border:none; border-radius:10px; background:#42a5f5; color:white; cursor:pointer; margin-top:15px; }
+    button:active { transform:scale(0.97); }
+    #link { margin-top:20px; word-break: break-all; }
+    .copyBtn { margin-top:10px; background:#4caf50; }
   </style>
 </head>
+
 <body>
   <div class="card">
-    <h1>Ez a biléta</h1>
-    <div class="name" id="child-name"></div>
+    <h1>NFC Link Generátor</h1>
 
-    <div id="buttons"></div>
+    <input type="text" id="childName" placeholder="Gyermek / Háziállat neve">
+    <input type="text" id="g1Label" placeholder="Gondviselő1 titulus">
+    <input type="tel" id="g1Phone" placeholder="Gondviselő1 telefon">
+    <input type="text" id="g2Label" placeholder="Gondviselő2 (opcionális)">
+    <input type="tel" id="g2Phone" placeholder="Gondviselő2 telefon">
 
-    <div class="note">
-      Ha nincsenek a közelben, kérjük hívja fel a szülőket!
-    </div>
+    <button id="generateBtn">Link generálása</button>
+
+    <div id="link">Itt jelenik meg a generált link</div>
   </div>
 
-  <script>
-    async function loadTag() {
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const id = params.get("id");
-        if (!id) throw new Error("Nincs megadva az id.");
+  <script type="module">
+    const btn = document.getElementById("generateBtn");
+    const linkDiv = document.getElementById("link");
 
-        // Fetch a Supabase-ből a rekord
-        const res = await fetch(`https://eogrnzuarpqlyjclkcqq.supabase.co/rest/v1/tags?id=eq.${id}`, {
+    btn.onclick = async () => {
+      const name = document.getElementById("childName").value.trim();
+      const g1_label = document.getElementById("g1Label").value.trim();
+      const g1_phone = document.getElementById("g1Phone").value.trim();
+      const g2_label = document.getElementById("g2Label").value.trim();
+      const g2_phone = document.getElementById("g2Phone").value.trim();
+
+      if (!name || !g1_label || !g1_phone) {
+        linkDiv.textContent = "Töltsd ki a kötelező mezőket!";
+        return;
+      }
+
+      try {
+        const res = await fetch("https://eogrnzuarpqlyjclkcqq.supabase.co/functions/v1/create-tag", {
+          method: "POST",
           headers: {
-            "apikey": "PUBLIC_ANON_KEY", // ide a Supabase anon key kell
-            "Authorization": "Bearer PUBLIC_ANON_KEY"
-          }
+            "Content-Type": "application/json",
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"  // ← csak az anon kulcs
+          },
+          body: JSON.stringify({
+            name,
+            g1_label,
+            g1_phone,
+            g2_label: g2_label || null,
+            g2_phone: g2_phone || null
+          })
         });
 
-        if (!res.ok) throw new Error("Hiba a lekérés során.");
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
         const data = await res.json();
-        if (!data || data.length === 0) throw new Error("Nincs ilyen rekord.");
 
-        const tag = data[0];
-        document.getElementById("child-name").textContent = tag.name;
+        // 🔹 iPhone kompatibilis UI
+        linkDiv.innerHTML = `
+          <div><b>Generált link:</b></div>
 
-        const buttonsDiv = document.getElementById("buttons");
+          <input id="copyField" value="${data.url}" readonly style="width:100%; margin-top:10px;">
 
-        if (tag.guardian1_phone) {
-          const btn1 = document.createElement("a");
-          btn1.href = `tel:${tag.guardian1_phone}`;
-          btn1.textContent = `📞 ${tag.guardian1_label || "Gondviselő 1"}`;
-          btn1.className = "btn call-mom";
-          buttonsDiv.appendChild(btn1);
-        }
+          <button id="copyBtn" class="copyBtn">
+            📋 Másolás
+          </button>
+        `;
 
-        if (tag.guardian2_phone) {
-          const btn2 = document.createElement("a");
-          btn2.href = `tel:${tag.guardian2_phone}`;
-          btn2.textContent = `📞 ${tag.guardian2_label || "Gondviselő 2"}`;
-          btn2.className = "btn call-dad";
-          buttonsDiv.appendChild(btn2);
-        }
+        // 🔹 Másolás gomb
+        document.getElementById("copyBtn").onclick = async () => {
+          const text = document.getElementById("copyField").value;
+
+          try {
+            const trimmedText = text.replace(/^https?:\/\//, "");
+            await navigator.clipboard.writeText(trimmedText);
+            alert("Kimásolva!");
+          } catch {
+            const field = document.getElementById("copyField");
+            field.select();
+            field.setSelectionRange(0, 99999);
+            alert("Másold ki kézzel!");
+          }
+        };
 
       } catch (err) {
         console.error(err);
-        document.getElementById("child-name").textContent = "Hiba történt az adatok betöltésekor.";
+        linkDiv.textContent = "Hiba a link generálás közben: " + err.message;
       }
-    }
-
-    loadTag();
+    };
   </script>
 </body>
 </html>
