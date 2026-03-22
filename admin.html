@@ -30,11 +30,7 @@
 
     async function init() {
     const { data } = await supabase.auth.getSession();
-    const session = data.session;
-
-    if (!session) {
-      alert("Nincs session!");
-      return;
+      
 }
       // 🔐 LOGIN
       if (!session) {
