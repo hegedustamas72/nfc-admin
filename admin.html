@@ -29,8 +29,8 @@
     const app = document.getElementById("app");
 
     async function init() {
-    const { data } = await supabase.auth.getSession();
-      
+      const { data: { session } } = await supabase.auth.getSession();
+
       // 🔐 LOGIN
       if (!session) {
         app.innerHTML = `
@@ -100,7 +100,6 @@
         });
 
         const data = await res.json();
-        console.log("FULL RESPONSE:", data);
 
         // ❗ HIBAKEZELÉS
         if (!res.ok) {
