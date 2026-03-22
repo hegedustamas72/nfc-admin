@@ -29,8 +29,13 @@
     const app = document.getElementById("app");
 
     async function init() {
-      const { data: { session } } = await supabase.auth.getSession();
+    const { data } = await supabase.auth.getSession();
+    const session = data.session;
 
+    if (!session) {
+      alert("Nincs session!");
+      return;
+}
       // 🔐 LOGIN
       if (!session) {
         app.innerHTML = `
