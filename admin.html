@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="hu">
 <head>
   <meta charset="UTF-8">
@@ -11,6 +11,7 @@
     input { width: 80%; padding:10px; margin:10px 0; font-size:16px; border-radius:8px; border:1px solid #ccc; }
     button { padding:15px 25px; font-size:18px; border:none; border-radius:10px; background:#42a5f5; color:white; cursor:pointer; margin-top:15px; }
     #link { margin-top:20px; word-break: break-all; }
+    .logout { background:#ef5350; margin-top:20px; }
   </style>
 </head>
 
@@ -30,7 +31,7 @@
     async function init() {
       const { data: { session } } = await supabase.auth.getSession();
 
-      // 🔐 LOGIN SCREEN
+      // 🔐 LOGIN
       if (!session) {
         app.innerHTML = `
           <div class="card">
@@ -47,7 +48,7 @@
 
           const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-          if (error) alert(error.message);
+          if (error) alert("Hiba: " + error.message);
           else location.reload();
         };
 
@@ -68,9 +69,18 @@
           <button id="genBtn">Link generálása</button>
 
           <div id="link"></div>
+
+          <button id="logoutBtn" class="logout">Kijelentkezés</button>
         </div>
       `;
 
+      // 🔓 LOGOUT
+      document.getElementById("logoutBtn").onclick = async () => {
+        await supabase.auth.signOut();
+        location.reload();
+      };
+
+      // 🔗 LINK GENERÁLÁS
       document.getElementById("genBtn").onclick = async () => {
         const { data: { session } } = await supabase.auth.getSession();
 
@@ -91,8 +101,15 @@
 
         const data = await res.json();
 
+        // ❗ HIBAKEZELÉS
+        if (!res.ok) {
+          alert("Hiba: " + data.error);
+          return;
+        }
+
+        // ✅ SIKER
         document.getElementById("link").innerHTML = `
-          <p><b>Link:</b></p>
+          <p><b>Generált link:</b></p>
           <input value="${data.url}" style="width:100%">
         `;
       };
