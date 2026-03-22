@@ -32,7 +32,7 @@
       const { data } = await supabase.auth.getSession();
       let session = data.session;
 
-      // 🔐 LOGIN
+      // 🔐 LOGIN UI
       if (!session) {
         app.innerHTML = `
           <div class="card">
@@ -52,8 +52,7 @@
           if (error) {
             alert(error.message);
           } else {
-            // kis várakozás → biztos session
-            setTimeout(() => location.reload(), 500);
+            location.reload(); // ✅ stabilabb mint setTimeout
           }
         };
 
@@ -87,11 +86,15 @@
       // 🔗 GENERÁLÁS
       document.getElementById("genBtn").onclick = async () => {
 
-        const { data } = await supabase.auth.getSession();
-        const session = data.session;
+        // 🔥 session frissítés (EZ HIÁNYZOTT!)
+        await supabase.auth.refreshSession();
 
-        if (!session) {
-          alert("Nincs session!");
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (!session || !session.access_token) {
+          alert("Session hiba, jelentkezz be újra!");
           return;
         }
 
