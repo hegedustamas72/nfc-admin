@@ -23,13 +23,14 @@
 
     const supabase = createClient(
       "https://eogrnzuarpqlyjclkcqq.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
+      "IDE_A_SAJAT_ANON_KEY"
     );
 
     const app = document.getElementById("app");
 
     async function init() {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data } = await supabase.auth.getSession();
+      let session = data.session;
 
       // 🔐 LOGIN
       if (!session) {
@@ -48,8 +49,12 @@
 
           const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-          if (error) alert("Hiba: " + error.message);
-          else location.reload();
+          if (error) {
+            alert(error.message);
+          } else {
+            // kis várakozás → biztos session
+            setTimeout(() => location.reload(), 500);
+          }
         };
 
         return;
@@ -74,15 +79,21 @@
         </div>
       `;
 
-      // 🔓 LOGOUT
       document.getElementById("logoutBtn").onclick = async () => {
         await supabase.auth.signOut();
         location.reload();
       };
 
-      // 🔗 LINK GENERÁLÁS
+      // 🔗 GENERÁLÁS
       document.getElementById("genBtn").onclick = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
+
+        const { data } = await supabase.auth.getSession();
+        const session = data.session;
+
+        if (!session) {
+          alert("Nincs session!");
+          return;
+        }
 
         const res = await fetch("https://eogrnzuarpqlyjclkcqq.supabase.co/functions/v1/create-tag", {
           method: "POST",
@@ -99,18 +110,16 @@
           })
         });
 
-        const data = await res.json();
+        const dataRes = await res.json();
 
-        // ❗ HIBAKEZELÉS
         if (!res.ok) {
-          alert("Hiba: " + data.error);
+          alert("Hiba: " + dataRes.error);
           return;
         }
 
-        // ✅ SIKER
         document.getElementById("link").innerHTML = `
           <p><b>Generált link:</b></p>
-          <input value="${data.url}" style="width:100%">
+          <input value="${dataRes.url}" style="width:100%">
         `;
       };
     }
