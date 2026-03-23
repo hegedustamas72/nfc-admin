@@ -13,7 +13,6 @@
       margin: 0;
       font-family: 'DM Sans', sans-serif;
 
-      /* UGYANAZ a háttér mint a főoldalon */
       background: linear-gradient(rgba(255,255,255,0.92), rgba(255,255,255,0.92)), url('wood-texture.png');
       background-size: cover;
       background-position: center;
@@ -28,6 +27,13 @@
     .container {
       text-align: center;
       padding: 40px 20px;
+    }
+
+    .logo {
+      width: 160px;
+      margin: 50px auto 20px auto;
+      display: block;
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.1));
     }
 
     h1 {
@@ -63,6 +69,9 @@
 
 <body>
   <div class="container">
+
+    <img src="logo.png" alt="Kattkaland logo" class="logo" />
+
     <h1>Fejlesztés alatt</h1>
     <p>Ez az oldal még készül.</p>
     <a href="index.html">Vissza a főoldalra</a>
