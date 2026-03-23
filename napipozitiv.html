@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Napi Pozitív Üzenet</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;700&family=Alex+Brush&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  background: linear-gradient(rgba(255,255,255,0.92), rgba(255,255,255,0.92)), url('wood-texture.png');
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #424b54;
+}
+.card {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 340px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  animation: fadeIn 0.8s ease;
+}
+.title {
+  font-family: 'Alex Brush', cursive;
+  font-size: 40px;
+  margin-bottom: 5px;
+}
+.tag {
+  font-size: 12px;
+  opacity: 0.6;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.message {
+  font-size: 22px;
+  line-height: 1.4;
+  margin: 20px 0;
+  font-weight: 700;
+}
+.btn {
+  border: none;
+  padding: 14px 20px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  color: white;
+  background: linear-gradient(135deg, #9b6a6c, #e2b4bd);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+  transition: 0.25s ease;
+}
+.btn:hover { transform: translateY(-3px) scale(1.02); }
+.btn:active { transform: scale(0.96); }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <div class="title">Napi pozitív</div>
+  <div id="kategoria" class="tag"></div>
+  <div id="uzenet" class="message"></div>
+  <button onclick="ujUzenet()" class="btn">Új üzenet</button>
+</div>
+
+<script>
+// ===== SEGÉDFÜGGVÉNYEK =====
+function hashCode(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return hash;
+}
+function pick(arr, seed) {
+  const h = hashCode(seed);
+  return arr[Math.abs(h) % arr.length];
+}
+
+// ===== DEVICE AZONOSÍTÓ =====
+function getDeviceId() {
+  let id = localStorage.getItem("deviceId");
+  if (!id) {
+    id = Math.random().toString(36).substring(2) + Date.now();
+    localStorage.setItem("deviceId", id);
+  }
+  return id;
+}
+
+// ===== DÁTUM KULCS =====
+function getTodayKey() {
+  const d = new Date();
+  return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
+}
+
+// ===== SZÖVEGEK =====
+const motivacios = {
+  kezdes:["Ma","Ez a nap","Most","Ma végre","Ne feledd","Ezen a napon","Ne hagyd ki","Ez a pillanat","Merj nagyot álmodni","Fókuszálj ma"],
+  kozep:["előre mozdít az utadon","erősebbé tesz","közelebb visz a célodhoz","segít kitartani","egy új lehetőség nyílik","megerősít a hitben","növeli az energiádat","hozzásegít a sikerhez","bátorít a változásra","megmutatja az erődet"],
+  vege:["ha nem adod fel 💪","ha teszel érte 🔥","ha hiszel magadban 🙌","ha folytatod a munkát 🚀","ha bízol magadban ✨","ha nyitott maradsz 🏆","ha elindulsz ma is","ha kitartasz a célod mellett","ha megteszed az első lépést","ha hiszel a sikeredben"]
+};
+const spiritualis = {
+  kezdes:["Most","A mai nap","Ebben a pillanatban","Érdemes figyelni","Nyisd ki a szemed","Lélegezz mélyen","Érezd a csendet","Engedd be a fényt","Kapcsolódj a jelenhez","Merülj el a nyugalomban"],
+  kozep:["minden a helyére kerül","az élet támogat téged","pont ott vagy, ahol lenned kell","a dolgok a maguk útján haladnak","minden érted történik","a jelen pillanatban van minden válasz","az univerzum útmutat","a belső béke vezet","a csend erőt ad","az energia áramlik"],
+  vege:["csak engedd el az ellenállást ✨","és figyelj befelé 🌿","ha bízol a folyamatban 🌊","és megengeded magadnak 🧘","hagyd, hogy a nyugalom vezéreljen 🕊","engedj teret a békének 🌸","hagyd, hogy a szíved vezessen 💛","engedd, hogy a lélek nyugodjon","érezd a harmóniát 🌼","lásd a szépséget mindenben"]
+};
+const vicces = {
+  kezdes:["Ma","Fontos hír","A mai terv","Figyelem!","Ne feledd","Breaking News","Érdekes tény","Vicces tipp","Szuperhír","Napi kihívás"],
+  kozep:["túlélni a napot","nem feladni 10 előtt","legalább egyszer ne hibázni","nem stresszelni túl","kávéval a kezünkben uralni a világot","a nap végére túlélni 😂","elkerülni a baki-katasztrófát","nevetni egy jót ma","meglepni magad egy mosollyal","élvezni minden pillanatot"],
+  vege:["(de nem ígérünk semmit 😄)","az már bónusz 😂","ha sikerül, ünneplünk 🍕","ha nem, holnap újra próbáljuk 🤷‍♂️","vigyázz a nevetéssel 😆","és ne feledd, a macskák mindig nyernek 🐱","ha elrontod, ne aggódj 😜","mosolyogj legalább egyszer ma 😊","nevess, még ha kínosan is 😅","a humor gyógyít minden sebet"]
+};
+
+// ===== KATEGÓRIÁK =====
+const categories = [
+  { name: "Motiváció", data: motivacios },
+  { name: "Spirituális", data: spiritualis },
+  { name: "Humor", data: vicces }
+];
+
+// ===== GENERÁLÁS KIEGYENSÚLYOZOTTAN =====
+function generateMessage(seed) {
+  const catIndex = (Math.abs(hashCode(seed)) + new Date().getDate()) % categories.length;
+  const category = categories[catIndex];
+  return {
+    category: category.name,
+    text:
+      pick(category.data.kezdes, seed + "a") + " " +
+      pick(category.data.kozep, seed + "b") + " " +
+      pick(category.data.vege, seed + "c")
+  };
+}
+
+// ===== BETÖLTÉS =====
+function loadMessage() {
+  const dateKey = getTodayKey();
+  const deviceId = getDeviceId();
+  const storageKey = dateKey + "_" + deviceId;
+  let saved = localStorage.getItem(storageKey);
+  if (saved) {
+    return JSON.parse(saved);
+  } else {
+    const msg = generateMessage(dateKey + deviceId);
+    localStorage.setItem(storageKey, JSON.stringify(msg));
+    return msg;
+  }
+}
+
+// ===== MEGJELENÍTÉS =====
+function megjelenit() {
+  const msg = loadMessage();
+  document.getElementById("kategoria").innerText = msg.category;
+  document.getElementById("uzenet").innerText = msg.text;
+}
+megjelenit();
+
+// ===== GOMB =====
+function ujUzenet() {
+  alert("Naponta egy üzenet érhető el 😊\nBeszéld meg másokkal, nekik mi jutott 😄");
+}
+</script>
+
+</body>
+</html>
