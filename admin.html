@@ -12,6 +12,7 @@
     button { padding:15px 25px; font-size:18px; border:none; border-radius:10px; background:#42a5f5; color:white; cursor:pointer; margin-top:15px; }
     #link { margin-top:20px; word-break: break-all; }
     .logout { background:#ef5350; margin-top:20px; }
+    .copyBtn { background:#4caf50; margin-top:10px; }
   </style>
 </head>
 
@@ -32,7 +33,7 @@
       const { data } = await supabase.auth.getSession();
       let session = data.session;
 
-      // 🔐 LOGIN UI
+      // 🔐 LOGIN
       if (!session) {
         app.innerHTML = `
           <div class="card">
@@ -52,7 +53,7 @@
           if (error) {
             alert(error.message);
           } else {
-            location.reload(); // ✅ stabilabb mint setTimeout
+            location.reload();
           }
         };
 
@@ -86,7 +87,6 @@
       // 🔗 GENERÁLÁS
       document.getElementById("genBtn").onclick = async () => {
 
-        // 🔥 session frissítés (EZ HIÁNYZOTT!)
         await supabase.auth.refreshSession();
 
         const {
@@ -120,33 +120,31 @@
           return;
         }
 
-       document.getElementById("link").innerHTML = `
-  <p><b>Generált link:</b></p>
+        // ✅ LINK + MÁSOLÁS
+        document.getElementById("link").innerHTML = `
+          <p><b>Generált link:</b></p>
 
-  <input id="copyField" value="${dataRes.url}" readonly style="width:100%; margin-top:10px;">
+          <input id="copyField" value="${dataRes.url}" readonly style="width:100%; margin-top:10px;">
 
-  <button id="copyBtn" style="margin-top:10px; background:#4caf50;">
-    📋 Másolás
-  </button>
-`;
+          <button id="copyBtn" class="copyBtn">
+            📋 Másolás
+          </button>
+        `;
 
-document.getElementById("copyBtn").onclick = async () => {
-  const text = document.getElementById("copyField").value;
+        document.getElementById("copyBtn").onclick = async () => {
+          const text = document.getElementById("copyField").value;
 
-  try {
-    // 🔥 https:// levágása
-    const trimmed = text.replace(/^https?:\/\//, "");
-
-    await navigator.clipboard.writeText(trimmed);
-    alert("Kimásolva!");
-  } catch {
-    // fallback (régi telefonok)
-    const field = document.getElementById("copyField");
-    field.select();
-    field.setSelectionRange(0, 99999);
-    alert("Másold ki kézzel!");
-  }
-};
+          try {
+            const trimmed = text.replace(/^https?:\/\//, "");
+            await navigator.clipboard.writeText(trimmed);
+            alert("Kimásolva!");
+          } catch {
+            const field = document.getElementById("copyField");
+            field.select();
+            field.setSelectionRange(0, 99999);
+            alert("Másold ki kézzel!");
+          }
+        };
       };
     }
 
