@@ -1,0 +1,11 @@
+BEGIN:VCARD
+VERSION:3.0
+PRODID:-//Apple Inc.//iPhone OS 26.3.1//EN
+N:Hegedűsné Vincze;Katalin;;;
+FN:Katalin Hegedűsné Vincze
+ORG:Kattkaland;
+EMAIL;type=INTERNET;type=pref:kattkaland@kattkaland.hu
+TEL;type=CELL;type=VOICE;type=pref:+36706751065
+item1.URL;type=pref:www.kattkaland.hu
+item1.X-ABLabel:_$!<HomePage>!$_
+END:VCARD
