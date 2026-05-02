@@ -11,9 +11,7 @@
 :root {
     --primary: #9b6a6c;
     --secondary: #93a8ac;
-    --accent: #e2b4bd;
     --text: #424b54;
-    --white: #ffffff;
 }
 
 * {
@@ -25,7 +23,7 @@
 body {
     font-family: 'DM Sans', sans-serif;
     color: var(--text);
-    background: var(--white);
+    background: #fff;
     -webkit-tap-highlight-color: transparent;
 }
 
@@ -34,15 +32,15 @@ body {
     position: relative;
     height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    text-align: center;
     padding: 20px;
 
     background: url('wood-texture.png') center/cover no-repeat;
 }
 
-/* világos overlay */
+/* overlay */
 .hero::before {
     content: "";
     position: absolute;
@@ -50,7 +48,25 @@ body {
     background: rgba(255,255,255,0.75);
 }
 
-/* HERO CARD */
+/* TERMÉK */
+.hero-product {
+    position: relative;
+    z-index: 2;
+    width: 140px;
+    margin-bottom: 20px;
+
+    filter: drop-shadow(0 15px 25px rgba(0,0,0,0.2));
+
+    animation: float 4s ease-in-out infinite;
+}
+
+/* lebegés */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+/* HERO KÁRTYA */
 .hero-content {
     position: relative;
     z-index: 2;
@@ -61,13 +77,6 @@ body {
     border-radius: 20px;
 
     box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-}
-
-/* TERMÉKKÉP */
-.hero-product {
-    width: 120px;
-    margin-bottom: 20px;
-    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15));
 }
 
 /* HEADLINE */
@@ -86,7 +95,7 @@ body {
 /* HULLÁM */
 .wave {
     height: 140px;
-    background: url('IMG_5674.png') bottom center / cover no-repeat;
+    background: url('hullam.png') bottom center / cover no-repeat;
     background-color: white;
 }
 
@@ -133,14 +142,8 @@ body {
 .image-section img {
     max-width: 800px;
     width: 100%;
-    height: auto;
     border-radius: 20px;
     box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-    transition: 0.3s;
-}
-
-.image-section img:hover {
-    transform: scale(1.02);
 }
 
 .image-section p {
@@ -158,7 +161,6 @@ body {
 
 .cta h2 {
     margin-bottom: 20px;
-    font-size: 2rem;
 }
 
 /* BUTTONS */
@@ -213,14 +215,13 @@ footer {
         padding: 80px 20px;
     }
 
+    .hero-product {
+        width: 100px;
+    }
+
     .hero-content {
         padding: 25px;
         border-radius: 15px;
-    }
-
-    .hero-product {
-        width: 90px;
-        margin-bottom: 15px;
     }
 
     .hero h1 {
@@ -231,30 +232,12 @@ footer {
         font-size: 1.1rem;
     }
 
-    .image-section img {
-        max-width: 100%;
-        border-radius: 15px;
-    }
-
-    .features {
-        gap: 20px;
-    }
-
     .card {
         padding: 20px;
     }
 
     .cta {
         padding: 60px 20px;
-    }
-
-    .cta h2 {
-        font-size: 1.6rem;
-    }
-
-    .btn {
-        padding: 12px 20px;
-        font-size: 0.9rem;
     }
 }
 </style>
@@ -264,18 +247,18 @@ footer {
 
 <!-- HERO -->
 <section class="hero">
+
+    <img src="termek.png" alt="Vigyázz rám okosbiléta" class="hero-product">
+
     <div class="hero-content">
-
-        <img src="termek.png" alt="Vigyázz rám okosbiléta" class="hero-product">
-
         <h1>Ha nem tud szólni, helyette szólunk.</h1>
 
         <p>
             „Vigyázz rám!” okosbiléta – segít, hogy szeretted akkor is elérjen téged,
             ha egyedül van vagy segítségre szorul.
         </p>
-
     </div>
+
 </section>
 
 <!-- HULLÁM -->
@@ -305,7 +288,7 @@ footer {
 
 <!-- KÉP -->
 <section class="image-section">
-    <img src="bileta.png" alt="Okosbiléta működés közben">
+    <img src="kepernyo.jpg" alt="Okosbiléta működés közben">
     <p>Egy érintés, és már hívható is a megadott szám.</p>
 </section>
 
@@ -323,15 +306,12 @@ footer {
     <h2>Biztonság egyetlen érintéssel</h2>
 
     <div class="buttons">
-        <a href="underconstruction.html"
-           class="btn btn-primary"
-           target="_blank"
-           rel="noopener noreferrer">
-           Megrendelem
+        <a href="https://peldaoldal.hu" class="btn btn-primary" target="_blank">
+            Megrendelem
         </a>
 
-        <a href="index2.html" class="btn btn-secondary">
-           Kapcsolat
+        <a href="kapcsolat.html" class="btn btn-secondary">
+            Kapcsolat
         </a>
     </div>
 </section>
