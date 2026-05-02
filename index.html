@@ -72,11 +72,22 @@ body {
     font-size: 1.2rem;
 }
 
-/* HULLÁM (külön blokkban!) */
-.wave {
-    height: 120px;
-    background: url('IMG_5674.png') center/cover no-repeat;
-    background-color: white;
+.hero {
+    position: relative;
+    padding-bottom: 120px; /* hely a hullámnak */
+}
+
+/* hullám a hero alján */
+.hero::after {
+    content: "";
+    position: absolute;
+    bottom: -1px; /* hogy ne maradjon rés */
+    left: 0;
+    width: 100%;
+    height: 140px;
+
+    background: url('IMG_5674.png') bottom center / cover no-repeat;
+    z-index: 2;
 }
 
 /* SECTIONS */
