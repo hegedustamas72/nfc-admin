@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vigyázz rám! okosbiléta</title>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&family=Alex+Brush&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --primary: #9b6a6c;
+    --secondary: #93a8ac;
+    --accent: #e2b4bd;
+    --text: #424b54;
+    --white: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    background: var(--white);
+}
+
+/* HERO */
+.hero {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+
+    background: linear-gradient(135deg, var(--secondary), var(--primary));
+    color: white;
+}
+
+/* OVERLAY (hullám) */
+.hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url('hullam.png') center/cover no-repeat;
+    opacity: 0.2;
+    filter: blur(1px);
+    pointer-events: none;
+}
+
+/* extra fény */
+.hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), transparent);
+}
+
+/* LOGO */
+.logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 2;
+}
+
+.logo img {
+    width: 140px;
+}
+
+/* HERO CONTENT */
+.hero-content {
+    position: relative;
+    z-index: 2;
+    backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.1);
+    padding: 40px;
+    border-radius: 20px;
+    max-width: 700px;
+}
+
+/* HEADLINE */
+.hero h1 {
+    font-family: 'Alex Brush', cursive;
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+/* TEXT */
+.hero p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+}
+
+/* BUTTONS */
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 14px 28px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+/* PRIMARY BUTTON */
+.btn-primary {
+    background: white;
+    color: var(--primary);
+}
+
+.btn-primary:hover {
+    background: var(--primary);
+    color: white;
+}
+
+/* SECONDARY BUTTON */
+.btn-secondary {
+    border: 2px solid white;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: white;
+    color: var(--primary);
+}
+
+/* SECTIONS */
+.section {
+    padding: 80px 20px;
+    text-align: center;
+    max-width: 1000px;
+    margin: auto;
+}
+
+.section h2 {
+    color: var(--primary);
+    margin-bottom: 20px;
+    font-size: 2rem;
+}
+
+/* FEATURE CARDS */
+.features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.card {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* FOOTER */
+footer {
+    text-align: center;
+    padding: 30px;
+    background: #f5f5f5;
+    font-size: 0.9rem;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .hero {
+        height: auto;
+        padding: 80px 20px;
+    }
+
+    .hero h1 {
+        font-size: 2.2rem;
+    }
+
+    .hero-content {
+        padding: 25px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- HERO -->
+<section class="hero">
+
+    <div class="logo">
+        <img src="logo.png" alt="Kattkaland">
+    </div>
+
+    <div class="hero-content">
+        <h1>Ha nem tud szólni, helyette szólunk.</h1>
+
+        <p>
+            „Vigyázz rám!” okosbiléta – segít, hogy szeretted akkor is elérjen téged,
+            ha egyedül van vagy segítségre szorul.
+        </p>
+
+        <div class="buttons">
+            <a href="underconstruction.html"
+               class="btn btn-primary"
+               target="_blank"
+               rel="noopener noreferrer">
+               Megrendelem
+            </a>
+
+            <a href="index2.html" class="btn btn-secondary">
+               Kapcsolat
+            </a>
+        </div>
+    </div>
+
+</section>
+
+<!-- HOGYAN MŰKÖDIK -->
+<section class="section">
+    <h2>Hogyan működik?</h2>
+
+    <div class="features">
+        <div class="card">
+            <h3>1. Érintés</h3>
+            <p>Egy okostelefon érintésével azonnal leolvasható.</p>
+        </div>
+
+        <div class="card">
+            <h3>2. Információ</h3>
+            <p>Név és telefonszám azonnal megjelenik.</p>
+        </div>
+
+        <div class="card">
+            <h3>3. Kapcsolat</h3>
+            <p>A megtaláló rögtön fel tud hívni téged.</p>
+        </div>
+    </div>
+</section>
+
+<!-- KINEK -->
+<section class="section">
+    <h2>Kinek ajánljuk?</h2>
+    <p>
+        Gyermekeknek, kisállatoknak és idős hozzátartozóknak – mindenkinek,
+        aki olyan helyzetbe kerülhet, amikor segítségre van szüksége.
+    </p>
+</section>
+
+<footer>
+    © 2026 Kattkaland
+</footer>
+
+</body>
+</html>
