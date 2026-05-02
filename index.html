@@ -41,7 +41,7 @@ body {
     background: url('wood-texture.png') center/cover no-repeat;
 }
 
-/* világos overlay a jobb olvashatóságért */
+/* overlay */
 .hero::before {
     content: "";
     position: absolute;
@@ -61,13 +61,13 @@ body {
     width: 140px;
 }
 
-/* HERO CONTENT */
+/* HERO CARD */
 .hero-content {
     position: relative;
     z-index: 2;
     max-width: 700px;
 
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255,255,255,0.95);
     padding: 40px;
     border-radius: 20px;
 
@@ -87,7 +87,7 @@ body {
     font-size: 1.2rem;
 }
 
-/* HULLÁM ELVÁLASZTÓ */
+/* HULLÁM */
 .wave {
     height: 140px;
     background: url('IMG_5674.png') bottom center / cover no-repeat;
@@ -108,7 +108,7 @@ body {
     font-size: 2rem;
 }
 
-/* FEATURE CARDS */
+/* CARDS */
 .features {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -126,6 +126,30 @@ body {
 
 .card:hover {
     transform: translateY(-5px);
+}
+
+/* IMAGE SECTION */
+.image-section {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.image-section img {
+    max-width: 800px;
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    transition: 0.3s;
+}
+
+.image-section img:hover {
+    transform: scale(1.02);
+}
+
+.image-section p {
+    margin-top: 10px;
+    opacity: 0.7;
 }
 
 /* CTA */
@@ -187,9 +211,17 @@ footer {
 
 /* MOBILE */
 @media (max-width: 768px) {
+    .hero {
+        height: auto;
+        padding: 80px 20px;
+    }
+
+    .hero h1 {
+        font-size: 2.2rem;
+    }
+
     .hero-content {
         padding: 25px;
-        border-radius: 15px;
     }
 }
 </style>
@@ -208,7 +240,7 @@ footer {
         <h1>Ha nem tud szólni, helyette szólunk.</h1>
 
         <p>
-            A „Vigyázz rám!” okosbiléta – segít, hogy szeretted akkor is elérjen téged,
+            „A Vigyázz rám!” okosbiléta – segít, hogy szeretted akkor is elérjen téged,
             ha egyedül van vagy segítségre szorul.
         </p>
     </div>
@@ -238,6 +270,12 @@ footer {
             <p>A megtaláló rögtön fel tud hívni téged.</p>
         </div>
     </div>
+</section>
+
+<!-- KÉP -->
+<section class="image-section">
+    <img src="kepernyo.jpg" alt="Okosbiléta működés közben">
+    <p>Egy érintés, és már hívható is a megadott szám.</p>
 </section>
 
 <!-- KINEK -->
