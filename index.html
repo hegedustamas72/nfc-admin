@@ -42,31 +42,11 @@ body {
     color: white;
 }
 
-/* OVERLAY (hullám) */
-.hero::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: url('IMG_5674.png') center/cover no-repeat;
-    opacity: 0.2;
-    filter: blur(1px);
-    pointer-events: none;
-}
-
-/* extra fény */
-.hero::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), transparent);
-}
-
 /* LOGO */
 .logo {
     position: absolute;
     top: 20px;
     left: 20px;
-    z-index: 2;
 }
 
 .logo img {
@@ -77,10 +57,6 @@ body {
 .hero-content {
     position: relative;
     z-index: 2;
-    backdrop-filter: blur(10px);
-    background: rgba(255,255,255,0.1);
-    padding: 40px;
-    border-radius: 20px;
     max-width: 700px;
 }
 
@@ -94,45 +70,13 @@ body {
 /* TEXT */
 .hero p {
     font-size: 1.2rem;
-    margin-bottom: 30px;
 }
 
-/* BUTTONS */
-.buttons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.btn {
-    padding: 14px 28px;
-    border-radius: 30px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: 0.3s;
-}
-
-/* PRIMARY BUTTON */
-.btn-primary {
-    background: white;
-    color: var(--primary);
-}
-
-.btn-primary:hover {
-    background: var(--primary);
-    color: white;
-}
-
-/* SECONDARY BUTTON */
-.btn-secondary {
-    border: 2px solid white;
-    color: white;
-}
-
-.btn-secondary:hover {
-    background: white;
-    color: var(--primary);
+/* HULLÁM (külön blokkban!) */
+.wave {
+    height: 120px;
+    background: url('IMG_5674.png') center/cover no-repeat;
+    background-color: white;
 }
 
 /* SECTIONS */
@@ -169,6 +113,58 @@ body {
     transform: translateY(-5px);
 }
 
+/* CTA blokk alul */
+.cta {
+    text-align: center;
+    padding: 80px 20px;
+    background: linear-gradient(135deg, var(--secondary), var(--primary));
+    color: white;
+}
+
+.cta h2 {
+    margin-bottom: 20px;
+    font-size: 2rem;
+}
+
+/* BUTTONS */
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+.btn {
+    padding: 14px 28px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+/* PRIMARY */
+.btn-primary {
+    background: white;
+    color: var(--primary);
+}
+
+.btn-primary:hover {
+    background: var(--primary);
+    color: white;
+}
+
+/* SECONDARY */
+.btn-secondary {
+    border: 2px solid white;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: white;
+    color: var(--primary);
+}
+
 /* FOOTER */
 footer {
     text-align: center;
@@ -186,10 +182,6 @@ footer {
 
     .hero h1 {
         font-size: 2.2rem;
-    }
-
-    .hero-content {
-        padding: 25px;
     }
 }
 </style>
@@ -211,22 +203,12 @@ footer {
             „Vigyázz rám!” okosbiléta – segít, hogy szeretted akkor is elérjen téged,
             ha egyedül van vagy segítségre szorul.
         </p>
-
-        <div class="buttons">
-            <a href="underconstruction.html"
-               class="btn btn-primary"
-               target="_blank"
-               rel="noopener noreferrer">
-               Megrendelem
-            </a>
-
-            <a href="index2.html" class="btn btn-secondary">
-               Kapcsolat
-            </a>
-        </div>
     </div>
 
 </section>
+
+<!-- HULLÁM ELVÁLASZTÓ -->
+<div class="wave"></div>
 
 <!-- HOGYAN MŰKÖDIK -->
 <section class="section">
@@ -257,6 +239,24 @@ footer {
         Gyermekeknek, kisállatoknak és idős hozzátartozóknak – mindenkinek,
         aki olyan helyzetbe kerülhet, amikor segítségre van szüksége.
     </p>
+</section>
+
+<!-- CTA ALUL -->
+<section class="cta">
+    <h2>Biztonság egyetlen érintéssel</h2>
+
+    <div class="buttons">
+        <a href="underconstruction.html"
+           class="btn btn-primary"
+           target="_blank"
+           rel="noopener noreferrer">
+           Megrendelem
+        </a>
+
+        <a href="index2.html" class="btn btn-secondary">
+           Kapcsolat
+        </a>
+    </div>
 </section>
 
 <footer>
