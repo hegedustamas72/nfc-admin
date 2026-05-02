@@ -35,6 +35,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    text-align: center;
     padding: 20px;
 
     background: url('wood-texture.png') center/cover no-repeat;
@@ -48,22 +49,21 @@ body {
     background: rgba(255,255,255,0.75);
 }
 
-/* TERMÉK */
+/* TERMÉK (nagyobb) */
 .hero-product {
     position: relative;
     z-index: 2;
-    width: 280px;
+    width: 280px; /* duplázva */
     margin-bottom: 20px;
 
     filter: drop-shadow(0 15px 25px rgba(0,0,0,0.2));
-
     animation: float 4s ease-in-out infinite;
 }
 
 /* lebegés */
 @keyframes float {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
+    50% { transform: translateY(-10px); }
 }
 
 /* HERO KÁRTYA */
@@ -77,6 +77,8 @@ body {
     border-radius: 20px;
 
     box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+
+    text-align: center;
 }
 
 /* HEADLINE */
@@ -133,14 +135,14 @@ body {
     transform: translateY(-5px);
 }
 
-/* IMAGE */
+/* IMAGE (fele méret érzet) */
 .image-section {
     text-align: center;
     padding: 60px 20px;
 }
 
 .image-section img {
-    max-width: 400px;
+    max-width: 400px; /* felezve (800 → 400) */
     width: 100%;
     border-radius: 20px;
     box-shadow: 0 15px 40px rgba(0,0,0,0.15);
@@ -216,7 +218,7 @@ footer {
     }
 
     .hero-product {
-        width: 400px;
+        width: 180px;
     }
 
     .hero-content {
@@ -230,6 +232,10 @@ footer {
 
     .hero p {
         font-size: 1.1rem;
+    }
+
+    .image-section img {
+        max-width: 90%;
     }
 
     .card {
