@@ -275,7 +275,7 @@ async function megjelenit(){
   const authorEl = document.getElementById("szerzo");
 
   if(msg.author && msg.author.trim() !== ""){
-    authorEl.innerText = "— " + msg.author;
+    authorEl.innerText = msg.author;
     authorEl.style.display = "block";
   } else {
     authorEl.style.display = "none";
