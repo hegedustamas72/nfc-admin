@@ -50,6 +50,37 @@ body{
   animation:fadeIn .8s ease;
 }
 
+/* =========================================
+LOGO
+========================================= */
+
+.logo-link{
+  display:inline-block;
+  margin-bottom:14px;
+}
+
+.logo{
+
+  width:90px;
+
+  height:auto;
+
+  display:block;
+
+  margin:0 auto;
+
+  transition:.25s ease;
+}
+
+.logo:hover{
+
+  transform:scale(1.05);
+}
+
+/* =========================================
+SZÖVEGEK
+========================================= */
+
 .title{
 
   font-family:'Alex Brush',cursive;
@@ -95,10 +126,14 @@ body{
 
   margin-bottom:22px;
 
-  padding-right:8px;
+  padding-right:12px;
 
   box-sizing:border-box;
 }
+
+/* =========================================
+GOMB
+========================================= */
 
 .btn{
 
@@ -141,6 +176,10 @@ body{
   transform:scale(.96);
 }
 
+/* =========================================
+ANIMÁCIÓ
+========================================= */
+
 @keyframes fadeIn{
 
   from{
@@ -161,16 +200,26 @@ body{
 
 <div class="card">
 
+  <!-- LOGO -->
+  <a href="index2.html" class="logo-link">
+    <img src="logo.png" alt="Logo" class="logo">
+  </a>
+
+  <!-- CÍM -->
   <div class="title">
     Napi pozitív
   </div>
 
+  <!-- KATEGÓRIA -->
   <div id="kategoria" class="tag"></div>
 
+  <!-- ÜZENET -->
   <div id="uzenet" class="message"></div>
 
+  <!-- SZERZŐ -->
   <div id="szerzo" class="author"></div>
 
+  <!-- GOMB -->
   <button onclick="ujUzenet()" class="btn">
     Új üzenet
   </button>
