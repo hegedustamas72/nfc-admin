@@ -44,149 +44,108 @@ body{
 
   text-align:center;
 
-  box-shadow:
-    0 10px 25px rgba(0,0,0,0.08);
+  box-shadow:0 10px 25px rgba(0,0,0,0.08);
 
   animation:fadeIn .8s ease;
 }
 
-/* =========================================
-LOGO
-========================================= */
-
-.logo-link{
-  display:inline-block;
-  margin-bottom:14px;
-}
-
-.logo{
-
-  width:140px;
-
-  height:auto;
-
-  display:block;
-
-  margin:0 auto;
-
-  transition:.25s ease;
-}
-
-.logo:hover{
-
-  transform:scale(1.05);
-}
-
-/* =========================================
-SZÖVEGEK
-========================================= */
+/* =========================
+CÍM
+========================= */
 
 .title{
-
   font-family:'Alex Brush',cursive;
-
   font-size:42px;
-
   margin-bottom:6px;
 }
 
+/* =========================
+KATEGÓRIA / SZÖVEG
+========================= */
+
 .tag{
-
   font-size:12px;
-
   text-transform:uppercase;
-
   letter-spacing:1px;
-
   opacity:.6;
-
   margin-bottom:18px;
 }
 
 .message{
-
   font-size:24px;
-
   line-height:1.5;
-
   font-weight:700;
-
   margin-bottom:12px;
 }
 
 .author{
-
   text-align:right;
-
   font-size:14px;
-
   opacity:.7;
-
   font-style:italic;
-
   margin-bottom:22px;
-
   padding-right:12px;
-
   box-sizing:border-box;
 }
 
-/* =========================================
-GOMB
-========================================= */
+/* =========================
+GOMB (BRAND)
+========================= */
+
+.btn-link{
+  text-decoration:none;
+}
 
 .btn{
-
-  border:none;
-
+  border:1px solid rgba(0,0,0,0.08);
   border-radius:14px;
 
-  padding:14px 22px;
+  padding:12px 18px;
 
-  font-size:15px;
-
-  font-weight:700;
+  font-size:16px;
+  font-weight:600;
 
   cursor:pointer;
 
-  color:white;
+  background:white;
+  color:#424b54;
 
-  background:
-    linear-gradient(
-      135deg,
-      #9b6a6c,
-      #e2b4bd
-    );
-
-  box-shadow:
-    0 6px 14px rgba(0,0,0,0.08);
+  box-shadow:0 4px 10px rgba(0,0,0,0.06);
 
   transition:.25s ease;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+
+  margin-top:10px;
 }
 
 .btn:hover{
-
-  transform:
-    translateY(-3px)
-    scale(1.02);
+  transform:translateY(-2px);
+  box-shadow:0 8px 18px rgba(0,0,0,0.08);
 }
 
 .btn:active{
-
-  transform:scale(.96);
+  transform:scale(.97);
 }
 
-/* =========================================
+.btn-icon{
+  width:20px;
+  height:20px;
+  object-fit:contain;
+}
+
+/* =========================
 ANIMÁCIÓ
-========================================= */
+========================= */
 
 @keyframes fadeIn{
-
   from{
     opacity:0;
     transform:translateY(20px);
   }
-
   to{
     opacity:1;
     transform:translateY(0);
@@ -200,75 +159,50 @@ ANIMÁCIÓ
 
 <div class="card">
 
-  <!-- LOGO -->
-  <a href="index2.html" class="logo-link">
-    <img src="logo.png" alt="Logo" class="logo">
-  </a>
+  <div class="title">Napi pozitív</div>
 
-  <!-- CÍM -->
-  <div class="title">
-    Napi pozitív
-  </div>
-
-  <!-- KATEGÓRIA -->
   <div id="kategoria" class="tag"></div>
 
-  <!-- ÜZENET -->
   <div id="uzenet" class="message"></div>
 
-  <!-- SZERZŐ -->
   <div id="szerzo" class="author"></div>
 
-  <!-- GOMB -->
-  <button onclick="ujUzenet()" class="btn">
-    Új üzenet
-  </button>
+  <!-- BRAND GOMB -->
+  <a href="index2.html" class="btn-link">
+    <button class="btn">
+      <img src="brand-icon.png" alt="Kattkaland" class="btn-icon">
+      <span style="font-family:'Alex Brush', cursive; font-size:22px;">
+        Kattkaland
+      </span>
+    </button>
+  </a>
 
 </div>
 
 <script>
 
 // =====================================================
-// SEGÉDFÜGGVÉNY
+// HASH
 // =====================================================
 
 function hashCode(str){
-
   let hash = 0;
-
   for(let i = 0; i < str.length; i++){
-
-    hash =
-      str.charCodeAt(i)
-      + ((hash << 5) - hash);
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
-
   return hash;
 }
 
 // =====================================================
-// DEVICE AZONOSÍTÓ
+// DEVICE ID
 // =====================================================
 
 function getDeviceId(){
-
-  let id =
-    localStorage.getItem("deviceId");
-
+  let id = localStorage.getItem("deviceId");
   if(!id){
-
-    id =
-      Math.random()
-      .toString(36)
-      .substring(2)
-      + Date.now();
-
-    localStorage.setItem(
-      "deviceId",
-      id
-    );
+    id = Math.random().toString(36).substring(2) + Date.now();
+    localStorage.setItem("deviceId", id);
   }
-
   return id;
 }
 
@@ -277,101 +211,51 @@ function getDeviceId(){
 // =====================================================
 
 function getTodayKey(){
-
   const d = new Date();
-
-  return (
-    d.getFullYear()
-    + "-"
-    + (d.getMonth()+1)
-    + "-"
-    + d.getDate()
-  );
+  return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
 }
 
 // =====================================================
 // GOOGLE SHEETS
 // =====================================================
 
-// IDE ÍRD A GOOGLE SHEETS ID-T
-const SHEET_ID =
-  "1-iH4MYuNDCfi7C2weM59gY1J15bsbwxeHHFmJ2GA9PQ";
+const SHEET_ID = "1-iH4MYuNDCfi7C2weM59gY1J15bsbwxeHHFmJ2GA9PQ";
+const SHEET_NAME = "Munkalap1";
 
-// A munkalap neve
-const SHEET_NAME =
-  "Munkalap1";
-
-// JSON URL
 const JSON_URL =
   `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
 
 // =====================================================
-// IDÉZETEK BETÖLTÉSE
+// ADATBETÖLTÉS
 // =====================================================
 
 async function loadQuotes(){
-
   try{
+    const res = await fetch(JSON_URL);
+    const data = await res.json();
 
-    const response =
-      await fetch(JSON_URL);
-
-    const data =
-      await response.json();
-
-    return data
-      .map(item => ({
-
-        category:
-          item.Kategória
-          || "Idézet",
-
-        text:
-          item.Üzenet
-          || "",
-
-        author:
-          item.Szerző
-          || ""
-
-      }))
-
-      .filter(
-        item =>
-          item.text.trim() !== ""
-      );
-
-  }catch(error){
-
-    console.error(error);
-
-    return [
-
-      {
-        category:"Hiba",
-
-        text:
-          "Nem sikerült betölteni az idézeteket 😔",
-
-        author:""
-      }
-
-    ];
+    return data.map(item => ({
+      category: item.Kategória || "Idézet",
+      text: item.Üzenet || "",
+      author: item.Szerző || ""
+    })).filter(x => x.text.trim() !== "");
+  }
+  catch(e){
+    return [{
+      category:"Hiba",
+      text:"Nem sikerült betölteni 😔",
+      author:""
+    }];
   }
 }
 
 // =====================================================
-// VÉLETLEN VÁLASZTÁS
+// VÁLASZTÁS
 // =====================================================
 
-function pickMessage(messages, seed){
-
-  const h =
-    Math.abs(hashCode(seed));
-
-  return messages[
-    h % messages.length
-  ];
+function pickMessage(arr, seed){
+  const h = Math.abs(hashCode(seed));
+  return arr[h % arr.length];
 }
 
 // =====================================================
@@ -380,69 +264,26 @@ function pickMessage(messages, seed){
 
 async function megjelenit(){
 
-  const messages =
-    await loadQuotes();
+  const messages = await loadQuotes();
 
-  const seed =
-    getTodayKey()
-    + getDeviceId();
+  const seed = getTodayKey() + getDeviceId();
 
-  const msg =
-    pickMessage(
-      messages,
-      seed
-    );
+  const msg = pickMessage(messages, seed);
 
-  // kategória
-  document.getElementById(
-    "kategoria"
-  ).innerText =
-    msg.category;
+  document.getElementById("kategoria").innerText = msg.category;
+  document.getElementById("uzenet").innerText = msg.text;
 
-  // üzenet
-  document.getElementById(
-    "uzenet"
-  ).innerText =
-    msg.text;
+  const authorEl = document.getElementById("szerzo");
 
-  // szerző
-  const authorEl =
-    document.getElementById(
-      "szerzo"
-    );
-
-  if(
-    msg.author &&
-    msg.author.trim() !== ""
-  ){
-
-    authorEl.innerText =
-      "— " + msg.author;
-
-    authorEl.style.display =
-      "block";
-
-  }else{
-
-    authorEl.style.display =
-      "none";
+  if(msg.author && msg.author.trim() !== ""){
+    authorEl.innerText = "— " + msg.author;
+    authorEl.style.display = "block";
+  } else {
+    authorEl.style.display = "none";
   }
 }
 
 megjelenit();
-
-// =====================================================
-// GOMB
-// =====================================================
-
-function ujUzenet(){
-
-  alert(
-    "Naponta egy üzenet érhető el 😊\n\n"
-    + "Beszéld meg másokkal,\n"
-    + "nekik mi jutott 😄"
-  );
-}
 
 </script>
 
