@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Napi Pozitív Üzenet</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&family=Alex+Brush&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+  margin:0;
+  font-family:'DM Sans',sans-serif;
+
+  background:
+    linear-gradient(rgba(255,255,255,0.92),rgba(255,255,255,0.92)),
+    url('wood-texture.png');
+
+  background-size:cover;
+  background-position:center;
+
+  min-height:100vh;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  color:#424b54;
+}
+
+.card{
+
+  background:white;
+
+  border-radius:24px;
+
+  padding:32px 28px;
+
+  width:90%;
+  max-width:360px;
+
+  text-align:center;
+
+  box-shadow:
+    0 10px 25px rgba(0,0,0,0.08);
+
+  animation:fadeIn .8s ease;
+}
+
+.title{
+
+  font-family:'Alex Brush',cursive;
+
+  font-size:42px;
+
+  margin-bottom:6px;
+}
+
+.tag{
+
+  font-size:12px;
+
+  text-transform:uppercase;
+
+  letter-spacing:1px;
+
+  opacity:.6;
+
+  margin-bottom:18px;
+}
+
+.message{
+
+  font-size:24px;
+
+  line-height:1.5;
+
+  font-weight:700;
+
+  margin-bottom:12px;
+}
+
+.author{
+
+  text-align:right;
+
+  font-size:14px;
+
+  opacity:.7;
+
+  font-style:italic;
+
+  margin-bottom:22px;
+}
+
+.btn{
+
+  border:none;
+
+  border-radius:14px;
+
+  padding:14px 22px;
+
+  font-size:15px;
+
+  font-weight:700;
+
+  cursor:pointer;
+
+  color:white;
+
+  background:
+    linear-gradient(
+      135deg,
+      #9b6a6c,
+      #e2b4bd
+    );
+
+  box-shadow:
+    0 6px 14px rgba(0,0,0,0.08);
+
+  transition:.25s ease;
+}
+
+.btn:hover{
+
+  transform:
+    translateY(-3px)
+    scale(1.02);
+}
+
+.btn:active{
+
+  transform:scale(.96);
+}
+
+@keyframes fadeIn{
+
+  from{
+    opacity:0;
+    transform:translateY(20px);
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <div class="title">
+    Napi pozitív
+  </div>
+
+  <div id="kategoria" class="tag"></div>
+
+  <div id="uzenet" class="message"></div>
+
+  <div id="szerzo" class="author"></div>
+
+  <button onclick="ujUzenet()" class="btn">
+    Új üzenet
+  </button>
+
+</div>
+
+<script>
+
+// =====================================================
+// SEGÉDFÜGGVÉNY
+// =====================================================
+
+function hashCode(str){
+
+  let hash = 0;
+
+  for(let i = 0; i < str.length; i++){
+
+    hash =
+      str.charCodeAt(i)
+      + ((hash << 5) - hash);
+  }
+
+  return hash;
+}
+
+// =====================================================
+// DEVICE AZONOSÍTÓ
+// =====================================================
+
+function getDeviceId(){
+
+  let id =
+    localStorage.getItem("deviceId");
+
+  if(!id){
+
+    id =
+      Math.random()
+      .toString(36)
+      .substring(2)
+      + Date.now();
+
+    localStorage.setItem(
+      "deviceId",
+      id
+    );
+  }
+
+  return id;
+}
+
+// =====================================================
+// DÁTUM
+// =====================================================
+
+function getTodayKey(){
+
+  const d = new Date();
+
+  return (
+    d.getFullYear()
+    + "-"
+    + (d.getMonth()+1)
+    + "-"
+    + d.getDate()
+  );
+}
+
+// =====================================================
+// GOOGLE SHEETS
+// =====================================================
+
+// IDE ÍRD A GOOGLE SHEETS ID-T
+const SHEET_ID =
+  "IDE_A_SHEET_ID";
+
+// A munkalap neve
+const SHEET_NAME =
+  "Munka1";
+
+// JSON URL
+const JSON_URL =
+  `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
+
+// =====================================================
+// IDÉZETEK BETÖLTÉSE
+// =====================================================
+
+async function loadQuotes(){
+
+  try{
+
+    const response =
+      await fetch(JSON_URL);
+
+    const data =
+      await response.json();
+
+    return data
+      .map(item => ({
+
+        category:
+          item.Kategória
+          || "Idézet",
+
+        text:
+          item.Üzenet
+          || "",
+
+        author:
+          item.Szerző
+          || ""
+
+      }))
+
+      .filter(
+        item =>
+          item.text.trim() !== ""
+      );
+
+  }catch(error){
+
+    console.error(error);
+
+    return [
+
+      {
+        category:"Hiba",
+
+        text:
+          "Nem sikerült betölteni az idézeteket 😔",
+
+        author:""
+      }
+
+    ];
+  }
+}
+
+// =====================================================
+// VÉLETLEN VÁLASZTÁS
+// =====================================================
+
+function pickMessage(messages, seed){
+
+  const h =
+    Math.abs(hashCode(seed));
+
+  return messages[
+    h % messages.length
+  ];
+}
+
+// =====================================================
+// MEGJELENÍTÉS
+// =====================================================
+
+async function megjelenit(){
+
+  const messages =
+    await loadQuotes();
+
+  const seed =
+    getTodayKey()
+    + getDeviceId();
+
+  const msg =
+    pickMessage(
+      messages,
+      seed
+    );
+
+  // kategória
+  document.getElementById(
+    "kategoria"
+  ).innerText =
+    msg.category;
+
+  // üzenet
+  document.getElementById(
+    "uzenet"
+  ).innerText =
+    msg.text;
+
+  // szerző
+  const authorEl =
+    document.getElementById(
+      "szerzo"
+    );
+
+  if(
+    msg.author &&
+    msg.author.trim() !== ""
+  ){
+
+    authorEl.innerText =
+      "— " + msg.author;
+
+    authorEl.style.display =
+      "block";
+
+  }else{
+
+    authorEl.style.display =
+      "none";
+  }
+}
+
+megjelenit();
+
+// =====================================================
+// GOMB
+// =====================================================
+
+function ujUzenet(){
+
+  alert(
+    "Naponta egy üzenet érhető el 😊\n\n"
+    + "Beszéld meg másokkal,\n"
+    + "nekik mi jutott 😄"
+  );
+}
+
+</script>
+
+</body>
+</html>
