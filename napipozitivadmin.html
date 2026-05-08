@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NapiPozitív Admin</title>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;600;700&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  font-family:'DM Sans',sans-serif;
+  background:#f5f5f5;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+}
+
+.card{
+  background:white;
+  padding:30px;
+  border-radius:18px;
+  width:min(90vw,400px);
+  box-shadow:0 10px 25px rgba(0,0,0,0.1);
+  text-align:center;
+}
+
+h1{
+  font-size:20px;
+  margin-bottom:20px;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:10px;
+  border:1px solid #ccc;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:600;
+}
+
+.login-btn{
+  background:#9B6A6C;
+  color:white;
+}
+
+.gen-btn{
+  background:#424b54;
+  color:white;
+}
+
+.copy-btn{
+  background:#2e7d32;
+  color:white;
+}
+
+.hidden{
+  display:none;
+}
+
+.output{
+  margin-top:15px;
+  font-size:14px;
+  word-break:break-all;
+  background:#f2f2f2;
+  padding:10px;
+  border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <div id="loginBox">
+    <h1>Admin belépés</h1>
+    <input type="password" id="pass" placeholder="Jelszó">
+    <button class="login-btn" onclick="login()">Belépés</button>
+  </div>
+
+  <div id="adminBox" class="hidden">
+
+    <h1>NFC link generátor</h1>
+
+    <button class="gen-btn" onclick="generate()">Új tag generálása</button>
+
+    <div id="result" class="output hidden"></div>
+
+    <button class="copy-btn hidden" id="copyBtn" onclick="copy()">Link másolása</button>
+
+  </div>
+
+</div>
+
+<script>
+
+// ===== JELSZÓ =====
+const PASSWORD = "K4ttk4l4nd!"; // <-- ezt változtasd
+
+// ===== LOGIN =====
+function login(){
+  const pass = document.getElementById("pass").value
+
+  if(pass !== PASSWORD){
+    alert("Hibás jelszó")
+    return
+  }
+
+  document.getElementById("loginBox").classList.add("hidden")
+  document.getElementById("adminBox").classList.remove("hidden")
+}
+
+// ===== RANDOM TAG =====
+function randomTag(){
+  return Math.random().toString(36).substring(2,10)
+}
+
+// ===== GENERATE =====
+function generate(){
+
+  const tag = randomTag()
+
+  const url =
+    "https://vigyazzram.kattkaland.hu/nfc.html?tag=" + tag
+
+  const result = document.getElementById("result")
+  const copyBtn = document.getElementById("copyBtn")
+
+  result.textContent = url
+  result.classList.remove("hidden")
+
+  copyBtn.classList.remove("hidden")
+
+  window.generatedUrl = url
+}
+
+// ===== COPY =====
+function copy(){
+  navigator.clipboard.writeText(window.generatedUrl)
+  alert("Másolva a vágólapra ✔")
+}
+
+</script>
+
+</body>
+</html>
