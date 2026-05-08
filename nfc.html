@@ -177,14 +177,10 @@ const { error: insertError } = await supabase
 
 if(insertError){
 
-  console.error(insertError)
+  console.log("FULL SUPABASE ERROR:", insertError)
 
   document.body.innerHTML = `
-    <pre style="
-      padding:20px;
-      white-space:pre-wrap;
-      font-family:monospace;
-    ">
+    <pre style="white-space:pre-wrap;padding:16px;font-size:12px;">
 ${JSON.stringify(insertError, null, 2)}
     </pre>
   `
