@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NFC</title>
+
+<style>
+body{
+  margin:0;
+  font-family:sans-serif;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#f5f5f5;
+  color:#444;
+}
+</style>
+</head>
+
+<body>
+
+<div>Betöltés...</div>
+
+<script type="module">
+
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
+
+const supabase = createClient(
+  "https://eogrnzuarpqlyjclkcqq.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
+)
+
+// ===== Google Sheets =====
+const SHEET_ID = "IDE_A_SHEET_ID"
+const SHEET_NAME = "Munkalap1"
+
+const SHEETS_URL =
+  `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`
+
+// ===== mai dátum =====
+function getToday(){
+  const d = new Date()
+  return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate()
+}
+
+// ===== slug =====
+function randomSlug(){
+  return Math.random().toString(36).substring(2,10)
+}
+
+// ===== éjfél =====
+function getMidnight(){
+  const d = new Date()
+  d.setHours(24,0,0,0)
+  return d.toISOString()
+}
+
+async function run(){
+
+  const today = getToday()
+
+  // van-e már napi link?
+  const { data: existing } = await supabase
+    .from("daily_links")
+    .select("*")
+    .eq("date_key", today)
+    .single()
+
+  if(existing){
+    window.location.href =
+      "daily.html?slug=" + existing.slug
+    return
+  }
+
+  // idézetek betöltése
+  const res = await fetch(SHEETS_URL)
+  const data = await res.json()
+
+  const quotes = data.map(x => ({
+    category: x.Kategória || "Idézet",
+    text: x.Üzenet || "",
+    author: x.Szerző || ""
+  }))
+
+  const quote =
+    quotes[Math.floor(Math.random() * quotes.length)]
+
+  const slug =
+    today + "-" + randomSlug()
+
+  await supabase
+    .from("daily_links")
+    .insert({
+      date_key: today,
+      slug,
+      quote: quote.text,
+      author: quote.author,
+      category: quote.category,
+      expires_at: getMidnight()
+    })
+
+  window.location.href =
+    "daily.html?slug=" + slug
+}
+
+run()
+
+</script>
+
+</body>
+</html>
