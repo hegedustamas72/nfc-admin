@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;600;700&display=swap" rel="stylesheet">
 
 <style>
+
 body{
   margin:0;
   font-family:'DM Sans',sans-serif;
@@ -48,6 +49,11 @@ button{
   border-radius:12px;
   cursor:pointer;
   font-weight:600;
+  transition:0.2s ease;
+}
+
+button:hover{
+  transform:translateY(-1px);
 }
 
 .login-btn{
@@ -77,6 +83,13 @@ button{
   padding:10px;
   border-radius:10px;
 }
+
+.subtext{
+  font-size:12px;
+  opacity:0.6;
+  margin-top:5px;
+}
+
 </style>
 </head>
 
@@ -84,21 +97,33 @@ button{
 
 <div class="card">
 
+  <!-- 🔐 LOGIN -->
   <div id="loginBox">
     <h1>Admin belépés</h1>
+
     <input type="password" id="pass" placeholder="Jelszó">
-    <button class="login-btn" onclick="login()">Belépés</button>
+
+    <button class="login-btn" onclick="login()">
+      Belépés
+    </button>
   </div>
 
+  <!-- 🧠 ADMIN -->
   <div id="adminBox" class="hidden">
 
     <h1>NFC link generátor</h1>
 
-    <button class="gen-btn" onclick="generate()">Új tag generálása</button>
+    <button class="gen-btn" onclick="generate()">
+      Új link generálása
+    </button>
 
     <div id="result" class="output hidden"></div>
 
-    <button class="copy-btn hidden" id="copyBtn" onclick="copy()">Link másolása</button>
+    <div class="subtext" id="hint"></div>
+
+    <button class="copy-btn hidden" id="copyBtn" onclick="copy()">
+      Link másolása
+    </button>
 
   </div>
 
@@ -106,11 +131,16 @@ button{
 
 <script>
 
-// ===== JELSZÓ =====
-const PASSWORD = "K4ttk4l4nd!"; // <-- ezt változtasd
+// ======================
+// 🔐 JELSZÓ
+// ======================
+const PASSWORD = "1234"; // <-- ide írd a sajátod
 
-// ===== LOGIN =====
+// ======================
+// LOGIN
+// ======================
 function login(){
+
   const pass = document.getElementById("pass").value
 
   if(pass !== PASSWORD){
@@ -122,12 +152,16 @@ function login(){
   document.getElementById("adminBox").classList.remove("hidden")
 }
 
-// ===== RANDOM TAG =====
+// ======================
+// RANDOM TAG
+// ======================
 function randomTag(){
   return Math.random().toString(36).substring(2,10)
 }
 
-// ===== GENERATE =====
+// ======================
+// GENERATE LINK
+// ======================
 function generate(){
 
   const tag = randomTag()
@@ -135,21 +169,28 @@ function generate(){
   const url =
     "vigyazzram.kattkaland.hu/nfc.html?tag=" + tag
 
+  window.generatedUrl = url
+
   const result = document.getElementById("result")
   const copyBtn = document.getElementById("copyBtn")
+  const hint = document.getElementById("hint")
 
   result.textContent = url
   result.classList.remove("hidden")
 
   copyBtn.classList.remove("hidden")
 
-  window.generatedUrl = url
+  hint.textContent = "Új tag generálva: " + tag
 }
 
-// ===== COPY =====
+// ======================
+// COPY
+// ======================
 function copy(){
+
   navigator.clipboard.writeText(window.generatedUrl)
-  alert("Másolva a vágólapra ✔")
+
+  alert("Link másolva ✔")
 }
 
 </script>
