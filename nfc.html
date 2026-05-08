@@ -15,12 +15,19 @@ Betöltés...
 import { createClient }
 from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
+// ======================
+// SUPABASE
+// ======================
+
 const supabase = createClient(
   "https://eogrnzuarpqlyjclkcqq.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
-// ===== TAG =====
+// ======================
+// TAG
+// ======================
+
 const params = new URLSearchParams(window.location.search)
 
 const tag = params.get("tag")
@@ -32,7 +39,10 @@ if(!tag){
   throw new Error("No tag")
 }
 
-// ===== MAI DÁTUM (HELYI IDŐ) =====
+// ======================
+// MAI DÁTUM (HELYI IDŐ)
+// ======================
+
 const now = new Date()
 
 const today =
@@ -40,7 +50,11 @@ const today =
   String(now.getMonth()+1).padStart(2,"0") + "-" +
   String(now.getDate()).padStart(2,"0")
 
-// ===== LEJÁRAT (KÖVETKEZŐ HELYI ÉJFÉL) =====
+// ======================
+// LEJÁRAT
+// KÖVETKEZŐ HELYI ÉJFÉL
+// ======================
+
 const expires = new Date(
   now.getFullYear(),
   now.getMonth(),
@@ -48,16 +62,45 @@ const expires = new Date(
   0,0,0,0
 )
 
-// ===== VAN-E MA MÁR SESSION? =====
-const { data: existing } = await supabase
+// ======================
+// VAN-E MA MÁR SESSION?
+// ======================
+
+const { data: existingRows, error: existingError } = await supabase
   .from("daily_links")
   .select("*")
   .eq("tag", tag)
   .eq("date_key", today)
-  .gt("expires_at", new Date().toISOString())
-  .maybeSingle()
 
-// ===== HA VAN =====
+if(existingError){
+
+  console.error(existingError)
+
+  document.body.innerHTML =
+    "Supabase hiba 😔"
+
+  throw existingError
+}
+
+// ======================
+// CSAK A NEM LEJÁRTAT KERESSÜK
+// ======================
+
+let existing = null
+
+if(existingRows && existingRows.length){
+
+  existing = existingRows.find(row => {
+
+    return new Date(row.expires_at) > new Date()
+
+  })
+}
+
+// ======================
+// HA VAN AKTÍV MAI SESSION
+// ======================
+
 if(existing){
 
   window.location.href =
@@ -66,7 +109,10 @@ if(existing){
   throw new Error("Existing session")
 }
 
-// ===== GOOGLE SHEETS =====
+// ======================
+// GOOGLE SHEETS
+// ======================
+
 const SHEET_URL =
   "https://opensheet.elk.sh/IDE_JÖN_A_SHEET_ID/munka1"
 
@@ -82,16 +128,25 @@ if(!rows.length){
   throw new Error("No rows")
 }
 
-// ===== RANDOM IDÉZET =====
+// ======================
+// RANDOM IDÉZET
+// ======================
+
 const random =
   rows[Math.floor(Math.random() * rows.length)]
 
-// ===== SESSION ID =====
+// ======================
+// SESSION ID
+// ======================
+
 const sessionId =
   crypto.randomUUID()
 
-// ===== SUPABASE INSERT =====
-const { error } = await supabase
+// ======================
+// SUPABASE INSERT
+// ======================
+
+const { error: insertError } = await supabase
   .from("daily_links")
   .insert({
 
@@ -110,17 +165,20 @@ const { error } = await supabase
     expires_at: expires.toISOString()
   })
 
-if(error){
+if(insertError){
+
+  console.error(insertError)
 
   document.body.innerHTML =
     "Supabase hiba 😔"
 
-  console.error(error)
-
-  throw error
+  throw insertError
 }
 
-// ===== REDIRECT =====
+// ======================
+// REDIRECT
+// ======================
+
 window.location.href =
   "daily.html?id=" + sessionId
 
