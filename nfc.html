@@ -179,8 +179,15 @@ if(insertError){
 
   console.error(insertError)
 
-  document.body.innerHTML =
-    "Supabase hiba 😔"
+  document.body.innerHTML = `
+    <pre style="
+      padding:20px;
+      white-space:pre-wrap;
+      font-family:monospace;
+    ">
+${JSON.stringify(insertError, null, 2)}
+    </pre>
+  `
 
   throw insertError
 }
