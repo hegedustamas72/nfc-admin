@@ -14,13 +14,11 @@ body{
   align-items:center;
   justify-content:center;
   background:#f5f5f5;
-  color:#444;
 }
 </style>
 </head>
 
 <body>
-
 <div>Betöltés...</div>
 
 <script type="module">
@@ -33,24 +31,21 @@ const supabase = createClient(
 )
 
 // ===== Google Sheets =====
-const SHEET_ID = "1-iH4MYuNDCfi7C2weM59gY1J15bsbwxeHHFmJ2GA9PQ"
+const SHEET_ID = "IDE_A_SHEET_ID"
 const SHEET_NAME = "Munkalap1"
 
 const SHEETS_URL =
   `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`
 
-// ===== mai dátum =====
 function getToday(){
   const d = new Date()
   return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate()
 }
 
-// ===== slug =====
 function randomSlug(){
   return Math.random().toString(36).substring(2,10)
 }
 
-// ===== éjfél =====
 function getMidnight(){
   const d = new Date()
   d.setHours(24,0,0,0)
@@ -59,41 +54,35 @@ function getMidnight(){
 
 async function run(){
 
-  const today = getToday()
-
-  // van-e már napi link?
-  const { data: existing } = await supabase
-    .from("daily_links")
-    .select("*")
-    .eq("date_key", today)
-    .single()
-
-  if(existing){
-    window.location.href =
-      "daily.html?slug=" + existing.slug
-    return
-  }
-
-  // idézetek betöltése
+  // 1. idézetek betöltése
   const res = await fetch(SHEETS_URL)
   const data = await res.json()
 
-  const quotes = data.map(x => ({
-    category: x.Kategória || "Idézet",
-    text: x.Üzenet || "",
-    author: x.Szerző || ""
-  }))
+  const quotes = data
+    .map(x => ({
+      category: x.Kategória || "Idézet",
+      text: x.Üzenet || "",
+      author: x.Szerző || ""
+    }))
+    .filter(x => x.text.trim() !== "")
 
+  if(quotes.length === 0){
+    document.body.innerHTML = "Nincs idézet 😔"
+    return
+  }
+
+  // 2. random idézet MINDEN NFC-re
   const quote =
     quotes[Math.floor(Math.random() * quotes.length)]
 
   const slug =
-    today + "-" + randomSlug()
+    Date.now() + "-" + randomSlug()
 
-  await supabase
+  // 3. mentés Supabase-be
+  const { error } = await supabase
     .from("daily_links")
     .insert({
-      date_key: today,
+      date_key: getToday(),
       slug,
       quote: quote.text,
       author: quote.author,
@@ -101,6 +90,11 @@ async function run(){
       expires_at: getMidnight()
     })
 
+  if(error){
+    console.error("Supabase error:", error)
+  }
+
+  // 4. átirányítás
   window.location.href =
     "daily.html?slug=" + slug
 }
