@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Napi pozitív</title>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&family=Alex+Brush&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+  margin:0;
+  font-family:'DM Sans',sans-serif;
+
+  background:
+    linear-gradient(rgba(255,255,255,0.92),rgba(255,255,255,0.92)),
+    url('wood-texture.png');
+
+  background-size:cover;
+  background-position:center;
+
+  min-height:100vh;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  color:#424b54;
+}
+
+.card{
+  background:white;
+  border-radius:24px;
+
+  padding:clamp(22px, 5vw, 36px);
+  width:min(90vw, 380px);
+
+  text-align:center;
+
+  box-shadow:
+    0 12px 30px rgba(0,0,0,0.10),
+    0 4px 10px rgba(0,0,0,0.05);
+
+  animation:
+    fadeIn .8s ease,
+    floating 5s ease-in-out infinite;
+}
+
+.title{
+  font-family:'Alex Brush',cursive;
+  font-size:42px;
+  margin-bottom:6px;
+}
+
+.tag{
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  opacity:.6;
+  margin-bottom:18px;
+}
+
+.message{
+  font-size:24px;
+  line-height:1.5;
+  font-weight:700;
+  margin-bottom:12px;
+}
+
+.author{
+  text-align:right;
+  font-size:14px;
+  opacity:.7;
+  font-style:italic;
+  margin-bottom:22px;
+  padding-right:12px;
+  width:100%;
+}
+
+.expired{
+  font-size:18px;
+  line-height:1.5;
+}
+
+@keyframes floating{
+  0%{transform:translateY(0);}
+  50%{transform:translateY(-8px);}
+  100%{transform:translateY(0);}
+}
+
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(20px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <div class="title">Napi pozitív</div>
+  <div id="content"></div>
+</div>
+
+<script type="module">
+
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
+
+const supabase = createClient(
+  "https://eogrnzuarpqlyjclkcqq.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
+)
+
+const slug =
+  new URLSearchParams(window.location.search)
+  .get("slug")
+
+async function load(){
+
+  const { data } = await supabase
+    .from("daily_links")
+    .select("*")
+    .eq("slug", slug)
+    .single()
+
+  const el = document.getElementById("content")
+
+  if(!data){
+    el.innerHTML = `<div class="expired">Nem található 😔</div>`
+    return
+  }
+
+  const now = new Date()
+  const exp = new Date(data.expires_at)
+
+  if(now > exp){
+    el.innerHTML = `
+      <div class="expired">
+        Ez a napi üzenet lejárt ✨<br><br>
+        Érintsd újra az NFC taget.
+      </div>`
+    return
+  }
+
+  el.innerHTML = `
+    <div class="tag">${data.category || ""}</div>
+    <div class="message">${data.quote}</div>
+    ${data.author ? `<div class="author">— ${data.author}</div>` : ""}
+  `
+}
+
+load()
+
+</script>
+
+</body>
+</html>
