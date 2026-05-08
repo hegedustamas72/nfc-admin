@@ -18,15 +18,40 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
-// Google Sheets
-const SHEET_ID = "1-iH4MYuNDCfi7C2weM59gY1J15bsbwxeHHFmJ2GA9PQ"
+// ===== GOOGLE SHEETS =====
+
+const SHEET_ID = "IDE_A_SHEET_ID"
 const SHEET_NAME = "Munkalap1"
 
 const SHEETS_URL =
   `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`
 
-function randomSlug(){
-  return Date.now() + "-" + Math.random().toString(36).substring(2,10)
+// ===== TAG =====
+
+const tag =
+  new URLSearchParams(window.location.search)
+  .get("tag")
+
+if(!tag){
+  document.body.innerHTML = "Hiányzó TAG 😔"
+  throw new Error("Missing tag")
+}
+
+// ===== DÁTUM =====
+
+function getToday(){
+  const d = new Date()
+
+  return d.getFullYear() + "-" +
+    String(d.getMonth()+1).padStart(2,"0") + "-" +
+    String(d.getDate()).padStart(2,"0")
+}
+
+// ===== SESSION =====
+
+function randomSession(){
+  return Date.now() + "-" +
+    Math.random().toString(36).substring(2,10)
 }
 
 function getMidnight(){
@@ -35,13 +60,39 @@ function getMidnight(){
   return d.toISOString()
 }
 
+// ===== MAIN =====
+
 async function run(){
+
+  const today = getToday()
+
+  // ===== VAN MÁR MAI SESSION? =====
+
+  let { data: existing } = await supabase
+    .from("daily_links")
+    .select("*")
+    .eq("tag", tag)
+    .eq("date_key", today)
+    .maybeSingle()
+
+  // ===== HA VAN =====
+
+  if(existing){
+
+    window.location.href =
+      "daily.html?id=" + existing.session_id
+
+    return
+  }
+
+  // ===== GOOGLE SHEETS =====
 
   const res = await fetch(SHEETS_URL)
   const data = await res.json()
 
   if(!Array.isArray(data)){
-    document.body.innerText = "Hiba: Google Sheets nem elérhető"
+    document.body.innerHTML =
+      "Google Sheets hiba 😔"
     return
   }
 
@@ -56,27 +107,41 @@ async function run(){
   const quote =
     quotes[Math.floor(Math.random() * quotes.length)]
 
-  const slug =
-    randomSlug()
+  // ===== ÚJ SESSION =====
+
+  const session_id =
+    randomSession()
+
+  // ===== INSERT =====
 
   const { error } = await supabase
     .from("daily_links")
     .insert({
-      slug,
+      tag,
+      date_key: today,
+
+      session_id,
+
       quote: quote.text,
       author: quote.author,
       category: quote.category,
+
       expires_at: getMidnight()
     })
 
   if(error){
-    document.body.innerText =
-      "Supabase hiba: " + error.message
+
+    document.body.innerHTML =
+      "Supabase hiba 😔<br><br>" +
+      error.message
+
     return
   }
 
+  // ===== REDIRECT =====
+
   window.location.href =
-    "daily.html?slug=" + slug
+    "daily.html?id=" + session_id
 }
 
 run()
