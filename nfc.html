@@ -34,84 +34,73 @@ if (!tag) {
 }
 
 // ======================
-// MAI DÁTUM (HELYI)
+// MAI DÁTUM
 // ======================
 const now = new Date()
 
 const today =
   now.getFullYear() + "-" +
-  String(now.getMonth() + 1).padStart(2, "0") + "-" +
-  String(now.getDate()).padStart(2, "0")
+  String(now.getMonth()+1).padStart(2,"0") + "-" +
+  String(now.getDate()).padStart(2,"0")
 
 // ======================
-// KÖVETKEZŐ ÉJFÉL (HELYI IDŐ)
+// ÉJFÉL (LOCAL TIME)
 // ======================
 const expires = new Date(
   now.getFullYear(),
   now.getMonth(),
   now.getDate() + 1,
-  0, 0, 0, 0
+  0,0,0,0
 )
 
 // ======================
-// MEGLÉVŐ SESSION KERESÉS
+// CHECK EXISTING
 // ======================
-const { data: existingRows, error: selectError } = await supabase
+const { data: existingRows } = await supabase
   .from("daily_links")
   .select("*")
   .eq("tag", tag)
   .eq("date_key", today)
 
-if (selectError) {
-  console.error(selectError)
-  document.body.innerHTML = "Supabase SELECT hiba 😔"
-  throw selectError
-}
-
 let existing = null
 
 if (existingRows && existingRows.length) {
-  existing = existingRows.find(row =>
-    new Date(row.expires_at) > new Date()
-  )
+  existing = existingRows.find(r => Date.now() < r.expires_at)
 }
 
-// ======================
-// HA VAN ÉRVÉNYES SESSION
-// ======================
 if (existing) {
   window.location.href = "daily.html?id=" + existing.session_id
   throw new Error("Existing session")
 }
 
 // ======================
-// GOOGLE SHEETS
+// SHEET
 // ======================
 const SHEET_URL =
-  "https://opensheet.elk.sh/1-iH4MYuNDCfi7C2weM59gY1J15bsbwxeHHFmJ2GA9PQ/Munkalap1"
+  "https://opensheet.elk.sh/IDE_JÖN_A_SHEET_ID/Munkalap1"
 
 const res = await fetch(SHEET_URL)
 const rows = await res.json()
 
-if (!rows || !rows.length) {
+if (!rows.length) {
   document.body.innerHTML = "Nincsenek idézetek 😔"
   throw new Error("No rows")
 }
 
 // ======================
-// RANDOM IDÉZET
+// RANDOM
 // ======================
 const random = rows[Math.floor(Math.random() * rows.length)]
 
 // ======================
-// SESSION ID
+// SESSION
 // ======================
 const sessionId = crypto.randomUUID()
 
 // ======================
-// INSERT
+// INSERT (MILLISEC)
 // ======================
-const { error: insertError } = await supabase
+const { error } = await supabase
   .from("daily_links")
   .insert({
     tag: tag,
@@ -120,17 +109,13 @@ const { error: insertError } = await supabase
     quote: random.idezet || "",
     author: random.szerzo || "",
     category: random.kategoria || "",
-    expires_at: expires.toISOString()
+    expires_at: expires.getTime()
   })
 
-if (insertError) {
-  console.error(insertError)
-  document.body.innerHTML = `
-    <pre style="white-space:pre-wrap;padding:12px;">
-${JSON.stringify(insertError, null, 2)}
-    </pre>
-  `
-  throw insertError
+if (error) {
+  document.body.innerHTML = "Supabase hiba 😔"
+  console.error(error)
+  throw error
 }
 
 // ======================
