@@ -150,14 +150,18 @@ async function load(){
 
   // ===== LEJÁRT? =====
 
-  if(new Date() > new Date(data.expires_at)){
+  const now = new Date()
+const expiresAt = data.expires_at ? new Date(data.expires_at) : null
 
-    el.innerHTML =
-      "Sajnos ez a napi üzenet már lejárt! 🌙<br><br>" +
-      "Olvasd be újra a bilétát! 😊"
-
-    return
-  }
+if (!expiresAt || now >= expiresAt) {
+  content.innerHTML = `
+    <div class="error">
+      Sajnos ez a napi üzenet már lejárt.<br><br>
+      Olvasd be újra a bilétát ✨
+    </div>
+  `
+  return
+}
 
   // ===== MEGJELENÍTÉS =====
 
