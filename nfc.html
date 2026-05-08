@@ -142,6 +142,16 @@ const random =
 const sessionId =
   crypto.randomUUID()
 
+  // ======================
+// LEJÁRT SESSION TÖRLÉSE
+// ======================
+
+await supabase
+  .from("daily_links")
+  .delete()
+  .eq("tag", tag)
+  .lt("expires_at", new Date().toISOString())
+
 // ======================
 // SUPABASE INSERT
 // ======================
