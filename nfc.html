@@ -7,144 +7,122 @@
 </head>
 
 <body>
-<div>Betöltés...</div>
+
+Betöltés...
 
 <script type="module">
 
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
+import { createClient }
+from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
 const supabase = createClient(
   "https://eogrnzuarpqlyjclkcqq.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
-// ===== GOOGLE SHEETS =====
-
-const SHEET_ID = "1-iH4MYuNDCfi7C2weM59gY1J15bsbwxeHHFmJ2GA9PQ"
-const SHEET_NAME = "Munkalap1"
-
-const SHEETS_URL =
-  `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`
-
 // ===== TAG =====
+const params = new URLSearchParams(window.location.search)
 
-const tag =
-  new URLSearchParams(window.location.search)
-  .get("tag")
+const tag = params.get("tag")
 
 if(!tag){
-  document.body.innerHTML = "Hiányzó TAG 😔"
-  throw new Error("Missing tag")
+
+  document.body.innerHTML = "Hiányzó tag 😔"
+
+  throw new Error("No tag")
 }
 
-// ===== DÁTUM =====
+// ===== MAI DÁTUM (HELYI IDŐ) =====
+const now = new Date()
 
-function getToday(){
-  const d = new Date()
+const today =
+  now.getFullYear() + "-" +
+  String(now.getMonth()+1).padStart(2,"0") + "-" +
+  String(now.getDate()).padStart(2,"0")
 
-  return d.getFullYear() + "-" +
-    String(d.getMonth()+1).padStart(2,"0") + "-" +
-    String(d.getDate()).padStart(2,"0")
-}
+// ===== LEJÁRAT (KÖVETKEZŐ HELYI ÉJFÉL) =====
+const expires = new Date(
+  now.getFullYear(),
+  now.getMonth(),
+  now.getDate() + 1,
+  0,0,0,0
+)
 
-// ===== SESSION =====
+// ===== VAN-E MA MÁR SESSION? =====
+const { data: existing } = await supabase
+  .from("daily_links")
+  .select("*")
+  .eq("tag", tag)
+  .eq("date_key", today)
+  .gt("expires_at", new Date().toISOString())
+  .maybeSingle()
 
-function randomSession(){
-  return Date.now() + "-" +
-    Math.random().toString(36).substring(2,10)
-}
-
-function getMidnight(){
-  const d = new Date()
-  d.setHours(24,0,0,0)
-  return d.toISOString()
-}
-
-// ===== MAIN =====
-
-async function run(){
-
-  const today = getToday()
-
-  // ===== VAN MÁR MAI SESSION? =====
-
-  let { data: existing } = await supabase
-    .from("daily_links")
-    .select("*")
-    .eq("tag", tag)
-    .eq("date_key", today)
-    .maybeSingle()
-
-  // ===== HA VAN =====
-
-  if(existing){
-
-    window.location.href =
-      "daily.html?id=" + existing.session_id
-
-    return
-  }
-
-  // ===== GOOGLE SHEETS =====
-
-  const res = await fetch(SHEETS_URL)
-  const data = await res.json()
-
-  if(!Array.isArray(data)){
-    document.body.innerHTML =
-      "Google Sheets hiba 😔"
-    return
-  }
-
-  const quotes = data
-    .map(x => ({
-      category: x.Kategória || "Idézet",
-      text: x.Üzenet || "",
-      author: x.Szerző || ""
-    }))
-    .filter(x => x.text)
-
-  const quote =
-    quotes[Math.floor(Math.random() * quotes.length)]
-
-  // ===== ÚJ SESSION =====
-
-  const session_id =
-    randomSession()
-
-  // ===== INSERT =====
-
-  const { error } = await supabase
-    .from("daily_links")
-    .insert({
-      tag,
-      date_key: today,
-
-      session_id,
-
-      quote: quote.text,
-      author: quote.author,
-      category: quote.category,
-
-      expires_at: getMidnight()
-    })
-
-  if(error){
-
-    document.body.innerHTML =
-      "Supabase hiba 😔<br><br>" +
-      error.message
-
-    return
-  }
-
-  // ===== REDIRECT =====
+// ===== HA VAN =====
+if(existing){
 
   window.location.href =
-    "daily.html?id=" + session_id
+    "daily.html?id=" + existing.session_id
+
+  throw new Error("Existing session")
 }
 
-run()
+// ===== GOOGLE SHEETS =====
+const SHEET_URL =
+  "https://opensheet.elk.sh/IDE_JÖN_A_SHEET_ID/munka1"
+
+const response = await fetch(SHEET_URL)
+
+const rows = await response.json()
+
+if(!rows.length){
+
+  document.body.innerHTML =
+    "Nincsenek idézetek 😔"
+
+  throw new Error("No rows")
+}
+
+// ===== RANDOM IDÉZET =====
+const random =
+  rows[Math.floor(Math.random() * rows.length)]
+
+// ===== SESSION ID =====
+const sessionId =
+  crypto.randomUUID()
+
+// ===== SUPABASE INSERT =====
+const { error } = await supabase
+  .from("daily_links")
+  .insert({
+
+    tag: tag,
+
+    date_key: today,
+
+    session_id: sessionId,
+
+    quote: random.idezet || "",
+
+    author: random.szerzo || "",
+
+    category: random.kategoria || "",
+
+    expires_at: expires.toISOString()
+  })
+
+if(error){
+
+  document.body.innerHTML =
+    "Supabase hiba 😔"
+
+  console.error(error)
+
+  throw error
+}
+
+// ===== REDIRECT =====
+window.location.href =
+  "daily.html?id=" + sessionId
 
 </script>
 
