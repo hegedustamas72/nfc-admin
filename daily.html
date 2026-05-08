@@ -12,26 +12,36 @@
 
 body{
   margin:0;
+  padding:20px;
+
   font-family:'DM Sans',sans-serif;
+
   min-height:100vh;
+
   display:flex;
   align-items:center;
   justify-content:center;
+
   background:
-  linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0.2)),
-  url('szivhatter.jpg');
-background-size:cover;
-background-position:center;
+    linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0.2)),
+    url('szivhatter.jpg');
+
+  background-size:cover;
+  background-position:center;
 }
 
 .card{
   background:white;
+
   padding:28px;
+
   border-radius:24px;
-  width: min(90vw, 380px);
-  margin: 24px;
-  text-align:center;
+
+  width:min(90vw,380px);
+
   box-shadow:0 12px 30px rgba(0,0,0,0.1);
+
+  text-align:center;
 
   display:flex;
   flex-direction:column;
@@ -42,7 +52,6 @@ background-position:center;
 .title{
   font-family:'Alex Brush',cursive;
   font-size:42px;
-  margin:0;
 }
 
 .tag{
@@ -53,35 +62,40 @@ background-position:center;
 .message{
   font-size:24px;
   font-weight:700;
+  line-height:1.4;
 }
 
 .author{
+  width:100%;
   text-align:right;
+
   font-size:14px;
   opacity:.7;
+
   font-style:italic;
-  width:100%;
-  padding-right:6px;
+
+  padding-right:8px;
 }
 
-/* 🔵 GOMB */
 .btn{
   display:flex;
   align-items:center;
   justify-content:center;
   gap:10px;
-
+  font-family:'Alex Brush',cursive;
   padding:12px 18px;
-  border:1px solid #ccc;
+
   border-radius:14px;
 
+  border:1px solid #ccc;
+
+  background:white;
+
   text-decoration:none;
+
   color:#333;
-  font-weight:600;
 
   box-shadow:0 4px 10px rgba(0,0,0,0.08);
-
-  margin-top:10px;
 }
 
 .btn img{
@@ -100,9 +114,8 @@ background-position:center;
 
   <div id="content">Betöltés...</div>
 
-  <!-- 🔵 EZ A FONTOS: GOMB FIXEN KINT -->
   <a class="btn" href="index2.html">
-    <img src="brand-icon.png" alt="">
+    <img src="brand-icon.png">
     Kattkaland
   </a>
 
@@ -117,29 +130,50 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
-const slug =
+const id =
   new URLSearchParams(window.location.search)
-  .get("slug")
+  .get("id")
 
 async function load(){
 
   const { data } = await supabase
     .from("daily_links")
     .select("*")
-    .eq("slug", slug)
+    .eq("session_id", id)
     .maybeSingle()
 
-  const el = document.getElementById("content")
+  const el =
+    document.getElementById("content")
 
   if(!data){
     el.innerHTML = "Nem található 😔"
     return
   }
 
+  // ===== LEJÁRT? =====
+
+  if(new Date() > new Date(data.expires_at)){
+
+    el.innerHTML =
+      "Ez a napi üzenet már lejárt 🌙<br><br>" +
+      "Olvasd be újra az NFC taget 😊"
+
+    return
+  }
+
+  // ===== MEGJELENÍTÉS =====
+
   el.innerHTML = `
     <div class="tag">${data.category || ""}</div>
-    <div class="message">${data.quote}</div>
-    ${data.author ? `<div class="author">— ${data.author}</div>` : ""}
+
+    <div class="message">
+      ${data.quote}
+    </div>
+
+    ${data.author
+      ? `<div class="author">— ${data.author}</div>`
+      : ""
+    }
   `
 }
 
