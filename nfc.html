@@ -3,47 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NFC</title>
-
-<style>
-body{
-  margin:0;
-  font-family:sans-serif;
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#f5f5f5;
-}
-</style>
+<title>NFC DEBUG</title>
 </head>
-
 <body>
-<div>Betöltés...</div>
+
+<pre id="log">Indul...</pre>
 
 <script type="module">
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
 const supabase = createClient(
-  "https://eogrnzuarpqlyjclkcqq.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
+  "https://YOUR_PROJECT.supabase.co",
+  "YOUR_ANON_KEY"
 )
 
-// ===== Google Sheets =====
-const SHEET_ID = "1-iH4MYuNDCfi7C2weM59gY1J15bsbwxeHHFmJ2GA9PQ"
-const SHEET_NAME = "Munkalap1"
+const SHEET_ID = "IDE_A_SHEET_ID"
+const SHEET_NAME = "Munka1"
 
 const SHEETS_URL =
   `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`
 
-function getToday(){
-  const d = new Date()
-  return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate()
+const log = (msg) => {
+  document.getElementById("log").innerText += "\n" + msg
 }
 
 function randomSlug(){
   return Math.random().toString(36).substring(2,10)
+}
+
+function getToday(){
+  const d = new Date()
+  return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate()
 }
 
 function getMidnight(){
@@ -54,32 +45,32 @@ function getMidnight(){
 
 async function run(){
 
-  // 1. idézetek betöltése
+  log("📡 Google Sheets betöltés...")
+
   const res = await fetch(SHEETS_URL)
   const data = await res.json()
 
-  const quotes = data
-    .map(x => ({
-      category: x.Kategória || "Idézet",
-      text: x.Üzenet || "",
-      author: x.Szerző || ""
-    }))
-    .filter(x => x.text.trim() !== "")
+  log("✔ Sheets OK: " + data.length + " sor")
 
-  if(quotes.length === 0){
-    document.body.innerHTML = "Nincs idézet 😔"
-    return
-  }
+  const quotes = data.map(x => ({
+    category: x.Kategória,
+    text: x.Üzenet,
+    author: x.Szerző
+  })).filter(x => x.text)
 
-  // 2. random idézet MINDEN NFC-re
   const quote =
     quotes[Math.floor(Math.random() * quotes.length)]
+
+  log("🎲 Idézet kiválasztva: " + quote.text)
 
   const slug =
     Date.now() + "-" + randomSlug()
 
-  // 3. mentés Supabase-be
-  const { error } = await supabase
+  log("🔑 Slug: " + slug)
+
+  log("💾 Supabase insert...")
+
+  const { data: inserted, error } = await supabase
     .from("daily_links")
     .insert({
       date_key: getToday(),
@@ -91,10 +82,14 @@ async function run(){
     })
 
   if(error){
-    console.error("Supabase error:", error)
+    log("❌ SUPABASE ERROR:")
+    log(JSON.stringify(error, null, 2))
+    return
   }
 
-  // 4. átirányítás
+  log("✔ INSERT OK")
+  log("➡ Redirect...")
+
   window.location.href =
     "daily.html?slug=" + slug
 }
