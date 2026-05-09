@@ -32,7 +32,7 @@ body{
 }
 
 .card{
-  background:white;
+  background:rgba(255,255,255,0.5);
 
   padding:28px;
 
@@ -88,7 +88,7 @@ body{
   align-items:center;
   justify-content:center;
   gap:10px;
-  font-family:'Alex Brush',cursive;
+
   padding:12px 18px;
 
   border-radius:14px;
@@ -98,7 +98,7 @@ body{
   color:white;
 
   text-decoration:none;
-
+  font-family:'Alex Brush',cursive;
   font-weight:600;
 
   box-shadow:0 4px 10px rgba(0,0,0,0.12);
@@ -179,13 +179,21 @@ if (error || !data) {
 }
 
 // ======================
+// MAI NAP
+// ======================
+
+const now = new Date()
+
+const today =
+  now.getFullYear() + "-" +
+  String(now.getMonth() + 1).padStart(2, "0") + "-" +
+  String(now.getDate()).padStart(2, "0")
+
+// ======================
 // LEJÁRT?
 // ======================
 
-if (
-  !data.expires_at ||
-  new Date() >= new Date(data.expires_at)
-) {
+if (data.expires_at !== today) {
 
   el.innerHTML = `
     <div class="error">
