@@ -40,30 +40,28 @@ if (!tag) {
 }
 
 // ======================
-// LEJÁRAT = KÖVETKEZŐ HELYI ÉJFÉL
+// MAI NAP
 // ======================
 
 const now = new Date()
 
-const expires = new Date(
-  now.getFullYear(),
-  now.getMonth(),
-  now.getDate() + 1,
-  0,0,0,0
-)
+const today =
+  now.getFullYear() + "-" +
+  String(now.getMonth() + 1).padStart(2, "0") + "-" +
+  String(now.getDate()).padStart(2, "0")
 
 // ======================
-// LEJÁRT SESSIONÖK TÖRLÉSE
+// RÉGI SESSIONÖK TÖRLÉSE
 // ======================
 
 await supabase
   .from("daily_links")
   .delete()
   .eq("tag", tag)
-  .lt("expires_at", new Date().toISOString())
+  .neq("expires_at", today)
 
 // ======================
-// VAN-E AKTÍV SESSION?
+// VAN-E MAI SESSION?
 // ======================
 
 const { data: existingRows, error: selectError } =
@@ -71,6 +69,7 @@ const { data: existingRows, error: selectError } =
     .from("daily_links")
     .select("*")
     .eq("tag", tag)
+    .eq("expires_at", today)
 
 if (selectError) {
 
@@ -82,25 +81,14 @@ if (selectError) {
   throw selectError
 }
 
-let existing = null
+// ======================
+// HA VAN, VISSZAADJUK
+// ======================
 
 if (existingRows?.length) {
 
-  existing = existingRows.find(row => {
-
-    return new Date(row.expires_at) > new Date()
-
-  })
-}
-
-// ======================
-// HA VAN AKTÍV
-// ======================
-
-if (existing) {
-
   window.location.href =
-    "daily.html?id=" + existing.session_id
+    "daily.html?id=" + existingRows[0].session_id"
 
   throw new Error("Existing session")
 }
@@ -110,11 +98,13 @@ if (existing) {
 // ======================
 
 const SHEET_URL =
-  "https://opensheet.elk.sh/1-iH4MYuNDCfi7C2weM59gY1J15bsbwxeHHFmJ2GA9PQ/Munkalap1"
+  "https://opensheet.elk.sh/IDE_JÖN_A_SHEET_ID/Munkalap1"
 
-const response = await fetch(SHEET_URL)
+const response =
+  await fetch(SHEET_URL)
 
-const rows = await response.json()
+const rows =
+  await response.json()
 
 if (!rows?.length) {
 
@@ -150,11 +140,6 @@ const sessionId =
 // INSERT
 // ======================
 
-const today =
-  now.getFullYear() + "-" +
-  String(now.getMonth()+1).padStart(2,"0") + "-" +
-  String(now.getDate()).padStart(2,"0")
-
 const { error: insertError } =
   await supabase
     .from("daily_links")
@@ -172,7 +157,7 @@ const { error: insertError } =
 
       category: random["Kategória"] || "",
 
-      expires_at: expires.toISOString()
+      expires_at: today
     })
 
 if (insertError) {
