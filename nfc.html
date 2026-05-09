@@ -150,12 +150,19 @@ const sessionId =
 // INSERT
 // ======================
 
+const today =
+  now.getFullYear() + "-" +
+  String(now.getMonth()+1).padStart(2,"0") + "-" +
+  String(now.getDate()).padStart(2,"0")
+
 const { error: insertError } =
   await supabase
     .from("daily_links")
     .insert({
 
       tag: tag,
+
+      date_key: today,
 
       session_id: sessionId,
 
