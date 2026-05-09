@@ -15,6 +15,7 @@ body{
   font-family:'DM Sans',sans-serif;
 
   min-height:100vh;
+
   display:flex;
   align-items:center;
   justify-content:center;
@@ -31,8 +32,10 @@ body{
 }
 
 .card{
-  background: rgba(255,255,255,0.5);
+  background:white;
+
   padding:28px;
+
   border-radius:24px;
 
   width:min(100%, 380px);
@@ -61,34 +64,46 @@ body{
 .message{
   font-size:24px;
   font-weight:700;
+  line-height:1.45;
 }
 
 .author{
-  text-align:right;
-  font-size:14px;
-  opacity:.7;
-  font-style:italic;
   width:100%;
+
+  text-align:right;
+
+  font-size:14px;
+
+  opacity:.7;
+
+  font-style:italic;
+
+  padding-right:8px;
+
+  box-sizing:border-box;
 }
 
-/* BUTTON */
 .btn{
   display:flex;
   align-items:center;
   justify-content:center;
   gap:10px;
-
+  font-family:'Alex Brush',cursive;
   padding:12px 18px;
 
   border-radius:14px;
 
   background:#9B6A6C;
-  color:#fff;
+
+  color:white;
 
   text-decoration:none;
+
   font-weight:600;
 
   box-shadow:0 4px 10px rgba(0,0,0,0.12);
+
+  margin-top:10px;
 }
 
 .btn img{
@@ -108,9 +123,13 @@ body{
 
 <div class="card">
 
-  <div class="title">Napi pozitív</div>
+  <div class="title">
+    Napi pozitív
+  </div>
 
-  <div id="content">Betöltés...</div>
+  <div id="content">
+    Betöltés...
+  </div>
 
   <a class="btn" href="index2.html">
     <img src="brand-icon.png">
@@ -121,53 +140,81 @@ body{
 
 <script type="module">
 
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
+import { createClient }
+from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
 const supabase = createClient(
   "https://eogrnzuarpqlyjclkcqq.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
-const id = new URLSearchParams(window.location.search).get("id")
+const sessionId =
+  new URLSearchParams(window.location.search)
+  .get("id")
 
-const el = document.getElementById("content")
+const el =
+  document.getElementById("content")
 
-if (!id) {
-  el.innerHTML = `<div class="error">Hiányzó ID 😔</div>`
+if (!sessionId) {
+
+  el.innerHTML =
+    `<div class="error">Hiányzó ID 😔</div>`
+
   throw new Error("No ID")
 }
 
-const { data, error } = await supabase
-  .from("daily_links")
-  .select("*")
-  .eq("session_id", id)
-  .maybeSingle()
+const { data, error } =
+  await supabase
+    .from("daily_links")
+    .select("*")
+    .eq("session_id", sessionId)
+    .maybeSingle()
 
 if (error || !data) {
-  el.innerHTML = `<div class="error">Nem található 😔</div>`
+
+  el.innerHTML =
+    `<div class="error">Nem található 😔</div>`
+
   throw error
 }
 
 // ======================
-// LEJÁRAT
+// LEJÁRT?
 // ======================
-if (!data.expires_at || new Date() >= new Date(data.expires_at)) {
+
+if (
+  !data.expires_at ||
+  new Date() >= new Date(data.expires_at)
+) {
+
   el.innerHTML = `
     <div class="error">
       Ez a napi üzenet lejárt.<br><br>
-      Olvasd be újra az NFC taget ✨
+      Olvasd be újra a bilétát! ✨
     </div>
   `
+
   throw new Error("Expired")
 }
 
 // ======================
 // DISPLAY
 // ======================
+
 el.innerHTML = `
-  <div class="tag">${data.category || ""}</div>
-  <div class="message">${data.quote}</div>
-  ${data.author ? `<div class="author">— ${data.author}</div>` : ""}
+  <div class="tag">
+    ${data.category || ""}
+  </div>
+
+  <div class="message">
+    ${data.quote || ""}
+  </div>
+
+  ${
+    data.author
+    ? `<div class="author">— ${data.author}</div>`
+    : ""
+  }
 `
 
 </script>
