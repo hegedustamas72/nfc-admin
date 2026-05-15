@@ -71,8 +71,9 @@ await supabase
   .from("daily_links")
   .delete()
   .eq("tag", tag)
+  .eq("device_id", deviceId)
   .neq("expires_at", today)
-
+  
 // ======================
 // VAN-E MAI SESSION?
 // ======================
