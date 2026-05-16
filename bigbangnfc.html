@@ -71,6 +71,7 @@ await supabase
   .from("daily_links")
   .delete()
   .eq("tag", tag)
+  .eq("device_id", deviceId)
   .neq("expires_at", today)
 
 // ======================
@@ -82,6 +83,7 @@ const { data: existingRows, error: selectError } =
     .from("daily_links")
     .select("*")
     .eq("tag", tag)
+    .eq("device_id", deviceId)
     .eq("expires_at", today)
 
 if (selectError) {
@@ -167,6 +169,7 @@ const { error: insertError } =
       quote: random["Üzenet"] || "",
 
       author: random["Szerző"] || "",
+      device_id: deviceId,
 
       category: random["Kategória"] || "",
 
