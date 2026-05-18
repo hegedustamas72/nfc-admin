@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NFC Art of War</title>
+</head>
+
+<body>
+
+Betöltés...
+
+<script type="module">
+
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
+
+
+  let deviceId =
+  localStorage.getItem("device_id")
+
+if (!deviceId) {
+
+  deviceId = crypto.randomUUID()
+
+  localStorage.setItem(
+    "device_id",
+    deviceId
+  )
+}
+
+// ======================
+// SUPABASE
+// ======================
+
+const supabase = createClient(
+  "https://eogrnzuarpqlyjclkcqq.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
+)
+
+// ======================
+// TAG
+// ======================
+
+const tag =
+  new URLSearchParams(window.location.search)
+  .get("tag")
+
+if (!tag) {
+
+  document.body.innerHTML =
+    "Hiányzó tag 😔"
+
+  throw new Error("No tag")
+}
+
+// ======================
+// MAI NAP
+// ======================
+
+const now = new Date()
+
+const today =
+  now.getFullYear() + "-" +
+  String(now.getMonth() + 1).padStart(2, "0") + "-" +
+  String(now.getDate()).padStart(2, "0")
+
+// ======================
+// RÉGI SESSIONÖK TÖRLÉSE
+// ======================
+
+await supabase
+  .from("daily_links")
+  .delete()
+  .eq("tag", tag)
+  .eq("device_id", deviceId)
+  .neq("expires_at", today)
+
+// ======================
+// VAN-E MAI SESSION?
+// ======================
+
+const { data: existingRows, error: selectError } =
+  await supabase
+    .from("daily_links")
+    .select("*")
+    .eq("tag", tag)
+    .eq("device_id", deviceId)
+    .eq("expires_at", today)
+
+if (selectError) {
+
+  console.error(selectError)
+
+  document.body.innerHTML =
+    "Supabase SELECT hiba 😔"
+
+  throw selectError
+}
+
+// ======================
+// HA VAN, VISSZAADJUK
+// ======================
+
+if (existingRows?.length) {
+
+  window.location.href =
+    "artofwardaily.html?id=" + existingRows[0].session_id
+
+  throw new Error("Existing session")
+}
+
+// ======================
+// GOOGLE SHEETS
+// ======================
+
+const SHEET_URL =
+  "https://opensheet.elk.sh/10S_PmxDO9ZYSOHVIVn8l4MjbW2ANURoeuZiQZeezDXs/Munkalap1"
+
+const response =
+  await fetch(SHEET_URL)
+
+const rows =
+  await response.json()
+
+if (!rows?.length) {
+
+  document.body.innerHTML =
+    "Nincsenek idézetek 😔"
+
+  throw new Error("No rows")
+}
+
+// ======================
+// RANDOM SOR
+// ======================
+
+const random =
+  rows[Math.floor(Math.random() * rows.length)]
+
+if (!random["Üzenet"]) {
+
+  document.body.innerHTML =
+    "Üres sor a Sheets-ben 😔"
+
+  throw new Error("Empty row")
+}
+
+// ======================
+// SESSION ID
+// ======================
+
+const sessionId =
+  crypto.randomUUID()
+
+// ======================
+// INSERT
+// ======================
+
+const { error: insertError } =
+  await supabase
+    .from("daily_links")
+    .insert({
+
+      tag: tag,
+
+      date_key: today,
+
+      session_id: sessionId,
+
+      device_id: deviceId,
+
+      speaker: random["Speaker"] || "",
+
+      quote: random["Üzenet"] || "",
+
+      author: random["Szerző"] || "",
+
+      category: random["Kategória"] || "",
+
+      expires_at: today
+    })
+
+if (insertError) {
+
+  console.error(insertError)
+
+  document.body.innerHTML = `
+    <pre style="
+      white-space:pre-wrap;
+      padding:16px;
+      font-size:12px;
+    ">
+${JSON.stringify(insertError, null, 2)}
+    </pre>
+  `
+
+  throw insertError
+}
+
+// ======================
+// REDIRECT
+// ======================
+
+window.location.href =
+  "artofwardaily.html?id=" + sessionId
+
+</script>
+
+</body>
+</html>
