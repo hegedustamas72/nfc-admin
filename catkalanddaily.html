@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Cat-kaland</title>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&family=Alex+Brush&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+  margin:0;
+  font-family:'DM Sans',sans-serif;
+
+  min-height:100vh;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  padding:20px;
+  box-sizing:border-box;
+
+  background-color:#111
+    
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+}
+
+.card{
+  background:rgba(255,255,255,0.7);
+
+  padding:28px;
+
+  border-radius:24px;
+
+  width:min(100%, 380px);
+
+  text-align:center;
+
+  box-shadow:0 12px 30px rgba(0,0,0,0.1);
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:18px;
+}
+
+.title{
+  font-family:'Alex Brush',cursive;
+  font-size:42px;
+  margin:0;
+}
+
+.tag{
+  font-size:12px;
+  opacity:.6;
+}
+
+.message{
+  font-size:24px;
+  font-weight:700;
+  line-height:1.45;
+}
+
+.author{
+  width:100%;
+  text-align:right;
+  font-size:14px;
+  opacity:.7;
+  font-style:italic;
+  padding-right:8px;
+  box-sizing:border-box;
+}
+
+.btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+
+  padding:12px 18px;
+
+  border-radius:14px;
+
+  background:#9B6A6C;
+
+  color:white;
+
+  text-decoration:none;
+  font-family:'Alex Brush',cursive;
+  font-weight:600;
+
+  box-shadow:0 4px 10px rgba(0,0,0,0.12);
+
+  margin-top:10px;
+}
+
+.creator{
+  font-size:12px;
+  opacity:0.6;
+  margin-top:10px;
+}
+.btn img{
+  width:18px;
+  height:18px;
+}
+
+.error{
+  color:#b00020;
+  font-weight:700;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <div class="title">
+    Napi pozitív
+  </div>
+
+  <div id="content">
+    Betöltés...
+  </div>
+
+  <div class="creator">
+  Elérhetőség:
+  </div>
+
+  <a class="btn" href="index2.html">
+    <img src="brand-icon.png">
+    Kattkaland
+  </a>
+
+</div>
+
+<script type="module">
+
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
+
+const supabase = createClient(
+  "https://eogrnzuarpqlyjclkcqq.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
+)
+
+const sessionId =
+  new URLSearchParams(window.location.search)
+  .get("id")
+
+const el =
+  document.getElementById("content")
+
+if (!sessionId) {
+  el.innerHTML = `<div class="error">Hiányzó ID 😔</div>`
+  throw new Error("No ID")
+}
+
+const { data, error } =
+  await supabase
+    .from("daily_links")
+    .select("*")
+    .eq("session_id", sessionId)
+    .maybeSingle()
+
+if (error || !data) {
+  el.innerHTML = `<div class="error">Nem található 😔</div>`
+  throw error
+}
+
+// ======================
+// MAI NAP ELLENŐRZÉS
+// ======================
+
+const now = new Date()
+
+const today =
+  now.getFullYear() + "-" +
+  String(now.getMonth() + 1).padStart(2, "0") + "-" +
+  String(now.getDate()).padStart(2, "0")
+
+if (data.expires_at !== today) {
+  el.innerHTML = `
+    <div class="error">
+      Ez a napi üzenet lejárt.<br><br>
+      Olvasd be újra a bilétát! ✨
+    </div>
+  `
+  throw new Error("Expired")
+}
+
+// ======================
+// BACKGROUND (SPEAKER)
+// ======================
+
+const category = data.category || "szivhatter"
+
+document.body.style.backgroundImage =
+  `linear-gradient(rgba(255,255,255,0.42), rgba(255,255,255,0.42)), url('${category}.jpg')`
+
+document.body.style.backgroundSize = "cover"
+document.body.style.backgroundPosition = "center"
+document.body.style.backgroundRepeat = "no-repeat"
+
+// ======================
+// DISPLAY
+// ======================
+
+el.innerHTML = `
+  <div class="tag">
+    ${data.category || ""}
+  </div>
+
+  <div class="message">
+    ${data.quote || ""}
+  </div>
+
+  ${
+    data.author
+    ? `<div class="author">${data.author}</div>`
+    : ""
+  }
+`
+
+</script>
+
+</body>
+</html>
