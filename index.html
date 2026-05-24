@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>Okosbiléta</title>
+
+<style>
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+    }
+
+    body{
+        width:100%;
+        min-height:100vh;
+        display:flex;
+        justify-content:center;
+        align-items:flex-end;
+        background-image:url('Okosbiléta plakát kicsi.jpg');
+        background-size:cover;
+        background-position:center;
+        background-repeat:no-repeat;
+        font-family:Arial, sans-serif;
+        padding-bottom:40px;
+    }
+
+    .button-container{
+        width:100%;
+        display:flex;
+        justify-content:center;
+    }
+
+    .order-button{
+        text-decoration:none;
+        background:#d39aa6;
+        color:white;
+        padding:18px 40px;
+        font-size:1.4rem;
+        border-radius:50px;
+        font-weight:bold;
+        box-shadow:0 6px 18px rgba(0,0,0,0.25);
+        transition:0.3s ease;
+        border:2px solid rgba(255,255,255,0.7);
+        backdrop-filter:blur(3px);
+    }
+
+    .order-button:hover{
+        transform:scale(1.05);
+        background:#c18391;
+    }
+
+    @media (max-width:768px){
+        body{
+            background-position:top center;
+            padding-bottom:25px;
+        }
+
+        .order-button{
+            font-size:1.1rem;
+            padding:15px 30px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+    <div class="button-container">
+        <a href="index2.html" class="order-button">
+            Megrendelés
+        </a>
+    </div>
+
+</body>
+</html>
