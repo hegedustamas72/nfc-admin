@@ -83,7 +83,12 @@
     }
 
     /* Kattkaland gomb alul */
-
+#contactLabel {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #424b54;
+  text-align: center;
+}
    
     .secondaryBtn {
       display: flex;
@@ -150,7 +155,15 @@
         html += `<a class="btn call-g2" href="tel:${data.guardian2_phone}">📞 ${data.guardian2_label}</a>`;
       }
 
-      html += `<div id="note">Ha felügyelet nélkül van vagy segítségre szorul, kérjük hívja fel a fenti számo(ka)t!</div>`;
+      html += `
+  <div id="note">
+    Ha felügyelet nélkül van vagy segítségre szorul, kérjük hívja fel a fenti számo(ka)t!
+  </div>
+
+  <div id="contactLabel">
+    Elérhetőség:
+  </div>
+`;
 
       html += `
         <button class="secondaryBtn" onclick="window.location.href='https://vigyazzram.kattkaland.hu'">
