@@ -1,179 +1,303 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
+
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    />
 
     <title>Okosbiléta</title>
 
     <link rel="stylesheet" href="style.css">
 
+    <!-- Google Fonts -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
 
-    <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+    <link
+    href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+    >
+
+    <!-- Font Awesome -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
 </head>
 
 <body>
 
-    <section class="hero">
+<section class="hero">
 
-        <div class="overlay"></div>
+    <div class="container">
 
-        <div class="container">
+        <!-- CÍM -->
 
-            <header>
-                <h1>OKOSBILÉTA</h1>
-            </header>
+        <header>
+            <h1>OKOSBILÉTA</h1>
+        </header>
 
-            <div class="columns">
+        <!-- KÉT OSZLOP -->
 
-                <!-- BAL OLDAL -->
+        <div class="columns">
 
-                <div class="column card">
+            <!-- BAL OLDAL -->
 
-                    <div class="quote-block">
-                        <h2>
-                            A legrosszabb nem az,
-                            <br>
-                            ha egyedül marad...
-                        </h2>
+            <div class="card">
 
-                        <h3>
-                            hanem ha nem tudják,
-                            <br>
-                            kit hívjanak.
-                        </h3>
+                <div class="quote-block">
+
+                    <h2>
+                        A legrosszabb nem az,
+                        <br>
+                        ha egyedül marad...
+                    </h2>
+
+                    <h3>
+                        hanem ha nem tudják,
+                        <br>
+                        kit hívjanak.
+                    </h3>
+
+                </div>
+
+                <!-- BILÉTA KÉP -->
+
+                <div class="main-image">
+                    <img src="bileta.jpg" alt="">
+                </div>
+
+                <p class="description">
+
+                    A „Vigyázz rám!” okosbilétával
+                    ha szeretted segítségre szorul,
+                    azonnal elérnek téged.
+
+                </p>
+
+                <!-- TELEFONOK -->
+
+                <div class="phones">
+
+                    <div class="phone">
+
+                        <div class="phone-frame">
+
+                            <div class="notch"></div>
+
+                            <img
+                                src="screenshot1.jpg"
+                                class="screen"
+                                alt=""
+                            >
+
+                        </div>
+
                     </div>
 
-                    <div class="image-box">
-                        <img src="bileta.jpg" alt="Okosbiléta">
-                    </div>
+                    <div class="phone">
 
-                    <p class="description">
-                        A „Vigyázz rám!” okosbilétával
-                        ha szeretted segítségre szorul,
-                        azonnal elérnek téged.
-                    </p>
+                        <div class="phone-frame">
 
-                    <div class="phones">
+                            <div class="notch"></div>
 
-                        <div class="phone-card pink">
-                            <div class="phone-top"></div>
-                            <div class="phone-content">
-                                <h4>Odin</h4>
-                                <button>Gazdi1</button>
-                                <button>Gazdi2</button>
-                            </div>
+                            <img
+                                src="screenshot2.jpg"
+                                class="screen"
+                                alt=""
+                            >
+
                         </div>
 
-                        <div class="phone-card blue">
-                            <div class="phone-top"></div>
-                            <div class="phone-content">
-                                <h4>Hegedűs Boglárka Kata</h4>
-                                <button>Anya</button>
-                                <button>Apa</button>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div class="icon-row">
-                        <div>
-                            <i class="fa-solid fa-mobile-screen-button"></i>
-                            <span>ÉRINTSD!</span>
-                        </div>
-
-                        <div>
-                            <i class="fa-solid fa-hand-pointer"></i>
-                            <span>OLVASD!</span>
-                        </div>
-
-                        <div>
-                            <i class="fa-solid fa-phone"></i>
-                            <span>HÍVD!</span>
-                        </div>
                     </div>
 
                 </div>
 
-                <!-- JOBB OLDAL -->
+                <!-- IKONOK -->
 
-                <div class="column card">
+                <div class="icon-row">
 
-                    <div class="quote-block">
-                        <h2>
-                            Motiváció, humor,
-                            <br>
-                            bölcsesség...
-                        </h2>
-
-                        <h3>
-                            Macskák és Vikingek
-                            <br>
-                            egyetlen érintésre!
-                        </h3>
+                    <div>
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                        <span>ÉRINTSD!</span>
                     </div>
 
-                    <div class="image-box">
-                        <img src="medal.jpg" alt="Díszbiléták">
+                    <div>
+                        <i class="fa-solid fa-hand-pointer"></i>
+                        <span>OLVASD!</span>
                     </div>
 
-                    <p class="description">
-                        Ha szeretnél egy napi
-                        tanácsot, megerősítést,
-                        humoros üzenetet!
-                    </p>
-
-                    <div class="phones multi">
-
-                        <div class="phone-card mini pink"></div>
-                        <div class="phone-card mini black"></div>
-                        <div class="phone-card mini dark"></div>
-                        <div class="phone-card mini blue"></div>
-
-                    </div>
-
-                    <div class="icon-row">
-                        <div>
-                            <i class="fa-solid fa-mobile-screen-button"></i>
-                            <span>ÉRINTSD...</span>
-                        </div>
-
-                        <div>
-                            <i class="fa-solid fa-lightbulb"></i>
-                            <span>ÉRTSD...</span>
-                        </div>
-
-                        <div>
-                            <i class="fa-solid fa-heart"></i>
-                            <span>ÉLD...</span>
-                        </div>
+                    <div>
+                        <i class="fa-solid fa-phone"></i>
+                        <span>HÍVD!</span>
                     </div>
 
                 </div>
 
             </div>
 
-            <div class="bottom-area">
+            <!-- JOBB OLDAL -->
 
-                <div class="logo">
-                    Kattkaland
+            <div class="card">
+
+                <div class="quote-block">
+
+                    <h2>
+                        Motiváció, humor,
+                        <br>
+                        bölcsesség...
+                    </h2>
+
+                    <h3>
+                        Macskák és Vikingek
+                        <br>
+                        egyetlen érintésre!
+                    </h3>
+
                 </div>
 
-                <a href="index2.html" class="order-button">
-                    Megrendelés
-                </a>
+                <!-- KÉP -->
+
+                <div class="main-image">
+                    <img src="medal.jpg" alt="">
+                </div>
+
+                <p class="description">
+
+                    Ha szeretnél napi
+                    motivációt, humort,
+                    vagy bölcsességet!
+
+                </p>
+
+                <!-- TELEFONOK -->
+
+                <div class="phones small-phones">
+
+                    <div class="phone small">
+
+                        <div class="phone-frame">
+
+                            <div class="notch"></div>
+
+                            <img
+                                src="screenshot3.jpg"
+                                class="screen"
+                                alt=""
+                            >
+
+                        </div>
+
+                    </div>
+
+                    <div class="phone small">
+
+                        <div class="phone-frame">
+
+                            <div class="notch"></div>
+
+                            <img
+                                src="screenshot4.jpg"
+                                class="screen"
+                                alt=""
+                            >
+
+                        </div>
+
+                    </div>
+
+                    <div class="phone small">
+
+                        <div class="phone-frame">
+
+                            <div class="notch"></div>
+
+                            <img
+                                src="screenshot5.jpg"
+                                class="screen"
+                                alt=""
+                            >
+
+                        </div>
+
+                    </div>
+
+                    <div class="phone small">
+
+                        <div class="phone-frame">
+
+                            <div class="notch"></div>
+
+                            <img
+                                src="screenshot6.jpg"
+                                class="screen"
+                                alt=""
+                            >
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- IKONOK -->
+
+                <div class="icon-row">
+
+                    <div>
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                        <span>ÉRINTSD...</span>
+                    </div>
+
+                    <div>
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>ÉRTSD...</span>
+                    </div>
+
+                    <div>
+                        <i class="fa-solid fa-heart"></i>
+                        <span>ÉLD...</span>
+                    </div>
+
+                </div>
 
             </div>
 
         </div>
 
-    </section>
+        <!-- ALSÓ RÉSZ -->
+
+        <div class="bottom-area">
+
+            <div class="logo">
+
+            <img
+                src="logo.png"
+                alt="Kattkaland logó">
+
+            </div>
+
+            <a href="index2.html" class="order-button">
+                Megrendelés
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
 
 </body>
 </html>
-ödni fog az egész oldal.
