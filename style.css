@@ -260,34 +260,46 @@ header h1{
     width:min(140px, 23vw);
 }
 
+/* 1 */
+
 .small-phones .phone:nth-child(1){
 
-    transform:rotate(-5deg);
+    animation:
+    floatLeft 5s ease-in-out infinite;
 
     z-index:1;
 }
 
+/* 2 */
+
 .small-phones .phone:nth-child(2){
 
-    transform:rotate(4deg);
+    animation:
+    floatRight 5s ease-in-out infinite;
 
     margin-left:-20px;
 
     z-index:2;
 }
 
+/* 3 */
+
 .small-phones .phone:nth-child(3){
 
-    transform:rotate(-4deg);
+    animation:
+    floatLeft 5s ease-in-out infinite;
 
     margin-left:-20px;
 
     z-index:3;
 }
 
+/* 4 */
+
 .small-phones .phone:nth-child(4){
 
-    transform:rotate(5deg);
+    animation:
+    floatRight 5s ease-in-out infinite;
 
     margin-left:-20px;
 
@@ -310,6 +322,26 @@ header h1{
     0 18px 35px rgba(0,0,0,0.22);
 }
 
+/* ===== KIS TELEFON KERET ===== */
+
+.small-phones .phone-frame{
+
+    padding:4px;
+
+    border-radius:26px;
+}
+
+.small-phones .notch{
+
+    height:8px;
+
+    margin-bottom:5px;
+}
+
+.small-phones .screen{
+
+    border-radius:18px;
+}
 /* ===== NOTCH ===== */
 
 .notch{
