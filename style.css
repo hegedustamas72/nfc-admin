@@ -237,16 +237,16 @@ header h1{
 
 .phones .phone:nth-child(1){
 
-    transform:
-    rotate(-5deg);
+    animation:
+    floatLeft 5s ease-in-out infinite;
 
     z-index:1;
 }
 
 .phones .phone:nth-child(2){
 
-    transform:
-    rotate(5deg);
+    animation:
+    floatRight 5s ease-in-out infinite;
 
     margin-left:-40px;
 
@@ -442,18 +442,45 @@ header h1{
 
 /* ===== ANIMÁCIÓ ===== */
 
-@keyframes float{
+@keyframes floatLeft{
 
     0%{
-        transform:translateY(0px);
+        transform:
+        rotate(-5deg)
+        translateY(0px);
     }
 
     50%{
-        transform:translateY(-8px);
+        transform:
+        rotate(-5deg)
+        translateY(-8px);
     }
 
     100%{
-        transform:translateY(0px);
+        transform:
+        rotate(-5deg)
+        translateY(0px);
+    }
+}
+
+@keyframes floatRight{
+
+    0%{
+        transform:
+        rotate(5deg)
+        translateY(0px);
+    }
+
+    50%{
+        transform:
+        rotate(5deg)
+        translateY(-8px);
+    }
+
+    100%{
+        transform:
+        rotate(5deg)
+        translateY(0px);
     }
 }
 
