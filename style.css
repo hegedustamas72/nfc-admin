@@ -538,19 +538,4 @@ header h1{
         text-align:center;
     }
 }
-```
-
----
-
-# Szükséges képek
-
-A következő képeket rakd ugyanabba a mappába:
-
-```text
-bileta.jpg
-medal.jpg
-index.html
-style.css
-```
-
-Utána az `index.html` megnyitásával működni fog az egész oldal.
+ml` megnyitásával működni fog az egész oldal.
