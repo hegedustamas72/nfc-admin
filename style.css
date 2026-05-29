@@ -326,6 +326,20 @@ header h1{
     background:#555;
 }
 
+/* IVORY */
+
+.phone.ivory .phone-frame{
+
+    background:#efe7dc;
+}
+
+/* SAGE */
+
+.phone.sage .phone-frame{
+
+    background:#b7c4b2;
+}
+
 /* ===== NAGY TELEFONOK ===== */
 
 .phones .phone:nth-child(1){
