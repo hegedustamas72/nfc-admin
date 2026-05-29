@@ -151,8 +151,9 @@ header h1{
     0 10px 35px rgba(0,0,0,0.08);
 
     min-width:0;
-}
 
+    overflow:hidden;
+}
 /* ===== SZÖVEGEK ===== */
 
 .quote-block{
@@ -238,7 +239,9 @@ header h1{
 
     position:relative;
 
-    overflow:hidden;
+    padding:
+    20px
+    25px;
 }
 
 /* ===== TELEFON ===== */
