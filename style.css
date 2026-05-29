@@ -269,32 +269,41 @@ header h1{
     0 18px 35px rgba(0,0,0,0.22);
 }
 
-/* ===== KIS TELEFONOK ===== */
+/* ===== TELEFONPÁROK ===== */
 
-.small-phones .phone{
+.pair{
 
-    width:min(140px, 23vw);
+    margin-bottom:30px;
 }
 
-.small-phones .phone-frame{
+/* ===== JOBB OLDALI TELEFONOK ===== */
 
-    padding:4px;
+.pair .phone{
 
-    border-radius:26px;
+    width:min(220px, 38vw);
 }
 
-.small-phones .notch{
+/* BAL */
 
-    height:8px;
+.pair .phone:nth-child(1){
 
-    margin-bottom:5px;
+    animation:
+    floatLeft 5s ease-in-out infinite;
+
+    z-index:1;
 }
 
-.small-phones .screen{
+/* JOBB */
 
-    border-radius:18px;
+.pair .phone:nth-child(2){
+
+    animation:
+    floatRight 5s ease-in-out infinite;
+
+    margin-left:-40px;
+
+    z-index:2;
 }
-
 /* ===== KERET SZÍNEK ===== */
 
 .phone.gold .phone-frame{
