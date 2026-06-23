@@ -168,12 +168,19 @@ if (!sessionId){
   throw new Error("No ID")
 }
 
-const { data, error } =
+const result =
   await supabase
     .from("magic8_links")
     .select("*")
     .eq("session_id", sessionId)
-    .maybeSingle()
+
+console.log(result)
+
+document.body.innerHTML = `
+<pre style="white-space:pre-wrap;padding:20px;">
+${JSON.stringify(result,null,2)}
+</pre>
+`
 
 if(error || !data){
 
