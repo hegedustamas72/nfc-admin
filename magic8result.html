@@ -23,10 +23,7 @@ body{
   box-sizing:border-box;
 
   background:
-    linear-gradient(
-      rgba(0,0,0,0.25),
-      rgba(0,0,0,0.25)
-    ),
+    linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)),
     url('magic8.jpg');
 
   background-size:cover;
@@ -37,7 +34,6 @@ body{
   font-family:'DM Sans',sans-serif;
 }
 
-/* LAYOUT */
 .card{
   width:min(100%,420px);
   min-height:90vh;
@@ -52,7 +48,6 @@ body{
   flex-direction:column;
 }
 
-/* TEXT STYLES */
 .bigtext{
   font-size:32px;
   font-weight:700;
@@ -60,15 +55,7 @@ body{
   text-align:center;
   letter-spacing:2px;
   text-shadow:0 2px 10px rgba(0,0,0,.5);
-}
-
-.category{
-  font-size:32px;
-  font-weight:700;
-  min-height:40px;
-  text-align:center;
-  letter-spacing:2px;
-  text-shadow:0 2px 10px rgba(0,0,0,.5);
+  transition: all 0.15s ease;
 }
 
 .bottom{
@@ -89,7 +76,6 @@ body{
   font-size:14px;
 }
 
-/* FOOTER */
 .footer{
   margin-top:30px;
   display:flex;
@@ -131,7 +117,7 @@ body{
   font-weight:700;
 }
 
-/* iOS VISUAL HAPTIC */
+/* iOS haptikus */
 .shake {
   animation: shake 0.35s;
 }
@@ -154,14 +140,13 @@ body{
   100% { transform: scale(1); }
 }
 
-/* “VARÁZS” FLASH */
 .flash {
   animation: flash 0.2s ease;
 }
 
 @keyframes flash {
   0% { filter: brightness(1); }
-  50% { filter: brightness(1.4); }
+  50% { filter: brightness(1.5); }
   100% { filter: brightness(1); }
 }
 
@@ -175,8 +160,6 @@ body{
 
   <div id="content">
 
-    <div class="category" id="category"></div>
-
     <div class="bigtext" id="rolling">
       A sors dönt...
     </div>
@@ -187,9 +170,7 @@ body{
 
   <div class="footer">
 
-    <div class="creator">
-      Megrendelhető:
-    </div>
+    <div class="creator">Megrendelhető:</div>
 
     <a class="btn" href="index.html">
       <img src="brand-icon.png">
@@ -213,33 +194,11 @@ const sessionId =
   new URLSearchParams(window.location.search)
   .get("id")
 
-const categoryEl =
-  document.getElementById("category")
-
 const rollingEl =
   document.getElementById("rolling")
 
 const bottomEl =
   document.getElementById("bottom")
-
-function haptic(){
-
-  // Android vibrate
-  if(navigator.vibrate){
-    navigator.vibrate(12)
-  }
-
-  // iOS visual fallback
-  rollingEl.classList.remove("shake","pulse")
-  void rollingEl.offsetWidth
-  rollingEl.classList.add("shake","pulse")
-}
-
-function flash(){
-  rollingEl.classList.remove("flash")
-  void rollingEl.offsetWidth
-  rollingEl.classList.add("flash")
-}
 
 if(!sessionId){
 
@@ -265,13 +224,50 @@ if(error || !data){
 }
 
 // -------------------------
-// LASSULÓ “SZERKEZET”
+// AUDIO (tick sound)
+// -------------------------
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+
+function tickSound(){
+
+  const osc = audioCtx.createOscillator()
+  const gain = audioCtx.createGain()
+
+  osc.type = "square"
+  osc.frequency.value = 120 + Math.random()*80
+
+  gain.gain.value = 0.03
+
+  osc.connect(gain)
+  gain.connect(audioCtx.destination)
+
+  osc.start()
+  osc.stop(audioCtx.currentTime + 0.03)
+}
+
+// -------------------------
+// HAPTIC / IOS FX
+// -------------------------
+function fx(){
+
+  if(navigator.vibrate){
+    navigator.vibrate(10)
+  }
+
+  rollingEl.classList.remove("shake","pulse")
+  void rollingEl.offsetWidth
+  rollingEl.classList.add("shake","pulse")
+}
+
+// -------------------------
+// PHYSICS SPIN
 // -------------------------
 
 const words = ["IGEN","NEM","TALÁN","IGEN","NEM","TALÁN"]
 
 let i = 0
-let delay = 50
+let speed = 40 // induló gyorsaság
+let running = true
 
 function tick(){
 
@@ -280,26 +276,28 @@ function tick(){
 
   i++
 
-  haptic()
+  tickSound()
+  fx()
 
-  delay += 18
+  // FIZIKAI LASSULÁS (inertia)
+  speed *= 1.12
 
-  // “varázs pillanat” a vég előtt
-  if(delay > 260){
-    flash()
-  }
-
-  if(delay > 420){
+  if(speed > 420){
     stop()
     return
   }
 
-  setTimeout(tick, delay)
+  setTimeout(tick, speed)
 }
 
+// -------------------------
+// STOP + LOCK-IN
+// -------------------------
 function stop(){
 
-  // végső erős feedback
+  running = false
+
+  // végső erős “ütés”
   if(navigator.vibrate){
     navigator.vibrate([60,40,140])
   }
@@ -309,19 +307,25 @@ function stop(){
   if(data.answer_type === "yes") category = "IGEN"
   if(data.answer_type === "no") category = "NEM"
 
-  rollingEl.style.display = "none"
+  // LOCK-IN EFFECT (kis késleltetés)
+  rollingEl.style.opacity = 0
 
-  categoryEl.textContent = category
+  setTimeout(() => {
 
-  bottomEl.innerHTML = `
-    <div class="answer">
-      ${data.answer}
-    </div>
+    rollingEl.style.opacity = 1
+    rollingEl.textContent = category
 
-    <div class="hint">
-      Új válaszért érintsd újra a bilétát.
-    </div>
-  `
+    bottomEl.innerHTML = `
+      <div class="answer">
+        ${data.answer}
+      </div>
+
+      <div class="hint">
+        Új válaszért érintsd újra a bilétát.
+      </div>
+    `
+
+  }, 180)
 }
 
 tick()
