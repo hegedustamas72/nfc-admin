@@ -213,7 +213,6 @@ let category = "TALÁN"
 if(data.answer_type === "yes") category = "IGEN"
 if(data.answer_type === "no") category = "NEM"
 
-categoryEl.textContent = category
 
 // animáció
 const rollingWords = ["IGEN","NEM","TALÁN","IGEN","NEM","TALÁN"]
@@ -234,6 +233,13 @@ setTimeout(() => {
   clearInterval(timer)
 
   rollingEl.style.display = "none"
+
+  let category = "TALÁN"
+
+  if (data.answer_type === "yes") category = "IGEN"
+  if (data.answer_type === "no") category = "NEM"
+
+  categoryEl.textContent = category
 
   bottomEl.innerHTML = `
     <div class="answer">
