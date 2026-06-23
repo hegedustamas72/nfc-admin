@@ -60,6 +60,15 @@ body{
   text-shadow:0 2px 10px rgba(0,0,0,.5);
 }
 
+.category{
+  font-size:32px;
+  font-weight:700;
+  min-height:40px;
+  text-align:center;
+  letter-spacing:2px;
+  text-shadow:0 2px 10px rgba(0,0,0,.5);
+}
+
 .bottom{
   margin-top:auto;
   text-align:center;
@@ -129,7 +138,7 @@ body{
 
   <div id="content">
 
-    <div class="bigtext" id="category"></div>
+    <div class="category" id="category"></div>
 
     <div class="bigtext" id="rolling">
       A sors dönt...
@@ -199,35 +208,34 @@ if(error || !data){
   throw error
 }
 
-const rollingWords = [
-  "IGEN",
-  "NEM",
-  "TALÁN",
-  "IGEN",
-  "NEM",
-  "TALÁN"
-]
+// ==========================
+// LASSULÓ PÖRGÉS + VIBRÁCIÓ
+// ==========================
 
-// ==========================
-// LASSULÓ ANIMÁCIÓ
-// ==========================
+const words = ["IGEN","NEM","TALÁN","IGEN","NEM","TALÁN"]
 
 let i = 0
-let delay = 60
-let running = true
+let delay = 50
+
+function vibrate(ms){
+  if(navigator.vibrate){
+    navigator.vibrate(ms)
+  }
+}
 
 function tick(){
 
-  if(!running) return
-
   rollingEl.textContent =
-    rollingWords[i % rollingWords.length]
+    words[i % words.length]
 
   i++
 
-  delay += 18 // 👉 lassulás
+  // finom rezgés pörgés közben
+  vibrate(10)
 
-  if(delay > 400){
+  delay += 20
+
+  if(delay > 420){
     stop()
     return
   }
@@ -237,7 +245,8 @@ function tick(){
 
 function stop(){
 
-  running = false
+  // erősebb “válasz-ütés”
+  vibrate([60,40,120])
 
   let category = "TALÁN"
 
