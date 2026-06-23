@@ -39,36 +39,30 @@ body{
 
 .card{
   width:min(100%,420px);
-
-  min-height:80vh;
+  min-height:90vh;
 
   display:flex;
   flex-direction:column;
-
-  justify-content:flex-start;
-
-  text-align:center;
-
-  padding-top:50px;
 }
 
-
-.rolling{
-  font-size:32px;
-  font-weight:700;
-  min-height:40px;
-  margin-bottom:10px;
-  letter-spacing:2px;
-  text-shadow:0 2px 10px rgba(0,0,0,.5);
+#content{
+  flex:1;
+  display:flex;
+  flex-direction:column;
 }
 
 .category{
   font-size:20px;
   font-weight:700;
   letter-spacing:5px;
-  opacity:.85;
-  margin-bottom:60px;
-  text-shadow:0 2px 10px rgba(0,0,0,.5);
+  opacity:.9;
+  margin-bottom:10px;
+  text-align:center;
+}
+
+.bottom{
+  margin-top:auto;
+  text-align:center;
 }
 
 .answer{
@@ -79,17 +73,22 @@ body{
 }
 
 .hint{
-  margin-top:24px;
+  margin-top:18px;
   opacity:.8;
   font-size:14px;
-  text-shadow:0 2px 10px rgba(0,0,0,.5);
+}
+
+.footer{
+  margin-top:30px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
 }
 
 .creator{
   font-size:12px;
   opacity:.75;
-  margin-top:36px;
-  text-shadow:0 2px 10px rgba(0,0,0,.5);
 }
 
 .btn{
@@ -102,12 +101,10 @@ body{
 
   border-radius:14px;
 
-  background:#9B6A6C;
+  background:#3056d3;
 
   color:white;
   text-decoration:none;
-
-  margin-top:10px;
 
   box-shadow:0 4px 12px rgba(0,0,0,.2);
 }
@@ -122,7 +119,16 @@ body{
   font-weight:700;
 }
 
+.rolling{
+  font-size:32px;
+  font-weight:700;
+  min-height:40px;
+  text-align:center;
+  margin-top:20px;
+}
+
 </style>
+
 </head>
 
 <body>
@@ -131,20 +137,28 @@ body{
 
   <div id="content">
 
+    <div class="category" id="category"></div>
+
     <div class="rolling" id="rolling">
       A sors dönt...
     </div>
 
+    <div class="bottom" id="bottom"></div>
+
   </div>
 
-  <div class="creator">
-    Megrendelhető:
-  </div>
+  <div class="footer">
 
-  <a class="btn" href="index.html">
-    <img src="brand-icon.png">
-    Kattkaland
-  </a>
+    <div class="creator">
+      Megrendelhető:
+    </div>
+
+    <a class="btn" href="index.html">
+      <img src="brand-icon.png">
+      Kattkaland
+    </a>
+
+  </div>
 
 </div>
 
@@ -161,12 +175,18 @@ const sessionId =
   new URLSearchParams(window.location.search)
   .get("id")
 
-const content =
-  document.getElementById("content")
+const categoryEl =
+  document.getElementById("category")
 
-if (!sessionId){
+const rollingEl =
+  document.getElementById("rolling")
 
-  content.innerHTML =
+const bottomEl =
+  document.getElementById("bottom")
+
+if(!sessionId){
+
+  rollingEl.innerHTML =
     '<div class="error">Hiányzó ID 😔</div>'
 
   throw new Error("No ID")
@@ -179,35 +199,24 @@ const { data, error } =
     .eq("session_id", sessionId)
     .maybeSingle()
 
-if(error){
+if(error || !data){
 
-  content.innerHTML =
-    '<div class="error">Supabase hiba 😔</div>'
-
-  console.error(error)
+  rollingEl.innerHTML =
+    '<div class="error">Nem található 😔</div>'
 
   throw error
 }
 
-if(!data){
+// kategória
+let category = "TALÁN"
 
-  content.innerHTML =
-    '<div class="error">Nem található 😔</div>'
+if(data.answer_type === "yes") category = "IGEN"
+if(data.answer_type === "no") category = "NEM"
 
-  throw new Error("No data")
-}
+categoryEl.textContent = category
 
-const rollingEl =
-  document.getElementById("rolling")
-
-const rollingWords = [
-  "IGEN",
-  "NEM",
-  "TALÁN",
-  "IGEN",
-  "NEM",
-  "TALÁN"
-]
+// animáció
+const rollingWords = ["IGEN","NEM","TALÁN","IGEN","NEM","TALÁN"]
 
 let i = 0
 
@@ -224,21 +233,9 @@ setTimeout(() => {
 
   clearInterval(timer)
 
-  let category = "TALÁN"
+  rollingEl.style.display = "none"
 
-  if(data.answer_type === "yes"){
-    category = "IGEN"
-  }
-
-  if(data.answer_type === "no"){
-    category = "NEM"
-  }
-
-  content.innerHTML = `
-    <div class="category">
-      ${category}
-    </div>
-
+  bottomEl.innerHTML = `
     <div class="answer">
       ${data.answer}
     </div>
