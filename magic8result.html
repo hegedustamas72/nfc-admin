@@ -55,7 +55,7 @@ body{
   text-align:center;
   letter-spacing:2px;
   text-shadow:0 2px 10px rgba(0,0,0,.5);
-  transition: all 0.15s ease;
+  transition:all 0.12s ease;
 }
 
 .bottom{
@@ -84,11 +84,6 @@ body{
   gap:10px;
 }
 
-.creator{
-  font-size:12px;
-  opacity:.75;
-}
-
 .btn{
   display:flex;
   align-items:center;
@@ -103,25 +98,15 @@ body{
 
   color:white;
   text-decoration:none;
-
   box-shadow:0 4px 12px rgba(0,0,0,.2);
 }
 
-.btn img{
-  width:18px;
-  height:18px;
-}
+.btn img{ width:18px; height:18px; }
 
-.error{
-  color:#ffb0b0;
-  font-weight:700;
-}
+.error{ color:#ffb0b0; font-weight:700; }
 
-/* iOS haptikus */
-.shake {
-  animation: shake 0.35s;
-}
-
+/* iOS FX */
+.shake { animation: shake 0.35s; }
 @keyframes shake {
   0% { transform: translate(0,0); }
   25% { transform: translate(-2px,1px); }
@@ -130,20 +115,14 @@ body{
   100% { transform: translate(0,0); }
 }
 
-.pulse {
-  animation: pulse 0.25s ease;
-}
-
+.pulse { animation: pulse 0.2s ease; }
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.03); }
   100% { transform: scale(1); }
 }
 
-.flash {
-  animation: flash 0.2s ease;
-}
-
+.flash { animation: flash 0.15s ease; }
 @keyframes flash {
   0% { filter: brightness(1); }
   50% { filter: brightness(1.5); }
@@ -170,8 +149,6 @@ body{
 
   <div class="footer">
 
-    <div class="creator">Megrendelhető:</div>
-
     <a class="btn" href="index.html">
       <img src="brand-icon.png">
       Kattkaland
@@ -191,8 +168,7 @@ const supabase = createClient(
 )
 
 const sessionId =
-  new URLSearchParams(window.location.search)
-  .get("id")
+  new URLSearchParams(location.search).get("id")
 
 const rollingEl =
   document.getElementById("rolling")
@@ -201,10 +177,7 @@ const bottomEl =
   document.getElementById("bottom")
 
 if(!sessionId){
-
-  rollingEl.innerHTML =
-    '<div class="error">Hiányzó ID 😔</div>'
-
+  rollingEl.innerHTML = "Hiányzó ID 😔"
   throw new Error("No ID")
 }
 
@@ -216,60 +189,53 @@ const { data, error } =
     .maybeSingle()
 
 if(error || !data){
-
-  rollingEl.innerHTML =
-    '<div class="error">Nem található 😔</div>'
-
+  rollingEl.innerHTML = "Nem található 😔"
   throw error
 }
 
-// -----------------------------
-// AUDIO ENGINE (iOS SAFE)
-// -----------------------------
-const AudioContextClass =
+// ---------------------
+// AUDIO (FIXED iOS)
+// ---------------------
+
+const AudioCtx =
   window.AudioContext || window.webkitAudioContext
 
-const audioCtx = new AudioContextClass()
+const audioCtx = new AudioCtx()
 
-function unlockAudio(){
-  if(audioCtx.state === "suspended"){
-    audioCtx.resume()
-  }
-}
-
-function unlockAudio(){
+function unlock(){
   audioCtx.resume()
 }
 
-document.addEventListener("touchstart", unlockAudio, { passive:true })
-document.addEventListener("click", unlockAudio)
+document.addEventListener("touchstart", unlock, { once:false })
+document.addEventListener("click", unlock)
 
 function clickSound(){
 
-  for(let j=0;j<2;j++){
+  if(audioCtx.state !== "running") return
 
-    const osc = audioCtx.createOscillator()
-    const gain = audioCtx.createGain()
+  const osc = audioCtx.createOscillator()
+  const gain = audioCtx.createGain()
 
-    osc.type = "square"
-    osc.frequency.value = 1000 + Math.random()*200
+  osc.type = "square"
+  osc.frequency.value = 1100 + Math.random()*200
 
-    gain.gain.value = 0.06
+  gain.gain.setValueAtTime(0.07, audioCtx.currentTime)
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04)
 
-    osc.connect(gain)
-    gain.connect(audioCtx.destination)
+  osc.connect(gain)
+  gain.connect(audioCtx.destination)
 
-    osc.start(audioCtx.currentTime + j*0.01)
-    osc.stop(audioCtx.currentTime + 0.04 + j*0.01)
-  }
+  osc.start()
+  osc.stop(audioCtx.currentTime + 0.05)
 }
-// -----------------------------
-// VISUAL HAPTIC
-// -----------------------------
-function fx(){
 
+// ---------------------
+// VISUAL FX
+// ---------------------
+
+function fx(){
   if(navigator.vibrate){
-    navigator.vibrate(10)
+    navigator.vibrate(8)
   }
 
   rollingEl.classList.remove("shake","pulse")
@@ -283,13 +249,14 @@ function flash(){
   rollingEl.classList.add("flash")
 }
 
-// -----------------------------
-// PHYSICS SPIN
-// -----------------------------
+// ---------------------
+// SPIN
+// ---------------------
+
 const words = ["IGEN","NEM","TALÁN","IGEN","NEM","TALÁN"]
 
 let i = 0
-let speed = 40
+let speed = 45
 
 function tick(){
 
@@ -301,10 +268,9 @@ function tick(){
   clickSound()
   fx()
 
-  // fizikai lassulás
-  speed *= 1.12
+  speed *= 1.13
 
-  if(speed > 280){
+  if(speed > 260){
     flash()
   }
 
@@ -316,9 +282,10 @@ function tick(){
   setTimeout(tick, speed)
 }
 
-// -----------------------------
-// STOP (LOCK-IN)
-// -----------------------------
+// ---------------------
+// STOP
+// ---------------------
+
 function stop(){
 
   if(navigator.vibrate){
@@ -326,14 +293,12 @@ function stop(){
   }
 
   let category = "TALÁN"
-
   if(data.answer_type === "yes") category = "IGEN"
   if(data.answer_type === "no") category = "NEM"
 
   rollingEl.style.opacity = 0
 
   setTimeout(() => {
-
     rollingEl.style.opacity = 1
     rollingEl.textContent = category
 
@@ -341,13 +306,11 @@ function stop(){
       <div class="answer">
         ${data.answer}
       </div>
-
       <div class="hint">
         Új válaszért érintsd újra a bilétát.
       </div>
     `
-
-  }, 180)
+  }, 160)
 }
 
 tick()
