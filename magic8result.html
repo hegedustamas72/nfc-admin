@@ -98,35 +98,34 @@ body{
 
   color:white;
   text-decoration:none;
+
   box-shadow:0 4px 12px rgba(0,0,0,.2);
 }
 
-.btn img{ width:18px; height:18px; }
-
-.error{ color:#ffb0b0; font-weight:700; }
-
-/* iOS FX */
-.shake { animation: shake 0.35s; }
-@keyframes shake {
-  0% { transform: translate(0,0); }
-  25% { transform: translate(-2px,1px); }
-  50% { transform: translate(2px,-1px); }
-  75% { transform: translate(-1px,1px); }
-  100% { transform: translate(0,0); }
+.btn img{
+  width:18px;
+  height:18px;
 }
 
-.pulse { animation: pulse 0.2s ease; }
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.03); }
-  100% { transform: scale(1); }
+/* FX */
+.flash {
+  animation: flash 0.12s ease;
 }
 
-.flash { animation: flash 0.15s ease; }
 @keyframes flash {
   0% { filter: brightness(1); }
-  50% { filter: brightness(1.5); }
+  50% { filter: brightness(1.6); }
   100% { filter: brightness(1); }
+}
+
+.shake {
+  animation: shake 0.25s;
+}
+
+@keyframes shake {
+  0% { transform: translate(0,0); }
+  50% { transform: translate(-2px,1px); }
+  100% { transform: translate(2px,-1px); }
 }
 
 </style>
@@ -139,21 +138,17 @@ body{
 
   <div id="content">
 
-    <div class="bigtext" id="rolling">
-      A sors dönt...
-    </div>
+    <div class="bigtext" id="rolling">A sors dönt...</div>
 
     <div class="bottom" id="bottom"></div>
 
   </div>
 
   <div class="footer">
-
     <a class="btn" href="index.html">
       <img src="brand-icon.png">
       Kattkaland
     </a>
-
   </div>
 
 </div>
@@ -170,56 +165,69 @@ const supabase = createClient(
 const sessionId =
   new URLSearchParams(location.search).get("id")
 
-const rollingEl =
-  document.getElementById("rolling")
+const el = document.getElementById("rolling")
+const bottom = document.getElementById("bottom")
 
-const bottomEl =
-  document.getElementById("bottom")
+// -------------------------
+// STATE
+// -------------------------
+let audioReady = false
+let audioAllowed = false
 
-if(!sessionId){
-  rollingEl.innerHTML = "Hiányzó ID 😔"
-  throw new Error("No ID")
-}
-
-const { data, error } =
-  await supabase
-    .from("magic8_links")
-    .select("*")
-    .eq("session_id", sessionId)
-    .maybeSingle()
-
-if(error || !data){
-  rollingEl.innerHTML = "Nem található 😔"
-  throw error
-}
-
-// ---------------------
-// AUDIO (FIXED iOS)
-// ---------------------
-
+// -------------------------
+// AUDIO ENGINE
+// -------------------------
 const AudioCtx =
   window.AudioContext || window.webkitAudioContext
 
 const audioCtx = new AudioCtx()
 
-function unlock(){
-  audioCtx.resume()
+function unlockAudio(){
+
+  audioCtx.resume().then(() => {
+    audioReady = true
+  })
 }
 
-document.addEventListener("touchstart", unlock, { once:false })
-document.addEventListener("click", unlock)
+document.addEventListener("touchend", unlockAudio, { once:false })
+document.addEventListener("click", unlockAudio)
 
+// “priming pulse” iOS fix
+function primeAudio(){
+
+  if(!audioReady) return
+
+  const osc = audioCtx.createOscillator()
+  const gain = audioCtx.createGain()
+
+  osc.frequency.value = 1
+  gain.gain.value = 0.0001
+
+  osc.connect(gain)
+  gain.connect(audioCtx.destination)
+
+  osc.start()
+  osc.stop(audioCtx.currentTime + 0.01)
+
+  audioAllowed = true
+}
+
+document.addEventListener("touchend", primeAudio, { once:true })
+
+// -------------------------
+// CLICK SOUND (robust)
+// -------------------------
 function clickSound(){
 
-  if(audioCtx.state !== "running") return
+  if(!audioReady || !audioAllowed) return
 
   const osc = audioCtx.createOscillator()
   const gain = audioCtx.createGain()
 
   osc.type = "square"
-  osc.frequency.value = 1100 + Math.random()*200
+  osc.frequency.value = 1000 + Math.random()*200
 
-  gain.gain.setValueAtTime(0.07, audioCtx.currentTime)
+  gain.gain.setValueAtTime(0.06, audioCtx.currentTime)
   gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04)
 
   osc.connect(gain)
@@ -229,30 +237,23 @@ function clickSound(){
   osc.stop(audioCtx.currentTime + 0.05)
 }
 
-// ---------------------
-// VISUAL FX
-// ---------------------
-
+// -------------------------
+// VISUAL + FALLBACK FX
+// -------------------------
 function fx(){
+
   if(navigator.vibrate){
     navigator.vibrate(8)
   }
 
-  rollingEl.classList.remove("shake","pulse")
-  void rollingEl.offsetWidth
-  rollingEl.classList.add("shake","pulse")
+  el.classList.remove("flash","shake")
+  void el.offsetWidth
+  el.classList.add("flash","shake")
 }
 
-function flash(){
-  rollingEl.classList.remove("flash")
-  void rollingEl.offsetWidth
-  rollingEl.classList.add("flash")
-}
-
-// ---------------------
+// -------------------------
 // SPIN
-// ---------------------
-
+// -------------------------
 const words = ["IGEN","NEM","TALÁN","IGEN","NEM","TALÁN"]
 
 let i = 0
@@ -260,19 +261,13 @@ let speed = 45
 
 function tick(){
 
-  rollingEl.textContent =
-    words[i % words.length]
-
+  el.textContent = words[i % words.length]
   i++
 
   clickSound()
   fx()
 
   speed *= 1.13
-
-  if(speed > 260){
-    flash()
-  }
 
   if(speed > 420){
     stop()
@@ -282,10 +277,9 @@ function tick(){
   setTimeout(tick, speed)
 }
 
-// ---------------------
+// -------------------------
 // STOP
-// ---------------------
-
+// -------------------------
 function stop(){
 
   if(navigator.vibrate){
@@ -293,26 +287,44 @@ function stop(){
   }
 
   let category = "TALÁN"
-  if(data.answer_type === "yes") category = "IGEN"
-  if(data.answer_type === "no") category = "NEM"
 
-  rollingEl.style.opacity = 0
+  if(data?.answer_type === "yes") category = "IGEN"
+  if(data?.answer_type === "no") category = "NEM"
+
+  el.style.opacity = 0
 
   setTimeout(() => {
-    rollingEl.style.opacity = 1
-    rollingEl.textContent = category
+    el.style.opacity = 1
+    el.textContent = category
 
-    bottomEl.innerHTML = `
+    bottom.innerHTML = `
       <div class="answer">
-        ${data.answer}
+        ${data?.answer || "—"}
       </div>
       <div class="hint">
         Új válaszért érintsd újra a bilétát.
       </div>
     `
-  }, 160)
+  }, 150)
 }
 
+// -------------------------
+// LOAD DATA (optional Supabase)
+// -------------------------
+let data = null
+
+if(sessionId){
+
+  const res = await supabase
+    .from("magic8_links")
+    .select("*")
+    .eq("session_id", sessionId)
+    .maybeSingle()
+
+  data = res.data || null
+}
+
+// START
 tick()
 
 </script>
