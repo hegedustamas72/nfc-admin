@@ -37,6 +37,7 @@ body{
   font-family:'DM Sans',sans-serif;
 }
 
+/* LAYOUT */
 .card{
   width:min(100%,420px);
   min-height:90vh;
@@ -51,6 +52,7 @@ body{
   flex-direction:column;
 }
 
+/* TEXT STYLES */
 .bigtext{
   font-size:32px;
   font-weight:700;
@@ -87,6 +89,7 @@ body{
   font-size:14px;
 }
 
+/* FOOTER */
 .footer{
   margin-top:30px;
   display:flex;
@@ -126,6 +129,40 @@ body{
 .error{
   color:#ffb0b0;
   font-weight:700;
+}
+
+/* iOS VISUAL HAPTIC */
+.shake {
+  animation: shake 0.35s;
+}
+
+@keyframes shake {
+  0% { transform: translate(0,0); }
+  25% { transform: translate(-2px,1px); }
+  50% { transform: translate(2px,-1px); }
+  75% { transform: translate(-1px,1px); }
+  100% { transform: translate(0,0); }
+}
+
+.pulse {
+  animation: pulse 0.25s ease;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+/* “VARÁZS” FLASH */
+.flash {
+  animation: flash 0.2s ease;
+}
+
+@keyframes flash {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.4); }
+  100% { filter: brightness(1); }
 }
 
 </style>
@@ -185,6 +222,25 @@ const rollingEl =
 const bottomEl =
   document.getElementById("bottom")
 
+function haptic(){
+
+  // Android vibrate
+  if(navigator.vibrate){
+    navigator.vibrate(12)
+  }
+
+  // iOS visual fallback
+  rollingEl.classList.remove("shake","pulse")
+  void rollingEl.offsetWidth
+  rollingEl.classList.add("shake","pulse")
+}
+
+function flash(){
+  rollingEl.classList.remove("flash")
+  void rollingEl.offsetWidth
+  rollingEl.classList.add("flash")
+}
+
 if(!sessionId){
 
   rollingEl.innerHTML =
@@ -208,20 +264,14 @@ if(error || !data){
   throw error
 }
 
-// ==========================
-// LASSULÓ PÖRGÉS + VIBRÁCIÓ
-// ==========================
+// -------------------------
+// LASSULÓ “SZERKEZET”
+// -------------------------
 
 const words = ["IGEN","NEM","TALÁN","IGEN","NEM","TALÁN"]
 
 let i = 0
 let delay = 50
-
-function vibrate(ms){
-  if(navigator.vibrate){
-    navigator.vibrate(ms)
-  }
-}
 
 function tick(){
 
@@ -230,10 +280,14 @@ function tick(){
 
   i++
 
-  // finom rezgés pörgés közben
-  vibrate(10)
+  haptic()
 
-  delay += 20
+  delay += 18
+
+  // “varázs pillanat” a vég előtt
+  if(delay > 260){
+    flash()
+  }
 
   if(delay > 420){
     stop()
@@ -245,8 +299,10 @@ function tick(){
 
 function stop(){
 
-  // erősebb “válasz-ütés”
-  vibrate([60,40,120])
+  // végső erős feedback
+  if(navigator.vibrate){
+    navigator.vibrate([60,40,140])
+  }
 
   let category = "TALÁN"
 
