@@ -58,15 +58,49 @@ const answers = [
 
 ]
 
-const randomAnswer =
-  answers[
-    Math.floor(
-      Math.random() * answers.length
-    )
-  ]
+// ======================
+// UTOLSÓ VÁLASZ LEKÉRÉSE
+// ======================
+
+const { data: lastRow } =
+  await supabase
+    .from("magic8_links")
+    .select("answer")
+    .eq("tag", tag)
+    .order("id", { ascending:false })
+    .limit(1)
+    .maybeSingle()
+
+// ======================
+// RANDOM VÁLASZ
+// ======================
+
+let randomAnswer
+
+do {
+
+  randomAnswer =
+    answers[
+      Math.floor(
+        Math.random() * answers.length
+      )
+    ]
+
+} while (
+  lastRow &&
+  randomAnswer.text === lastRow.answer
+)
+
+// ======================
+// SESSION
+// ======================
 
 const sessionId =
   crypto.randomUUID()
+
+// ======================
+// INSERT
+// ======================
 
 const { error } =
   await supabase
@@ -80,11 +114,17 @@ const { error } =
 
 if (error) {
 
+  console.error(error)
+
   document.body.innerHTML =
     "Supabase hiba 😔"
 
   throw error
 }
+
+// ======================
+// REDIRECT
+// ======================
 
 window.location.href =
   "magic8result.html?id=" + sessionId
