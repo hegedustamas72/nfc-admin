@@ -99,7 +99,7 @@ body{
 
   border-radius:14px;
 
-  background:#9B6A6C;
+  background:#3056d3;
 
   color:white;
   text-decoration:none;
@@ -223,31 +223,56 @@ if(error || !data){
   throw error
 }
 
-// -------------------------
-// AUDIO (tick sound)
-// -------------------------
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+// -----------------------------
+// AUDIO ENGINE (iOS SAFE)
+// -----------------------------
+const AudioContextClass =
+  window.AudioContext || window.webkitAudioContext
 
-function tickSound(){
+const audioCtx = new AudioContextClass()
 
-  const osc = audioCtx.createOscillator()
-  const gain = audioCtx.createGain()
-
-  osc.type = "square"
-  osc.frequency.value = 120 + Math.random()*80
-
-  gain.gain.value = 0.03
-
-  osc.connect(gain)
-  gain.connect(audioCtx.destination)
-
-  osc.start()
-  osc.stop(audioCtx.currentTime + 0.03)
+function unlockAudio(){
+  if(audioCtx.state === "suspended"){
+    audioCtx.resume()
+  }
 }
 
-// -------------------------
-// HAPTIC / IOS FX
-// -------------------------
+document.addEventListener("touchstart", unlockAudio, { once:true })
+
+function clickSound(){
+
+  const osc1 = audioCtx.createOscillator()
+  const gain1 = audioCtx.createGain()
+
+  const osc2 = audioCtx.createOscillator()
+  const gain2 = audioCtx.createGain()
+
+  // HIGH click (mechanikus)
+  osc1.type = "square"
+  osc1.frequency.value = 900
+  gain1.gain.value = 0.02
+
+  // LOW thump (test)
+  osc2.type = "sine"
+  osc2.frequency.value = 140
+  gain2.gain.value = 0.015
+
+  osc1.connect(gain1)
+  gain1.connect(audioCtx.destination)
+
+  osc2.connect(gain2)
+  gain2.connect(audioCtx.destination)
+
+  osc1.start()
+  osc1.stop(audioCtx.currentTime + 0.02)
+
+  osc2.start()
+  osc2.stop(audioCtx.currentTime + 0.03)
+}
+
+// -----------------------------
+// VISUAL HAPTIC
+// -----------------------------
 function fx(){
 
   if(navigator.vibrate){
@@ -259,15 +284,19 @@ function fx(){
   rollingEl.classList.add("shake","pulse")
 }
 
-// -------------------------
-// PHYSICS SPIN
-// -------------------------
+function flash(){
+  rollingEl.classList.remove("flash")
+  void rollingEl.offsetWidth
+  rollingEl.classList.add("flash")
+}
 
+// -----------------------------
+// PHYSICS SPIN
+// -----------------------------
 const words = ["IGEN","NEM","TALÁN","IGEN","NEM","TALÁN"]
 
 let i = 0
-let speed = 40 // induló gyorsaság
-let running = true
+let speed = 40
 
 function tick(){
 
@@ -276,11 +305,15 @@ function tick(){
 
   i++
 
-  tickSound()
+  clickSound()
   fx()
 
-  // FIZIKAI LASSULÁS (inertia)
+  // fizikai lassulás
   speed *= 1.12
+
+  if(speed > 280){
+    flash()
+  }
 
   if(speed > 420){
     stop()
@@ -290,14 +323,11 @@ function tick(){
   setTimeout(tick, speed)
 }
 
-// -------------------------
-// STOP + LOCK-IN
-// -------------------------
+// -----------------------------
+// STOP (LOCK-IN)
+// -----------------------------
 function stop(){
 
-  running = false
-
-  // végső erős “ütés”
   if(navigator.vibrate){
     navigator.vibrate([60,40,140])
   }
@@ -307,7 +337,6 @@ function stop(){
   if(data.answer_type === "yes") category = "IGEN"
   if(data.answer_type === "no") category = "NEM"
 
-  // LOCK-IN EFFECT (kis késleltetés)
   rollingEl.style.opacity = 0
 
   setTimeout(() => {
