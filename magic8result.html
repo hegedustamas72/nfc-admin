@@ -180,7 +180,7 @@ if(sessionId){
   data = res || null
 }
 
-const words = ["IGEN","NEM","TALÁN","IGEN","NEM","TALÁN"]
+const words = ["IGEN","NEM","TALÁN","REJTÉLY","IGEN","NEM","TALÁN","REJTÉLY"]
 
 let i = 0
 let speed = 55
@@ -210,10 +210,11 @@ function tick(){
 
 function stop(){
 
-  let final = "TALÁN"
+  let final = "REJTÉLY"
 
   if(data?.answer_type === "yes") final = "IGEN"
   if(data?.answer_type === "no") final = "NEM"
+  if(data?.answer_type === "maybe") final = "TALÁN"
 
   el.classList.add("fade-out")
 
