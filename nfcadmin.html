@@ -99,7 +99,8 @@ button:hover{
 
 <div class="card">
 
-  <!-- 🔐 LOGIN -->
+  <!-- LOGIN -->
+
   <div id="loginBox">
 
     <h1>Admin belépés</h1>
@@ -119,12 +120,14 @@ button:hover{
 
   </div>
 
-  <!-- 🧠 ADMIN -->
+  <!-- ADMIN -->
+
   <div id="adminBox" class="hidden">
 
     <h1>NFC link generátor</h1>
 
     <select id="category">
+
       <option value="motoros">Motoros</option>
       <option value="viking">Viking</option>
       <option value="kutya">Kutya</option>
@@ -133,6 +136,8 @@ button:hover{
       <option value="artofwar">Art of War</option>
       <option value="bigbang">Agymenők</option>
       <option value="friends">Jóbarátok</option>
+      <option value="magic8">Válasz őrző</option>
+
     </select>
 
     <button
@@ -167,7 +172,7 @@ button:hover{
 <script>
 
 // ======================
-// 🔐 JELSZÓ
+// JELSZÓ
 // ======================
 
 const PASSWORD = "K4ttk4l4nd"
@@ -192,7 +197,10 @@ const categories = {
 
   bigbang: "bigbangnfc.html",
 
-  friends: "friendsnfc.html"
+  friends: "friendsnfc.html",
+
+  magic8: "magic8.html"
+
 }
 
 // ======================
@@ -226,9 +234,8 @@ function login(){
 
 function randomTag(){
 
-  return Math.random()
-    .toString(36)
-    .substring(2,10)
+  return crypto.randomUUID()
+
 }
 
 // ======================
@@ -275,6 +282,7 @@ function generate(){
       .getElementById("category")
       .selectedOptions[0]
       .text
+
 }
 
 // ======================
@@ -287,6 +295,7 @@ function copyLink(){
     .writeText(window.generatedUrl)
 
   alert("Link másolva ✔")
+
 }
 
 </script>
