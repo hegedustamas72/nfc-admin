@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&display=swap" rel="stylesheet">
 
 <style>
+
 body{
   margin:0;
   min-height:100vh;
@@ -16,11 +17,14 @@ body{
   justify-content:center;
   padding:20px;
   box-sizing:border-box;
+
   background:
     linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
     url('magic8.jpeg');
+
   background-size:cover;
   background-position:center;
+
   color:white;
   font-family:'DM Sans',sans-serif;
 }
@@ -41,7 +45,6 @@ body{
   font-size:14px;
   opacity:0.8;
   margin-bottom:8px;
-  letter-spacing:1px;
 }
 
 .bigtext{
@@ -83,6 +86,7 @@ body{
   text-decoration:none;
   font-weight:600;
 }
+
 </style>
 </head>
 
@@ -110,46 +114,44 @@ body{
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
+// ======================
+// SUPABASE
+// ======================
 const supabase = createClient(
   "https://eogrnzuarpqlyjclkcqq.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
 // ======================
-// SAFE SESSION ID (NFC-proof)
+// SESSION ID (FIXED)
 // ======================
+const params = new URLSearchParams(location.search)
 
-const sessionId = (() => {
-  const raw = new URLSearchParams(location.search).get("id") || ""
-  return decodeURIComponent(raw)
-    .trim()
-    .replace(/[^a-zA-Z0-9-]/g, "")
-})()
+const sessionId = (params.get("id") || "")
+  .trim()
+  .replace(/\s/g, "")
 
 console.log("SESSION ID:", sessionId)
 
 // ======================
 // UI
 // ======================
-
 const el = document.getElementById("rolling")
 const bottom = document.getElementById("bottom")
 const categoryEl = document.getElementById("category")
 
 // ======================
-// FALLBACK (csak ha totál nincs adat)
+// FALLBACK
 // ======================
-
 const fallback = {
   answer: "A jelek bizonytalanok, próbáld újra.",
-  answer_type: "maybe",
+  answer_type: "clue",
   tag: "Válasz őrző"
 }
 
 // ======================
 // FORGÁS
 // ======================
-
 const words = ["IGEN","NEM","TALÁN"]
 
 let i = 0
@@ -160,39 +162,41 @@ function tick(){
   el.textContent = words[i % words.length]
   i++
   speed *= 1.12
-  if(speed > 420) return stop()
+
+  if(speed > 420){
+    stop()
+    return
+  }
+
   setTimeout(tick, speed)
 }
 
 // ======================
-// SUPABASE FETCH (FINAL FIX)
+// SUPABASE FETCH (FIXED)
 // ======================
-
-async function loadData(){
+async function fetchData(){
 
   if(!sessionId){
-    console.warn("NO SESSION ID")
     return fallback
   }
 
   const { data, error } = await supabase
     .from("magic8_links")
-    .select("answer, answer_type, tag, created_at")
+    .select("answer, answer_type, tag")
     .eq("session_id", sessionId)
-    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
     .limit(1)
     .maybeSingle()
 
-  console.log("SUPABASE RESULT:", data)
-  console.log("SUPABASE ERROR:", error)
+  console.log("SUPABASE RESPONSE:", { data, error })
 
   if(error){
-    console.error("DB ERROR:", error)
+    console.warn("Supabase error:", error)
     return fallback
   }
 
   if(!data){
-    console.warn("NO MATCHING ROW → fallback")
+    console.warn("No data found for session")
     return fallback
   }
 
@@ -202,7 +206,6 @@ async function loadData(){
 // ======================
 // STOP
 // ======================
-
 function stop(){
 
   const map = {
@@ -225,12 +228,9 @@ function stop(){
 // ======================
 // START
 // ======================
-
 (async () => {
 
-  finalData = await loadData()
-
-  console.log("FINAL DATA:", finalData)
+  finalData = await fetchData()
 
   categoryEl.textContent = finalData.tag || "Válasz őrző"
 
