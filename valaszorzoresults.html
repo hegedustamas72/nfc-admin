@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Válasz őrző</title>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:
+    linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
+    url('magic8.jpeg');
+  background-size:cover;
+  background-position:center;
+  font-family:'DM Sans',sans-serif;
+  color:white;
+}
+
+.card{
+  width:min(420px,100%);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+.top{
+  text-align:center;
+  margin-top:20px;
+}
+
+.category{
+  font-size:14px;
+  opacity:0.8;
+  margin-bottom:6px;
+  letter-spacing:1px;
+}
+
+.bigtext{
+  font-size:44px;
+  font-weight:700;
+  letter-spacing:2px;
+}
+
+.bottom{
+  margin-top:auto;
+  text-align:center;
+  padding-bottom:30px;
+}
+
+.answer{
+  font-size:28px;
+  font-weight:700;
+}
+
+.hint{
+  font-size:13px;
+  opacity:0.7;
+  margin-top:10px;
+}
+
+.footer{
+  margin-top:20px;
+  text-align:center;
+}
+
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:12px 18px;
+  border-radius:14px;
+  background:#9B6A6C;
+  color:white;
+  text-decoration:none;
+  font-weight:600;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+  <div class="top">
+    <div class="category" id="category">Válasz őrző</div>
+    <div class="bigtext" id="rolling">A sors dönt...</div>
+  </div>
+
+  <div class="bottom" id="bottom"></div>
+
+  <div class="footer">
+    <a class="btn" href="index.html">
+      <img src="brand-icon.png" width="18">
+      Kattkaland
+    </a>
+  </div>
+
+</div>
+
+<script type="module">
+
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
+
+const supabase = createClient(
+  "https://eogrnzuarpqlyjclkcqq.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
+)
+
+// ======================
+// SESSION
+// ======================
+
+const params = new URLSearchParams(location.search)
+
+const sessionId =
+  (params.get("id") || "").trim()
+
+// ======================
+// UI ELEMEK
+// ======================
+
+const el = document.getElementById("rolling")
+const bottom = document.getElementById("bottom")
+const categoryEl = document.getElementById("category")
+
+// ======================
+// FALLBACK
+// ======================
+
+const fallback = {
+  answer: "Nincs adat",
+  answer_type: "clue",
+  tag: "Válasz őrző"
+}
+// ======================
+// FORGÁS ANIMÁCIÓ
+// ======================
+
+const words = ["IGEN", "NEM", "TALÁN"]
+
+let i = 0
+let speed = 50
+let finalData = fallback
+
+function tick() {
+  el.textContent = words[i % words.length]
+  i++
+  speed *= 1.12
+
+  if (speed > 420) {
+    stop()
+    return
+  }
+
+  setTimeout(tick, speed)
+}
+
+// ======================
+// SUPABASE LEKÉRÉS (RETRY)
+// ======================
+
+async function fetchData(retries = 5) {
+
+  for (let attempt = 0; attempt < retries; attempt++) {
+
+    const { data, error } =
+      await supabase
+        .from("valaszorzo_links")
+        .select("answer, answer_type, tag")
+        .eq("session_id", sessionId)
+        .maybeSingle()
+
+    if (error) {
+      console.warn("Supabase error:", error)
+      await new Promise(r => setTimeout(r, 150))
+      continue
+    }
+
+    if (data) return data
+
+    await new Promise(r => setTimeout(r, 150))
+  }
+
+  return fallback
+}
+
+// ======================
+// LEÁLLÍTÁS + EREDMÉNY
+// ======================
+
+function stop() {
+
+  const map = {
+    yes: "IGEN",
+    no: "NEM",
+    maybe: "TALÁN",
+    clue: "REJTÉLY"
+  }
+
+  const final = map[finalData.answer_type] || "REJTÉLY"
+
+  el.textContent = final
+
+  bottom.innerHTML = `
+    <div class="answer">
+      ${finalData.answer || ""}
+    </div>
+    <div class="hint">
+      Új válaszhoz érintsd újra a bilétát
+    </div>
+  `
+}
+
+// ======================
+// INDÍTÁS
+// ======================
+
+(async () => {
+
+  if (!sessionId) {
+    finalData = fallback
+    tick()
+    return
+  }
+
+  finalData = await fetchData()
+
+  categoryEl.textContent = finalData.tag || "Válasz őrző"
+
+  tick()
+
+})()
+// ======================
+// BIZTONSÁGI UI FALLBACK
+// (ha valami nem futna végig)
+// ======================
+
+window.addEventListener("error", (e) => {
+  console.error(e)
+  bottom.innerHTML = `
+    <div class="answer">Hiba történt 😔</div>
+    <div class="hint">Próbáld újra a bilétát</div>
+  `
+})
+
+// ======================
+// FINOMÍTÁS: kis késleltetés indulás előtt
+// (ne villanjon fallback)
+// ======================
+
+setTimeout(() => {
+  tick()
+}, 200)
+</script>
+
+</body>
+</html>  
