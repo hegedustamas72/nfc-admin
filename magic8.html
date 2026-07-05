@@ -122,8 +122,15 @@ if (error) {
 
   console.error(error)
 
-  document.body.innerHTML =
-    "Supabase hiba 😔"
+  document.body.innerHTML = `
+    <pre style="
+      white-space:pre-wrap;
+      padding:20px;
+      font-size:13px;
+    ">
+${JSON.stringify(error, null, 2)}
+    </pre>
+  `
 
   throw error
 }
