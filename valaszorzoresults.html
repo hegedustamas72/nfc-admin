@@ -14,69 +14,49 @@
 body{
   margin:0;
   min-height:100vh;
+
   display:flex;
   justify-content:center;
   align-items:center;
+
   background:
-    linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
-    url('magic8.jpeg');
+    linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
+    url("magic8.jpeg");
+
   background-size:cover;
   background-position:center;
-  font-family:'DM Sans',sans-serif;
+
   color:white;
+  font-family:"DM Sans",sans-serif;
 }
 
 .card{
-  width:min(420px,100%);
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-}
-
-.top{
   text-align:center;
-  margin-top:20px;
+  width:min(420px,100%);
+  padding:20px;
 }
 
-.category{
-  font-size:14px;
-  opacity:0.8;
-  margin-bottom:6px;
-  letter-spacing:1px;
-}
-
-.bigtext{
-  font-size:44px;
+.big{
+  font-size:42px;
   font-weight:700;
   letter-spacing:2px;
 }
 
-.bottom{
-  margin-top:auto;
-  text-align:center;
-  padding-bottom:30px;
-}
-
 .answer{
-  font-size:28px;
-  font-weight:700;
-}
-
-.hint{
-  font-size:13px;
-  opacity:0.7;
-  margin-top:10px;
-}
-
-.footer{
   margin-top:20px;
-  text-align:center;
+  font-size:26px;
+  font-weight:600;
+}
+
+.small{
+  margin-top:10px;
+  opacity:.7;
+  font-size:14px;
 }
 
 .btn{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
+  margin-top:30px;
+  display:inline-block;
   padding:12px 18px;
   border-radius:14px;
   background:#9B6A6C;
@@ -93,19 +73,13 @@ body{
 
 <div class="card">
 
-  <div class="top">
-    <div class="category" id="category">Válasz őrző</div>
-    <div class="bigtext" id="rolling">A sors dönt...</div>
-  </div>
+  <div class="big" id="rolling">A sors dönt...</div>
 
-  <div class="bottom" id="bottom"></div>
+  <div id="result" class="answer"></div>
 
-  <div class="footer">
-    <a class="btn" href="index.html">
-      <img src="brand-icon.png" width="18">
-      Kattkaland
-    </a>
-  </div>
+  <div class="small" id="hint"></div>
+
+  <a class="btn" href="index.html">Kattkaland</a>
 
 </div>
 
@@ -113,157 +87,86 @@ body{
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
+// SUPABASE
 const supabase = createClient(
   "https://eogrnzuarpqlyjclkcqq.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
-// ======================
-// SESSION
-// ======================
-
+// SESSION ID
 const params = new URLSearchParams(location.search)
+const sessionId = params.get("id")
 
-const sessionId =
-  (params.get("id") || "").trim()
+// UI
+const rolling = document.getElementById("rolling")
+const result = document.getElementById("result")
+const hint = document.getElementById("hint")
 
-// ======================
-// UI ELEMEK
-// ======================
-
-const el = document.getElementById("rolling")
-const bottom = document.getElementById("bottom")
-const categoryEl = document.getElementById("category")
-
-// ======================
-// FALLBACK
-// ======================
-
+// fallback
 const fallback = {
-  answer: "Nincs adat",
-  answer_type: "clue",
-  tag: "Válasz őrző"
+  answer: "Nincs adat 😔",
+  answer_type: "no"
 }
-// ======================
-// FORGÁS ANIMÁCIÓ
-// ======================
 
-const words = ["IGEN", "NEM", "TALÁN"]
+// fetch adat
+async function load(){
 
-let i = 0
-let speed = 50
-let finalData = fallback
-
-function tick() {
-  el.textContent = words[i % words.length]
-  i++
-  speed *= 1.12
-
-  if (speed > 420) {
-    stop()
+  if(!sessionId){
+    show(fallback)
     return
   }
 
-  setTimeout(tick, speed)
+  const { data, error } = await supabase
+    .from("valaszorzo_links")
+    .select("*")
+    .eq("session_id", sessionId)
+    .maybeSingle()
+
+  if(error){
+    console.error(error)
+    show(fallback)
+    return
+  }
+
+  if(!data){
+    show(fallback)
+    return
+  }
+
+  show(data)
 }
 
-// ======================
-// SUPABASE LEKÉRÉS (RETRY)
-// ======================
+// animáció
+function animate(finalText){
 
-async function fetchData(retries = 5) {
+  const words = ["IGEN","NEM","TALÁN","REJTÉLY"]
 
-  for (let attempt = 0; attempt < retries; attempt++) {
+  let i = 0
 
-    const { data, error } =
-      await supabase
-        .from("valaszorzo_links")
-        .select("answer, answer_type, tag")
-        .eq("session_id", sessionId)
-        .maybeSingle()
+  const interval = setInterval(() => {
 
-    if (error) {
-      console.warn("Supabase error:", error)
-      await new Promise(r => setTimeout(r, 150))
-      continue
+    rolling.textContent = words[i % words.length]
+    i++
+
+    if(i > 12){
+      clearInterval(interval)
+      rolling.textContent = "Kész"
+      result.textContent = finalText.answer
+      hint.textContent = "Új válaszhoz érintsd újra a bilétát"
     }
 
-    if (data) return data
-
-    await new Promise(r => setTimeout(r, 150))
-  }
-
-  return fallback
+  }, 80)
 }
 
-// ======================
-// LEÁLLÍTÁS + EREDMÉNY
-// ======================
-
-function stop() {
-
-  const map = {
-    yes: "IGEN",
-    no: "NEM",
-    maybe: "TALÁN",
-    clue: "REJTÉLY"
-  }
-
-  const final = map[finalData.answer_type] || "REJTÉLY"
-
-  el.textContent = final
-
-  bottom.innerHTML = `
-    <div class="answer">
-      ${finalData.answer || ""}
-    </div>
-    <div class="hint">
-      Új válaszhoz érintsd újra a bilétát
-    </div>
-  `
+// megjelenítés
+function show(data){
+  animate(data)
 }
 
-// ======================
-// INDÍTÁS
-// ======================
+// start
+load()
 
-(async () => {
-
-  if (!sessionId) {
-    finalData = fallback
-    tick()
-    return
-  }
-
-  finalData = await fetchData()
-
-  categoryEl.textContent = finalData.tag || "Válasz őrző"
-
-  tick()
-
-})()
-// ======================
-// BIZTONSÁGI UI FALLBACK
-// (ha valami nem futna végig)
-// ======================
-
-window.addEventListener("error", (e) => {
-  console.error(e)
-  bottom.innerHTML = `
-    <div class="answer">Hiba történt 😔</div>
-    <div class="hint">Próbáld újra a bilétát</div>
-  `
-})
-
-// ======================
-// FINOMÍTÁS: kis késleltetés indulás előtt
-// (ne villanjon fallback)
-// ======================
-
-setTimeout(() => {
-  tick()
-}, 200)
 </script>
 
 </body>
-</html>  
+</html>
