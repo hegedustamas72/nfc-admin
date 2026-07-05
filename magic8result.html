@@ -116,19 +116,17 @@ const supabase = createClient(
 )
 
 // ======================
-// 🔥 NFC SAFE SESSION CLEAN
+// SAFE SESSION ID (NFC-proof)
 // ======================
 
-const params = new URLSearchParams(location.search)
+const sessionId = (() => {
+  const raw = new URLSearchParams(location.search).get("id") || ""
+  return decodeURIComponent(raw)
+    .trim()
+    .replace(/[^a-zA-Z0-9-]/g, "")
+})()
 
-let sessionId = (params.get("id") || "")
-
-// brutál tisztítás NFC hibák ellen
-sessionId = decodeURIComponent(sessionId)
-  .replace(/[^a-zA-Z0-9-]/g, "")
-  .trim()
-
-console.log("SESSION ID CLEAN:", sessionId)
+console.log("SESSION ID:", sessionId)
 
 // ======================
 // UI
@@ -139,7 +137,7 @@ const bottom = document.getElementById("bottom")
 const categoryEl = document.getElementById("category")
 
 // ======================
-// FALLBACK
+// FALLBACK (csak ha totál nincs adat)
 // ======================
 
 const fallback = {
@@ -167,10 +165,10 @@ function tick(){
 }
 
 // ======================
-// SUPABASE FETCH (DEBUGGED)
+// SUPABASE FETCH (FINAL FIX)
 // ======================
 
-async function fetchAnswer(){
+async function loadData(){
 
   if(!sessionId){
     console.warn("NO SESSION ID")
@@ -179,35 +177,28 @@ async function fetchAnswer(){
 
   const { data, error } = await supabase
     .from("magic8_links")
-    .select("answer, answer_type, tag, session_id, created_at")
+    .select("answer, answer_type, tag, created_at")
     .eq("session_id", sessionId)
     .order("created_at", { ascending: false })
     .limit(1)
+    .maybeSingle()
 
-  console.log("SUPABASE RAW RESULT:", data, error)
+  console.log("SUPABASE RESULT:", data)
+  console.log("SUPABASE ERROR:", error)
 
   if(error){
-    console.error("SUPABASE ERROR:", error)
+    console.error("DB ERROR:", error)
     return fallback
   }
 
-  if(!data || data.length === 0){
-    console.warn("NO DATA FOUND → fallback")
+  if(!data){
+    console.warn("NO MATCHING ROW → fallback")
     return fallback
   }
 
-  return data[0]
+  return data
 }
 
-
-  const { data, error } = await supabase
-  .from("magic8_links")
-  .select("*")
-
-console.log("ALL ROWS:", data)
-console.log("ERROR:", error)
-
-  
 // ======================
 // STOP
 // ======================
@@ -237,7 +228,7 @@ function stop(){
 
 (async () => {
 
-  finalData = await fetchAnswer()
+  finalData = await loadData()
 
   console.log("FINAL DATA:", finalData)
 
