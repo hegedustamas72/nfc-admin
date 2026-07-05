@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="hu">
 <head>
 
@@ -17,8 +16,8 @@ body{
   min-height:100vh;
 
   display:flex;
-  justify-content:center;
-  align-items:center;
+  flex-direction:column;
+  justify-content:space-between;
 
   background:
     linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
@@ -31,32 +30,44 @@ body{
   font-family:"DM Sans",sans-serif;
 }
 
-.card{
+/* TOP */
+.top{
+  padding-top:30px;
   text-align:center;
-  width:min(420px,100%);
-  padding:20px;
+}
+
+.category{
+  font-size:14px;
+  opacity:.75;
+  letter-spacing:2px;
+  margin-bottom:10px;
 }
 
 .big{
-  font-size:42px;
+  font-size:40px;
   font-weight:700;
-  letter-spacing:2px;
+  min-height:50px;
+}
+
+/* BOTTOM */
+.bottom{
+  text-align:center;
+  padding-bottom:40px;
 }
 
 .answer{
-  margin-top:20px;
   font-size:26px;
   font-weight:600;
+  margin-bottom:10px;
 }
 
-.small{
-  margin-top:10px;
+.hint{
+  font-size:13px;
   opacity:.7;
-  font-size:14px;
+  margin-bottom:20px;
 }
 
 .btn{
-  margin-top:30px;
   display:inline-block;
   padding:12px 18px;
   border-radius:14px;
@@ -72,13 +83,19 @@ body{
 
 <body>
 
-<div class="card">
+<div class="top">
+
+  <div class="category">Válasz őrző</div>
 
   <div class="big" id="rolling">A sors dönt...</div>
 
-  <div id="result" class="answer"></div>
+</div>
 
-  <div class="small" id="hint"></div>
+<div class="bottom">
+
+  <div class="answer" id="result"></div>
+
+  <div class="hint" id="hint"></div>
 
   <a class="btn" href="index.html">Kattkaland</a>
 
@@ -88,59 +105,48 @@ body{
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
-// SUPABASE
 const supabase = createClient(
   "https://eogrnzuarpqlyjclkcqq.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
-// SESSION ID
-const params = new URLSearchParams(location.search)
-const sessionId = params.get("id")
+const sessionId = new URLSearchParams(location.search).get("id")
 
-// UI
 const rolling = document.getElementById("rolling")
 const result = document.getElementById("result")
 const hint = document.getElementById("hint")
 
-// fallback
-const fallback = {
-  answer: "Nincs adat 😔",
-  answer_type: "no"
+// 🔁 PÖRGÉS (csak ezek!)
+const words = ["IGEN","NEM","TALÁN"]
+
+// DB → UI mapping
+const map = {
+  yes: "IGEN",
+  no: "NEM",
+  maybe: "TALÁN",
+  clue: "REJTÉLY"
 }
 
-// fetch adat
 async function load(){
 
-  if(!sessionId){
-    show(fallback)
-    return
-  }
-
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("valaszorzo_links")
     .select("*")
     .eq("session_id", sessionId)
     .maybeSingle()
 
-  if(error){
-    console.error(error)
-    show(fallback)
-    return
-  }
-
   if(!data){
-    show(fallback)
+    show({
+      answer: "Nincs adat",
+      answer_type: "no"
+    })
     return
   }
 
   show(data)
 }
 
-// animáció
-function animate(finalText){
-
-  const words = ["IGEN","NEM","TALÁN","REJTÉLY"]
+function animate(data){
 
   let i = 0
 
@@ -149,22 +155,23 @@ function animate(finalText){
     rolling.textContent = words[i % words.length]
     i++
 
-    if(i > 12){
+    if(i > 14){
       clearInterval(interval)
-      rolling.textContent = "Kész"
-      result.textContent = finalText.answer
+
+      const final = map[data.answer_type] || "TALÁN"
+
+      rolling.textContent = final
+      result.textContent = data.answer
       hint.textContent = "Új válaszhoz érintsd újra a bilétát"
     }
 
   }, 80)
 }
 
-// megjelenítés
 function show(data){
   animate(data)
 }
 
-// start
 load()
 
 </script>
