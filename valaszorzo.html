@@ -115,13 +115,36 @@ const supabase = createClient(
 // ======================
 const sessionId =
   new URLSearchParams(location.search).get("id")
+  || new URLSearchParams(location.search).get("tag")
 
 const tag =
   new URLSearchParams(location.search).get("tag") || "valaszorzo"
 
-console.log("SESSION ID:", sessionId)
-console.log("TAG:", tag)
+async function save(){
 
+  console.log("SESSION:", sessionId)
+
+  const res = await supabase
+    .from("valaszorzo_links")
+    .insert({
+      session_id: sessionId,
+      tag: tag,
+      answer: randomAnswer.text,
+      answer_type: randomAnswer.type
+    })
+    .select()
+
+  console.log("INSERT RESPONSE:", res)
+
+  if(res.error){
+    console.error(res.error)
+    document.body.innerHTML =
+      "<h2>Supabase hiba: " + res.error.message + "</h2>"
+    return
+  }
+
+  animate(randomAnswer)
+}
 // ======================
 // UI
 // ======================
