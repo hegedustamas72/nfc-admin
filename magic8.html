@@ -7,7 +7,6 @@
 </head>
 
 <body>
-
 Betöltés...
 
 <script type="module">
@@ -19,8 +18,7 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
-const tag =
-  new URLSearchParams(window.location.search).get("tag")
+const tag = new URLSearchParams(location.search).get("tag")
 
 if (!tag) {
   document.body.innerHTML = "Hiányzó tag 😔"
@@ -32,33 +30,22 @@ if (!tag) {
 // ======================
 
 const answers = [
-
   { type:"yes", text:"Igen!" },
   { type:"yes", text:"Minden jel erre mutat." },
   { type:"yes", text:"Kétség sem fér hozzá." },
   { type:"yes", text:"Biztosan." },
   { type:"yes", text:"Jó esélyeid vannak." },
-  { type:"yes", text:"A csillagok kedveznek." },
-  { type:"yes", text:"Bátran vágj bele!" },
 
   { type:"maybe", text:"Kérdezd újra később!" },
   { type:"maybe", text:"A helyzet még alakul." },
   { type:"maybe", text:"Nem egyértelmű." },
-  { type:"maybe", text:"További információ kell!" },
-  { type:"maybe", text:"Most homályos a kép." },
 
   { type:"no", text:"Nem!" },
   { type:"no", text:"Erősen kétséges." },
-  { type:"no", text:"Most ne!" },
   { type:"no", text:"Inkább hagyd!" },
-  { type:"no", text:"A válasz negatív." },
 
   { type:"clue", text:"A jelek többféleképpen értelmezhetők." },
-  { type:"clue", text:"A válasz ott van előtted, de még nem látod." },
-  { type:"clue", text:"Nem minden az, aminek elsőre látszik." },
-  { type:"clue", text:"A megfelelő pillanat még nem érkezett el." },
-  { type:"clue", text:"A döntés már megszületett benned." }
-
+  { type:"clue", text:"A válasz nem ott van, ahol keresed." }
 ]
 
 // ======================
@@ -75,7 +62,7 @@ const { data: lastRow } =
     .maybeSingle()
 
 // ======================
-// RANDOM VÁLASZ (ismétlés védelem)
+// RANDOM (biztos nincs ismétlés)
 // ======================
 
 let randomAnswer
@@ -89,20 +76,16 @@ do {
 )
 
 // ======================
-// SESSION
+// INSERT
 // ======================
 
 const sessionId = crypto.randomUUID()
-
-// ======================
-// INSERT
-// ======================
 
 const { error } =
   await supabase
     .from("magic8_links")
     .insert({
-      tag: tag,
+      tag,
       session_id: sessionId,
       answer: randomAnswer.text,
       answer_type: randomAnswer.type
@@ -110,8 +93,7 @@ const { error } =
 
 if (error) {
   console.error(error)
-  document.body.innerHTML =
-    "<pre>" + JSON.stringify(error, null, 2) + "</pre>"
+  document.body.innerHTML = "Supabase hiba 😔"
   throw error
 }
 
@@ -119,8 +101,7 @@ if (error) {
 // REDIRECT
 // ======================
 
-window.location.href =
-  "magic8result.html?id=" + sessionId
+location.href = "magic8result.html?id=" + sessionId
 
 </script>
 
