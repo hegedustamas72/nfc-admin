@@ -4,29 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Magic 8 Ball</title>
+<title>Válasz őrző</title>
 
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&display=swap" rel="stylesheet">
 
 <style>
-
 body{
   margin:0;
   min-height:100vh;
-
   display:flex;
   justify-content:center;
-
   padding:20px;
   box-sizing:border-box;
-
   background:
     linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
     url('magic8.jpeg');
-
   background-size:cover;
   background-position:center;
-
   color:white;
   font-family:'DM Sans',sans-serif;
 }
@@ -89,7 +83,6 @@ body{
   text-decoration:none;
   font-weight:600;
 }
-
 </style>
 </head>
 
@@ -119,20 +112,23 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const supabase = createClient(
   "https://eogrnzuarpqlyjclkcqq.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
 // ======================
-// SESSION SAFE
+// 🔥 NFC SAFE SESSION CLEAN
 // ======================
 
 const params = new URLSearchParams(location.search)
 
-const sessionId = (params.get("id") || "")
-  .replace(/\s/g, "")
+let sessionId = (params.get("id") || "")
+
+// brutál tisztítás NFC hibák ellen
+sessionId = decodeURIComponent(sessionId)
+  .replace(/[^a-zA-Z0-9-]/g, "")
   .trim()
 
-console.log("SESSION ID:", sessionId)
+console.log("SESSION ID CLEAN:", sessionId)
 
 // ======================
 // UI
@@ -148,8 +144,8 @@ const categoryEl = document.getElementById("category")
 
 const fallback = {
   answer: "A jelek bizonytalanok, próbáld újra.",
-  answer_type: "clue",
-  tag: "Magic 8 Ball"
+  answer_type: "maybe",
+  tag: "Válasz őrző"
 }
 
 // ======================
@@ -171,38 +167,36 @@ function tick(){
 }
 
 // ======================
-// FETCH (FIXED)
+// SUPABASE FETCH (DEBUGGED)
 // ======================
 
-async function fetchWithRetry(retries = 2){
+async function fetchAnswer(){
 
-  for(let attempt = 0; attempt <= retries; attempt++){
-
-    try{
-
-      const { data, error } =
-        await supabase
-          .from("magic8_links")
-          .select("answer, answer_type, tag, created_at")
-          .eq("session_id", sessionId)
-          .order("created_at", { ascending: false })
-
-      if(error){
-        console.warn("Supabase error:", error)
-        continue
-      }
-
-      if(data && data.length > 0){
-        return data[0]   // 👉 mindig a legfrissebb
-      }
-
-    }catch(e){
-      console.warn("Exception:", e)
-    }
-
+  if(!sessionId){
+    console.warn("NO SESSION ID")
+    return fallback
   }
 
-  return fallback
+  const { data, error } = await supabase
+    .from("magic8_links")
+    .select("answer, answer_type, tag, session_id, created_at")
+    .eq("session_id", sessionId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+
+  console.log("SUPABASE RAW RESULT:", data, error)
+
+  if(error){
+    console.error("SUPABASE ERROR:", error)
+    return fallback
+  }
+
+  if(!data || data.length === 0){
+    console.warn("NO DATA FOUND → fallback")
+    return fallback
+  }
+
+  return data[0]
 }
 
 // ======================
@@ -234,15 +228,11 @@ function stop(){
 
 (async () => {
 
-  if(!sessionId){
-    finalData = fallback
-    tick()
-    return
-  }
+  finalData = await fetchAnswer()
 
-  finalData = await fetchWithRetry()
+  console.log("FINAL DATA:", finalData)
 
-  categoryEl.textContent = finalData.tag || "Magic 8 Ball"
+  categoryEl.textContent = finalData.tag || "Válasz őrző"
 
   tick()
 
