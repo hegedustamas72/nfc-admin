@@ -110,17 +110,29 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
+// ======================
+// FONTOS: EGYSÉGES ID
+// ======================
 const sessionId =
-  new URLSearchParams(location.search).get("tag")
+  new URLSearchParams(location.search).get("id")
 
+console.log("SESSION ID:", sessionId)
+
+// ======================
+// UI
+// ======================
 const rolling = document.getElementById("rolling")
 const result = document.getElementById("result")
 const hint = document.getElementById("hint")
 
-// 🔁 PÖRGÉS (csak ezek!)
+// ======================
+// PÖRGÉS
+// ======================
 const words = ["IGEN","NEM","TALÁN"]
 
-// DB → UI mapping
+// ======================
+// MAP
+// ======================
 const map = {
   yes: "IGEN",
   no: "NEM",
@@ -128,25 +140,36 @@ const map = {
   clue: "REJTÉLY"
 }
 
+// ======================
+// LOAD
+// ======================
 async function load(){
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("valaszorzo_links")
     .select("*")
     .eq("session_id", sessionId)
     .maybeSingle()
 
-  if(!data){
-    show({
-      answer: "Nincs adat",
-      answer_type: "no"
-    })
+  console.log("SUPABASE DATA:", data)
+  console.log("SUPABASE ERROR:", error)
+
+  if(error){
+    rolling.textContent = "Supabase hiba"
     return
   }
 
-  show(data)
+  if(!data){
+    rolling.textContent = "Nincs adat"
+    return
+  }
+
+  animate(data)
 }
 
+// ======================
+// ANIMÁCIÓ
+// ======================
 function animate(data){
 
   let i = 0
@@ -159,20 +182,21 @@ function animate(data){
     if(i > 14){
       clearInterval(interval)
 
-      const final = map[data.answer_type] || "TALÁN"
+      rolling.textContent =
+        map[data.answer_type] || "TALÁN"
 
-      rolling.textContent = final
       result.textContent = data.answer
-      hint.textContent = "Új válaszhoz érintsd újra a bilétát"
+
+      hint.textContent =
+        "Új válaszhoz érintsd újra a bilétát"
     }
 
   }, 80)
 }
 
-function show(data){
-  animate(data)
-}
-
+// ======================
+// START
+// ======================
 load()
 
 </script>
