@@ -1,178 +1,137 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Válasz őrző</title>
+<title>Válasz Őrző</title>
 
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#111;
+  color:white;
+  font-family:'DM Sans',sans-serif;
+}
+
+.card{
+  width:min(420px,100%);
+  text-align:center;
+  padding:30px;
+}
+
+.bigtext{
+  font-size:42px;
+  font-weight:700;
+  letter-spacing:2px;
+}
+
+.hint{
+  margin-top:20px;
+  opacity:0.7;
+  font-size:14px;
+}
+
+</style>
 </head>
 
 <body>
 
-Betöltés...
+<div class="card">
+  <div class="bigtext">A sors dönt...</div>
+  <div class="hint">Válasz generálása...</div>
+</div>
 
 <script type="module">
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
+// ======================
+// SUPABASE
+// ======================
 const supabase = createClient(
   "https://eogrnzuarpqlyjclkcqq.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
 // ======================
-// TAG
+// URL PARAM (TAG)
 // ======================
-
-const tag =
-  new URLSearchParams(window.location.search)
-  .get("tag")
-
-if(!tag){
-
-  document.body.innerHTML =
-    "Hiányzó tag 😔"
-
-  throw new Error("Missing tag")
-
-}
-
-// ======================
-// VÁLASZOK
-// ======================
-
-const answers = [
-
-  // IGEN
-
-  { type:"yes", text:"Igen." },
-  { type:"yes", text:"Minden jel erre mutat." },
-  { type:"yes", text:"Kétség sem fér hozzá." },
-  { type:"yes", text:"Biztosan." },
-  { type:"yes", text:"Jó esélyeid vannak." },
-  { type:"yes", text:"A csillagok kedveznek." },
-  { type:"yes", text:"Bátran vágj bele." },
-  { type:"yes", text:"Az út nyitva áll előtted." },
-
-  // TALÁN
-
-  { type:"maybe", text:"Talán." },
-  { type:"maybe", text:"Kérdezd újra később." },
-  { type:"maybe", text:"A helyzet még alakul." },
-  { type:"maybe", text:"Most még nem látható tisztán." },
-  { type:"maybe", text:"További információ szükséges." },
-  { type:"maybe", text:"Légy türelmes." },
-
-  // NEM
-
-  { type:"no", text:"Nem." },
-  { type:"no", text:"Erősen kétséges." },
-  { type:"no", text:"Most ne." },
-  { type:"no", text:"Nem valószínű." },
-  { type:"no", text:"Inkább hagyd." },
-  { type:"no", text:"A válasz negatív." },
-
-  // REJTÉLY
-
-  { type:"clue", text:"A jelek többféleképpen értelmezhetők." },
-  { type:"clue", text:"A válasz ott van előtted, de még nem látod." },
-  { type:"clue", text:"Nem minden az, aminek elsőre látszik." },
-  { type:"clue", text:"A megfelelő pillanat még nem érkezett el." },
-  { type:"clue", text:"A döntés már megszületett benned." }
-
-]
-// ======================
-// UTOLSÓ 5 VÁLASZ LEKÉRÉSE
-// ======================
-
-const { data: lastAnswers, error: historyError } =
-  await supabase
-    .from("valaszorzo_links")
-    .select("answer")
-    .eq("tag", tag)
-    .order("created_at", { ascending: false })
-    .limit(5)
-
-if(historyError){
-  console.error(historyError)
-}
-
-const excludedAnswers =
-  (lastAnswers || []).map(row => row.answer)
-
-// ======================
-// VÁLASZOK SZŰRÉSE
-// ======================
-
-let availableAnswers =
-  answers.filter(a => !excludedAnswers.includes(a.text))
-
-// Ha valamiért elfogynának (pl. kevés válasz van),
-// kezdjük újra az összesből.
-
-if(availableAnswers.length === 0){
-
-  availableAnswers = [...answers]
-
-}
-
-// ======================
-// RANDOM VÁLASZ
-// ======================
-
-const randomAnswer =
-  availableAnswers[
-    Math.floor(
-      Math.random() * availableAnswers.length
-    )
-  ]
+const params = new URLSearchParams(location.search)
+const tag = (params.get("tag") || "valaszorzo").trim()
 
 // ======================
 // SESSION ID
 // ======================
-
-const sessionId =
-  crypto.randomUUID()
+const sessionId = crypto.randomUUID()
 
 // ======================
-// MENTÉS SUPABASE-BE
+// VÁLASZOK
 // ======================
+const answers = [
+  { type:"yes", text:"Igen!" },
+  { type:"yes", text:"Minden jel erre mutat." },
+  { type:"yes", text:"Egyértelműen igen!" },
+  { type:"maybe", text:"Kérdezd újra később!" },
+  { type:"maybe", text:"Nem egyértelmű." },
+  { type:"no", text:"Nem!" },
+  { type:"no", text:"Most ne!" },
+  { type:"no", text:"Erősen kétséges." },
+  { type:"clue", text:"A jelek többféleképpen értelmezhetők." }
+]
 
-const { error: insertError } =
-  await supabase
-    .from("valaszorzo_links")
-    .insert({
-
-      tag: tag,
-
-      session_id: sessionId,
-
-      answer: randomAnswer.text,
-
-      answer_type: randomAnswer.type
-
-    })
-
-if(insertError){
-
-  console.error(insertError)
-
-  document.body.innerHTML =
-    "Supabase hiba 😔"
-
-  throw insertError
-
-}  
 // ======================
-// ÁTIRÁNYÍTÁS
+// RANDOM ANSWER
 // ======================
+const randomAnswer =
+  answers[Math.floor(Math.random() * answers.length)]
 
-window.location.href =
-  "valaszorzoresult.html?id=" + sessionId
+// ======================
+// INSERT SUPABASE
+// ======================
+async function save(){
+
+  const payload = {
+    tag: "valaszorzo",   // FIX: NEM UUID
+    session_id: sessionId,
+    answer: randomAnswer.text,
+    answer_type: randomAnswer.type
+  }
+
+  console.log("INSERT:", payload)
+
+  const { data, error } =
+    await supabase
+      .from("valaszorzo_links")
+      .insert(payload)
+      .select()
+
+  console.log("RESULT:", { data, error })
+
+  if (error) {
+    document.body.innerHTML =
+      "<h2>Supabase hiba 😔</h2>"
+    console.error(error)
+    return
+  }
+
+  // ======================
+  // REDIRECT
+  // ======================
+  window.location.href =
+    "valaszorzoresults.html?id=" + sessionId
+}
+
+save()
 
 </script>
 
 </body>
-</html>  
+</html>
