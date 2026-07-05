@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Magic 8 Ball</title>
+<title>Válasz őrző</title>
 
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&display=swap" rel="stylesheet">
 
@@ -47,6 +47,7 @@ body{
   font-size:14px;
   opacity:0.8;
   margin-bottom:8px;
+  letter-spacing:1px;
 }
 
 .bigtext{
@@ -118,11 +119,11 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const supabase = createClient(
   "https://eogrnzuarpqlyjclkcqq.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
 // ======================
-// SESSION (SAFE)
+// SESSION SAFE
 // ======================
 
 const params = new URLSearchParams(location.search)
@@ -131,8 +132,7 @@ const sessionId = (params.get("id") || "")
   .replace(/\s/g, "")
   .trim()
 
-  .eq("session_id", sessionId.replace(/\s/g, ""))
-)
+console.log("SESSION ID:", sessionId)
 
 // ======================
 // UI ELEMENTS
@@ -170,18 +170,8 @@ function tick(){
   setTimeout(tick, speed)
 }
 
-
-  console.log("URL sessionId:", sessionId)
-const test = await supabase
-  .from("magic8_links")
-  .select("session_id, answer")
-  .limit(5)
-
-console.log("DB SAMPLE:", test)
-  
-
 // ======================
-// RETRY LOGIKA
+// SUPABASE RETRY
 // ======================
 
 async function fetchWithRetry(retries = 2){
@@ -234,7 +224,7 @@ function stop(){
 }
 
 // ======================
-// START
+// START FLOW
 // ======================
 
 (async () => {
