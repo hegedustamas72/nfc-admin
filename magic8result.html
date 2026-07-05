@@ -6,7 +6,6 @@
 <title>Magic 8 Ball</title>
 
 <style>
-
 body{
   margin:0;
   min-height:100vh;
@@ -19,7 +18,7 @@ body{
 }
 
 .bigtext{
-  font-size:40px;
+  font-size:42px;
   font-weight:700;
   text-align:center;
 }
@@ -33,11 +32,8 @@ body{
   font-size:26px;
   font-weight:700;
 }
-
-.fade-out{ opacity:0; transition:0.2s; }
-.fade-in{ opacity:1; transition:0.2s; }
-
 </style>
+
 </head>
 
 <body>
@@ -56,55 +52,35 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
-const sessionId = new URLSearchParams(location.search).get("id")
-
 const el = document.getElementById("rolling")
 const bottom = document.getElementById("bottom")
 
-if (!sessionId) {
-  bottom.innerHTML = "Hiányzó session 😔"
-  throw new Error("No session")
-}
-
 // ======================
-// FONTOS FIX: limit + select védelem
+// SAFE SESSION ID
 // ======================
 
-const { data, error } =
-  await supabase
-    .from("magic8_links")
-    .select("answer, answer_type")
-    .eq("session_id", sessionId)
-    .limit(1)
-    .maybeSingle()
+const params = new URLSearchParams(location.search)
+const sessionId = (params.get("id") || "").trim()
 
-if (error) {
-  bottom.innerHTML = "Supabase hiba 😔"
-  throw error
-}
-
-if (!data) {
-  bottom.innerHTML = "Nincs adat 😔"
-  throw new Error("No data")
-}
+console.log("SESSION:", sessionId)
 
 // ======================
-// FORGÁS
+// FORGÁS INDÍTÁS MINDIG
 // ======================
 
 const words = ["IGEN","NEM","TALÁN"]
 
 let i = 0
-let speed = 60
+let speed = 55
 
 function tick(){
 
   el.textContent = words[i % words.length]
   i++
 
-  speed *= 1.10
+  speed *= 1.11
 
-  if (speed > 450) {
+  if (speed > 420) {
     stop()
     return
   }
@@ -113,8 +89,55 @@ function tick(){
 }
 
 // ======================
+// FALLBACK VÁLASZOK
+// ======================
+
+const fallback = {
+  answer: "A jelek bizonytalanok, próbáld újra.",
+  answer_type: "clue"
+}
+
+// ======================
+// SUPABASE LEKÉRÉS (SAFE)
+// ======================
+
+async function loadData(){
+
+  if (!sessionId) return fallback
+
+  try {
+
+    const { data, error } =
+      await supabase
+        .from("magic8_links")
+        .select("answer, answer_type")
+        .eq("session_id", sessionId)
+        .limit(1)
+        .maybeSingle()
+
+    if (error) {
+      console.warn("Supabase error:", error)
+      return fallback
+    }
+
+    if (!data) {
+      console.warn("No data found")
+      return fallback
+    }
+
+    return data
+
+  } catch (e) {
+    console.warn("Exception:", e)
+    return fallback
+  }
+}
+
+// ======================
 // STOP
 // ======================
+
+let finalData = fallback
 
 function stop(){
 
@@ -125,25 +148,28 @@ function stop(){
     clue: "REJTÉLY"
   }
 
-  const final = map[data.answer_type] || "REJTÉLY"
+  const final = map[finalData.answer_type] || "REJTÉLY"
 
-  el.classList.add("fade-out")
+  el.textContent = final
 
-  setTimeout(() => {
-
-    el.textContent = final
-    el.classList.remove("fade-out")
-    el.classList.add("fade-in")
-
-    bottom.innerHTML = `
-      <div class="answer">${data.answer}</div>
-      <div>Új válaszért érintsd újra</div>
-    `
-
-  }, 200)
+  bottom.innerHTML = `
+    <div class="answer">
+      ${finalData.answer}
+    </div>
+  `
 }
 
-tick()
+// ======================
+// START FLOW
+// ======================
+
+(async () => {
+
+  finalData = await loadData()
+
+  tick()
+
+})()
 
 </script>
 
