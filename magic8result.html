@@ -114,16 +114,13 @@ body{
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
-// ======================
-// SUPABASE
-// ======================
 const supabase = createClient(
   "https://eogrnzuarpqlyjclkcqq.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
 // ======================
-// SESSION ID (FIXED)
+// SESSION
 // ======================
 const params = new URLSearchParams(location.search)
 
@@ -131,7 +128,7 @@ const sessionId = (params.get("id") || "")
   .trim()
   .replace(/\s/g, "")
 
-console.log("SESSION ID:", sessionId)
+console.log("👉 SESSION ID:", sessionId)
 
 // ======================
 // UI
@@ -172,35 +169,41 @@ function tick(){
 }
 
 // ======================
-// SUPABASE FETCH (FIXED)
+// DEBUG FETCH (FULL TABLE)
 // ======================
-async function fetchData(){
+async function debugAllRows(){
 
-  if(!sessionId){
-    return fallback
-  }
-
-  const { data, error } = await supabase
+  const res = await supabase
     .from("magic8_links")
-    .select("answer, answer_type, tag")
+    .select("*")
+
+  console.log("📦 FULL TABLE DUMP:", res)
+}
+
+// ======================
+// FETCH SESSION ROW
+// ======================
+async function fetchBySession(){
+
+  const res = await supabase
+    .from("magic8_links")
+    .select("answer, answer_type, tag, session_id")
     .eq("session_id", sessionId)
-    .order("id", { ascending: false })
-    .limit(1)
-    .maybeSingle()
+    .order("id", { ascending:false })
 
-  console.log("SUPABASE RESPONSE:", { data, error })
+  console.log("🎯 SESSION QUERY RESULT:", res)
 
-  if(error){
-    console.warn("Supabase error:", error)
-    return fallback
+  if(res.error){
+    console.log("❌ ERROR:", res.error)
+    return null
   }
 
-  if(!data){
-    console.warn("No data found for session")
-    return fallback
+  if(!res.data || res.data.length === 0){
+    console.log("⚠️ NO MATCHING SESSION ROW")
+    return null
   }
 
-  return data
+  return res.data[0]
 }
 
 // ======================
@@ -230,7 +233,27 @@ function stop(){
 // ======================
 (async () => {
 
-  finalData = await fetchData()
+  // 1. debug full table
+  await debugAllRows()
+
+  // 2. session check
+  if(!sessionId){
+    console.log("⚠️ NO SESSION → fallback")
+    finalData = fallback
+    tick()
+    return
+  }
+
+  // 3. real query
+  const data = await fetchBySession()
+
+  if(!data){
+    console.log("⚠️ USING FALLBACK")
+    finalData = fallback
+  } else {
+    finalData = data
+    console.log("✅ FINAL DATA:", finalData)
+  }
 
   categoryEl.textContent = finalData.tag || "Válasz őrző"
 
