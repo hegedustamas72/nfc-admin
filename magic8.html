@@ -7,53 +7,77 @@
 </head>
 
 <body>
+
 Betöltés...
 
 <script type="module">
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
+// ======================
+// SUPABASE
+// ======================
 const supabase = createClient(
   "https://eogrnzuarpqlyjclkcqq.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
+// ======================
+// TAG
+// ======================
 const tag = new URLSearchParams(location.search).get("tag")
 
-if (!tag) {
-  document.body.innerHTML = "Hiányzó tag 😔"
+if(!tag){
+  document.body.innerHTML = "Hiányzó tag"
   throw new Error("No tag")
 }
 
 // ======================
-// VÁLASZOK
+// 25 ANSWERS TOTAL
 // ======================
-
 const answers = [
+
+  // YES (10)
   { type:"yes", text:"Igen!" },
   { type:"yes", text:"Minden jel erre mutat." },
+  { type:"yes", text:"Egyértelműen igen!" },
+  { type:"yes", text:"Jó úton jársz!" },
+  { type:"yes", text:"Nagyon valószínű." },
   { type:"yes", text:"Kétség sem fér hozzá." },
   { type:"yes", text:"Biztosan." },
   { type:"yes", text:"Jó esélyeid vannak." },
+  { type:"yes", text:"A csillagok kedveznek." },
+  { type:"yes", text:"Bátran vágj bele!" },
 
+  // MAYBE (6)
   { type:"maybe", text:"Kérdezd újra később!" },
   { type:"maybe", text:"A helyzet még alakul." },
   { type:"maybe", text:"Nem egyértelmű." },
+  { type:"maybe", text:"További információ kell!" },
+  { type:"maybe", text:"Most homályos a kép." },
+  { type:"maybe", text:"A válasz nem tiszta még." },
 
+  // NO (6)
   { type:"no", text:"Nem!" },
   { type:"no", text:"Erősen kétséges." },
+  { type:"no", text:"Most ne!" },
   { type:"no", text:"Inkább hagyd!" },
+  { type:"no", text:"A válasz negatív." },
+  { type:"no", text:"Nem valószínű." },
 
+  // CLUE / REJTÉLY (3 – meglepetés kategória)
   { type:"clue", text:"A jelek többféleképpen értelmezhetők." },
-  { type:"clue", text:"A válasz nem ott van, ahol keresed." }
+  { type:"clue", text:"A válasz ott van előtted, de még nem látod." },
+  { type:"clue", text:"Nem minden az, aminek elsőre látszik." }
+
 ]
 
 // ======================
-// UTOLSÓ VÁLASZ (ismétlés ellen)
+// LAST ANSWER (ANTI REPEAT)
 // ======================
+async function getLastAnswer(){
 
-const { data: lastRow } =
-  await supabase
+  const { data } = await supabase
     .from("magic8_links")
     .select("answer")
     .eq("tag", tag)
@@ -61,28 +85,40 @@ const { data: lastRow } =
     .limit(1)
     .maybeSingle()
 
-// ======================
-// RANDOM (biztos nincs ismétlés)
-// ======================
-
-let randomAnswer
-
-do {
-  randomAnswer =
-    answers[Math.floor(Math.random() * answers.length)]
-} while (
-  lastRow &&
-  randomAnswer.text === lastRow.answer
-)
+  return data?.answer || null
+}
 
 // ======================
-// INSERT
+// PICK ANSWER (NO REPEAT)
 // ======================
+function pickAnswer(last){
 
-const sessionId = crypto.randomUUID()
+  let picked
 
-const { error } =
-  await supabase
+  do {
+    picked = answers[
+      Math.floor(Math.random() * answers.length)
+    ]
+  } while(last && picked.text === last)
+
+  return picked
+}
+
+// ======================
+// MAIN
+// ======================
+(async () => {
+
+  const last = await getLastAnswer()
+
+  const randomAnswer = pickAnswer(last)
+
+  const sessionId = crypto.randomUUID()
+
+  console.log("SESSION:", sessionId)
+  console.log("ANSWER:", randomAnswer)
+
+  const { error } = await supabase
     .from("magic8_links")
     .insert({
       tag,
@@ -91,17 +127,16 @@ const { error } =
       answer_type: randomAnswer.type
     })
 
-if (error) {
-  console.error(error)
-  document.body.innerHTML = "Supabase hiba 😔"
-  throw error
-}
+  if(error){
+    console.error(error)
+    document.body.innerHTML = "Supabase hiba"
+    return
+  }
 
-// ======================
-// REDIRECT
-// ======================
+  window.location.href =
+    "magic8result.html?id=" + sessionId
 
-location.href = "magic8result.html?id=" + sessionId
+})()
 
 </script>
 
