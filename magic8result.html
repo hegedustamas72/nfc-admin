@@ -199,6 +199,15 @@ async function fetchAnswer(){
   return data[0]
 }
 
+
+  const { data, error } = await supabase
+  .from("magic8_links")
+  .select("*")
+
+console.log("ALL ROWS:", data)
+console.log("ERROR:", error)
+
+  
 // ======================
 // STOP
 // ======================
