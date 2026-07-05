@@ -107,14 +107,18 @@ async function save(){
 
   console.log("INSERT:", payload)
 
-  const { data, error } =
-    await supabase
-      .from("valaszorzo_links")
-      .insert(payload)
-      .select()
+  const { data, error } = await supabase
+  .from("valaszorzo_links")
+  .insert({
+    tag: "valaszorzo",
+    session_id: crypto.randomUUID(),
+    answer: "teszt",
+    answer_type: "yes"
+  })
+  .select()
 
-  console.log("RESULT:", { data, error })
-
+console.log("TEST INSERT RESULT:", data)
+console.log("TEST INSERT ERROR:", error)
   if (error) {
     document.body.innerHTML =
       "<h2>Supabase hiba 😔</h2>"
