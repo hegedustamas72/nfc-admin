@@ -14,30 +14,25 @@
 body{
   margin:0;
   min-height:100vh;
-
   display:flex;
   align-items:center;
   justify-content:center;
-
   padding:20px;
   box-sizing:border-box;
 
   background:
-    linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)),
+    linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
     url('magic8.jpeg');
 
   background-size:cover;
   background-position:center;
-  background-repeat:no-repeat;
-
   color:white;
   font-family:'DM Sans',sans-serif;
 }
 
 .card{
-  width:min(100%,420px);
+  width:min(420px,100%);
   min-height:90vh;
-
   display:flex;
   flex-direction:column;
 }
@@ -46,15 +41,16 @@ body{
   flex:1;
   display:flex;
   flex-direction:column;
+  justify-content:center;
 }
 
 .bigtext{
-  font-size:34px;
+  font-size:38px;
   font-weight:700;
   text-align:center;
   letter-spacing:2px;
-  text-shadow:0 2px 10px rgba(0,0,0,.6);
   transition:opacity 0.2s ease;
+  text-shadow:0 2px 10px rgba(0,0,0,0.7);
 }
 
 .bottom{
@@ -63,57 +59,38 @@ body{
 }
 
 .answer{
-  font-size:36px;
+  font-size:30px;
   font-weight:700;
-  line-height:1.3;
-  text-shadow:0 2px 10px rgba(0,0,0,.6);
+  line-height:1.4;
+  text-shadow:0 2px 10px rgba(0,0,0,0.7);
 }
 
 .hint{
-  margin-top:18px;
-  opacity:.8;
-  font-size:14px;
+  margin-top:14px;
+  font-size:13px;
+  opacity:0.75;
 }
 
 .footer{
-  margin-top:30px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:10px;
+  margin-top:20px;
+  text-align:center;
 }
 
 .btn{
-  display:flex;
+  display:inline-flex;
   align-items:center;
-  justify-content:center;
-  gap:10px;
-
+  gap:8px;
   padding:12px 18px;
-
   border-radius:14px;
-
   background:#9B6A6C;
-
   color:white;
   text-decoration:none;
-
-  box-shadow:0 4px 12px rgba(0,0,0,.25);
+  font-weight:600;
 }
 
 .btn img{
   width:18px;
   height:18px;
-}
-
-.click{
-  animation: click 0.18s ease;
-}
-
-@keyframes click{
-  0% { transform: scale(1); filter: brightness(1); }
-  50% { transform: scale(1.02); filter: brightness(1.4); }
-  100% { transform: scale(1); filter: brightness(1); }
 }
 
 .fade-out{ opacity:0; }
@@ -129,24 +106,17 @@ body{
 
   <div id="content">
 
-    <div class="bigtext" id="rolling">
-      A sors dönt...
-    </div>
+    <div class="bigtext" id="rolling">A sors dönt...</div>
 
     <div class="bottom" id="bottom"></div>
 
   </div>
 
   <div class="footer">
-
     <a class="btn" href="index.html">
-
-      <!-- 🔥 LOGÓ VISSZATÉR -->
-      <img src="brand-icon.png" alt="logo">
-
+      <img src="brand-icon.png">
       Kattkaland
     </a>
-
   </div>
 
 </div>
@@ -166,42 +136,49 @@ const sessionId =
 const el = document.getElementById("rolling")
 const bottom = document.getElementById("bottom")
 
-let data = null
-
-if(sessionId){
-
-    const { data: res, error } =
-    alert(JSON.stringify(res))
-    await supabase
-      .from("magic8_links")
-      .select("*")
-      .eq("session_id", sessionId)
-      .maybeSingle()
-
-  data = res || null
+if (!sessionId) {
+  bottom.innerHTML = "Hiányzó session 😔"
+  throw new Error("No session")
 }
 
-const words = ["IGEN","NEM","TALÁN","IGEN","NEM","TALÁN"]
+// ======================
+// SUPABASE LEKÉRÉS
+// ======================
+
+const { data, error } =
+  await supabase
+    .from("magic8_links")
+    .select("*")
+    .eq("session_id", sessionId)
+    .maybeSingle()
+
+if (error || !data) {
+  bottom.innerHTML =
+    "<pre>" + JSON.stringify(error || "Nincs adat", null, 2) + "</pre>"
+  throw error || new Error("No data")
+}
+
+// ======================
+// FORGÁS
+// ======================
+
+const words = ["IGEN","NEM","TALÁN"]
 
 let i = 0
-let speed = 55
-
-function flash(){
-  el.classList.remove("click")
-  void el.offsetWidth
-  el.classList.add("click")
-}
+let speed = 60
 
 function tick(){
 
   el.textContent = words[i % words.length]
   i++
 
-  flash()
+  if (navigator.vibrate) {
+    navigator.vibrate(10)
+  }
 
   speed *= 1.12
 
-  if(speed > 420){
+  if (speed > 420) {
     stop()
     return
   }
@@ -209,13 +186,18 @@ function tick(){
   setTimeout(tick, speed)
 }
 
+// ======================
+// STOP + VÉGEREDMÉNY
+// ======================
+
 function stop(){
 
   let final = "REJTÉLY"
 
-  if(data?.answer_type === "yes") final = "IGEN"
-  if(data?.answer_type === "no") final = "NEM"
-  if(data?.answer_type === "maybe") final = "TALÁN"
+  if (data.answer_type === "yes") final = "IGEN"
+  if (data.answer_type === "no") final = "NEM"
+  if (data.answer_type === "maybe") final = "TALÁN"
+  if (data.answer_type === "clue") final = "REJTÉLY"
 
   el.classList.add("fade-out")
 
@@ -227,14 +209,14 @@ function stop(){
 
     bottom.innerHTML = `
       <div class="answer">
-        ${data?.answer || ""}
+        ${data.answer}
       </div>
       <div class="hint">
         Új válaszért érintsd újra a bilétát
       </div>
     `
 
-  }, 180)
+  }, 200)
 }
 
 tick()
