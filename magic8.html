@@ -20,24 +20,21 @@ const supabase = createClient(
 )
 
 const tag =
-  new URLSearchParams(window.location.search)
-  .get("tag")
+  new URLSearchParams(window.location.search).get("tag")
 
 if (!tag) {
-
-  document.body.innerHTML =
-    "Hiányzó tag 😔"
-
+  document.body.innerHTML = "Hiányzó tag 😔"
   throw new Error("No tag")
 }
+
+// ======================
+// VÁLASZOK
+// ======================
 
 const answers = [
 
   { type:"yes", text:"Igen!" },
   { type:"yes", text:"Minden jel erre mutat." },
-  { type:"yes", text:"Egyértelműen igen!" },
-  { type:"yes", text:"Jó úton jársz!" },
-  { type:"yes", text:"Nagyon valószínű." },
   { type:"yes", text:"Kétség sem fér hozzá." },
   { type:"yes", text:"Biztosan." },
   { type:"yes", text:"Jó esélyeid vannak." },
@@ -65,7 +62,7 @@ const answers = [
 ]
 
 // ======================
-// UTOLSÓ VÁLASZ LEKÉRÉSE
+// UTOLSÓ VÁLASZ (ismétlés ellen)
 // ======================
 
 const { data: lastRow } =
@@ -78,20 +75,14 @@ const { data: lastRow } =
     .maybeSingle()
 
 // ======================
-// RANDOM VÁLASZ
+// RANDOM VÁLASZ (ismétlés védelem)
 // ======================
 
 let randomAnswer
 
 do {
-
   randomAnswer =
-    answers[
-      Math.floor(
-        Math.random() * answers.length
-      )
-    ]
-
+    answers[Math.floor(Math.random() * answers.length)]
 } while (
   lastRow &&
   randomAnswer.text === lastRow.answer
@@ -101,8 +92,7 @@ do {
 // SESSION
 // ======================
 
-const sessionId =
-  crypto.randomUUID()
+const sessionId = crypto.randomUUID()
 
 // ======================
 // INSERT
@@ -119,19 +109,9 @@ const { error } =
     })
 
 if (error) {
-
   console.error(error)
-
-  document.body.innerHTML = `
-    <pre style="
-      white-space:pre-wrap;
-      padding:20px;
-      font-size:13px;
-    ">
-${JSON.stringify(error, null, 2)}
-    </pre>
-  `
-
+  document.body.innerHTML =
+    "<pre>" + JSON.stringify(error, null, 2) + "</pre>"
   throw error
 }
 
