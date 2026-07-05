@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Válasz őrző</title>
+<title>Magic 8 Ball</title>
 
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&display=swap" rel="stylesheet">
 
@@ -135,7 +135,7 @@ const sessionId = (params.get("id") || "")
 console.log("SESSION ID:", sessionId)
 
 // ======================
-// UI ELEMENTS
+// UI
 // ======================
 
 const el = document.getElementById("rolling")
@@ -171,7 +171,7 @@ function tick(){
 }
 
 // ======================
-// SUPABASE RETRY
+// FETCH (FIXED)
 // ======================
 
 async function fetchWithRetry(retries = 2){
@@ -183,13 +183,18 @@ async function fetchWithRetry(retries = 2){
       const { data, error } =
         await supabase
           .from("magic8_links")
-          .select("answer, answer_type, tag")
+          .select("answer, answer_type, tag, created_at")
           .eq("session_id", sessionId)
-          .maybeSingle()
+          .order("created_at", { ascending: false })
 
-      if(data) return data
+      if(error){
+        console.warn("Supabase error:", error)
+        continue
+      }
 
-      if(error) console.warn("Supabase error:", error)
+      if(data && data.length > 0){
+        return data[0]   // 👉 mindig a legfrissebb
+      }
 
     }catch(e){
       console.warn("Exception:", e)
@@ -224,7 +229,7 @@ function stop(){
 }
 
 // ======================
-// START FLOW
+// START
 // ======================
 
 (async () => {
