@@ -167,6 +167,16 @@ function tick(){
   setTimeout(tick, speed)
 }
 
+
+  console.log("URL sessionId:", sessionId)
+const test = await supabase
+  .from("magic8_links")
+  .select("session_id, answer")
+  .limit(5)
+
+console.log("DB SAMPLE:", test)
+  
+
 // ======================
 // RETRY LOGIKA
 // ======================
