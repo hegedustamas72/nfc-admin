@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Válasz Őrző</title>
+<title>Válasz őrző</title>
 
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&display=swap" rel="stylesheet">
 
@@ -13,127 +14,136 @@
 body{
   margin:0;
   min-height:100vh;
+
   display:flex;
   justify-content:center;
   align-items:center;
-  background:#111;
+
+  background:
+    linear-gradient(rgba(0,0,0,.4),rgba(0,0,0,.4)),
+    url("magic8.jpeg");
+
+  background-size:cover;
+  background-position:center;
+
   color:white;
-  font-family:'DM Sans',sans-serif;
+  font-family:"DM Sans",sans-serif;
 }
 
 .card{
-  width:min(420px,100%);
   text-align:center;
-  padding:30px;
+  width:min(420px,100%);
+  padding:20px;
 }
 
-.bigtext{
-  font-size:42px;
+.title{
+  font-size:18px;
+  opacity:.8;
+  letter-spacing:2px;
+  margin-bottom:20px;
+}
+
+.loading{
+  font-size:40px;
   font-weight:700;
   letter-spacing:2px;
 }
 
-.hint{
-  margin-top:20px;
-  opacity:0.7;
+.small{
+  margin-top:15px;
+  opacity:.7;
   font-size:14px;
 }
 
 </style>
+
 </head>
 
 <body>
 
 <div class="card">
-  <div class="bigtext">A sors dönt...</div>
-  <div class="hint">Válasz generálása...</div>
+
+  <div class="title">Válasz őrző</div>
+
+  <div class="loading">A sors dönt...</div>
+
+  <div class="small">Kérjük várj</div>
+
 </div>
 
 <script type="module">
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
-// ======================
 // SUPABASE
-// ======================
 const supabase = createClient(
   "https://eogrnzuarpqlyjclkcqq.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
-// ======================
-// URL PARAM (TAG)
-// ======================
+// TAG (NFC / URL)
 const params = new URLSearchParams(location.search)
-const tag = (params.get("tag") || "valaszorzo").trim()
+const tag = params.get("tag") || "valaszorzo"
 
-// ======================
-// SESSION ID
-// ======================
+// SESSION
 const sessionId = crypto.randomUUID()
 
-// ======================
-// VÁLASZOK
-// ======================
+// 25 VÁLASZ (eredeti logika visszaépítve)
 const answers = [
-  { type:"yes", text:"Igen!" },
+  { type:"yes", text:"Igen." },
   { type:"yes", text:"Minden jel erre mutat." },
-  { type:"yes", text:"Egyértelműen igen!" },
-  { type:"maybe", text:"Kérdezd újra később!" },
+  { type:"yes", text:"Egyértelműen igen." },
+  { type:"yes", text:"Bátran vágj bele." },
+  { type:"yes", text:"Kétség sem fér hozzá." },
+
+  { type:"yes", text:"Ez jó irány." },
+  { type:"yes", text:"A csillagok is ezt mutatják." },
+
+  { type:"maybe", text:"Kérdezd újra később." },
+  { type:"maybe", text:"Most még nem tiszta." },
+  { type:"maybe", text:"A helyzet alakul." },
   { type:"maybe", text:"Nem egyértelmű." },
-  { type:"no", text:"Nem!" },
-  { type:"no", text:"Most ne!" },
+  { type:"maybe", text:"Várj egy kicsit." },
+
+  { type:"no", text:"Nem." },
   { type:"no", text:"Erősen kétséges." },
-  { type:"clue", text:"A jelek többféleképpen értelmezhetők." }
+  { type:"no", text:"Most ne." },
+  { type:"no", text:"Nem ezt az utat válaszd." },
+  { type:"no", text:"A válasz negatív." },
+
+  { type:"clue", text:"A válasz a részletekben rejlik." },
+  { type:"clue", text:"Nem minden az, aminek látszik." },
+  { type:"clue", text:"A döntés már megszületett benned." },
+  { type:"clue", text:"A jelek több irányba mutatnak." },
+
+  { type:"yes", text:"Igen, de légy türelmes." },
+  { type:"no", text:"Nem most van itt az ideje." },
+  { type:"maybe", text:"Még változhat minden." }
 ]
 
-// ======================
-// RANDOM ANSWER
-// ======================
+// RANDOM VÁLASZ
 const randomAnswer =
   answers[Math.floor(Math.random() * answers.length)]
 
-// ======================
-// INSERT SUPABASE
-// ======================
-async function save(){
-
-  const payload = {
-    tag: "valaszorzo",   // FIX: NEM UUID
+// SUPABASE INSERT (csak naplózás, nem kritikus)
+const { error } = await supabase
+  .from("valaszorzo_links")
+  .insert({
+    tag: tag,
     session_id: sessionId,
     answer: randomAnswer.text,
     answer_type: randomAnswer.type
-  }
-
-  console.log("INSERT:", payload)
-
-  const { data, error } = await supabase
-  .from("valaszorzo_links")
-  .insert({
-    tag: "valaszorzo",
-    session_id: crypto.randomUUID(),
-    answer: "teszt",
-    answer_type: "yes"
   })
-  .select()
 
-console.log("TEST INSERT RESULT:", data)
-console.log("TEST INSERT ERROR:", error)
-  if (error) {
-    document.body.innerHTML =
-      "<h2>Supabase hiba 😔</h2>"
-    console.error(error)
-    return
-  }
-
-  // ======================
-  // REDIRECT
-  // ======================
-  window.location.href =
-    "valaszorzoresults.html?id=" + sessionId
+if(error){
+  console.error("Supabase hiba:", error)
+  document.body.innerHTML = "<h2>Supabase hiba</h2>"
+  throw error
 }
 
-save()
+// REDIRECT
+window.location.href =
+  "valaszorzoresults.html?id=" + sessionId
 
 </script>
 
