@@ -127,8 +127,11 @@ const supabase = createClient(
 
 const params = new URLSearchParams(location.search)
 
-const sessionId = decodeURIComponent(
-  (params.get("id") || "").trim()
+const sessionId = (params.get("id") || "")
+  .replace(/\s/g, "")
+  .trim()
+
+  .eq("session_id", sessionId.replace(/\s/g, ""))
 )
 
 // ======================
