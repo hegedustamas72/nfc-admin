@@ -1,13 +1,9 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Magic 8 Ball</title>
-
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&display=swap" rel="stylesheet">
 
 <style>
 
@@ -17,108 +13,38 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:20px;
-  box-sizing:border-box;
-
-  background:
-    linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
-    url('magic8.jpeg');
-
-  background-size:cover;
-  background-position:center;
+  background:url('magic8.jpeg') center/cover;
   color:white;
-  font-family:'DM Sans',sans-serif;
-}
-
-.card{
-  width:min(420px,100%);
-  min-height:90vh;
-  display:flex;
-  flex-direction:column;
-}
-
-#content{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
+  font-family:Arial;
 }
 
 .bigtext{
-  font-size:38px;
+  font-size:40px;
   font-weight:700;
   text-align:center;
-  letter-spacing:2px;
-  transition:opacity 0.2s ease;
-  text-shadow:0 2px 10px rgba(0,0,0,0.7);
 }
 
 .bottom{
-  margin-top:auto;
-  text-align:center;
-}
-
-.answer{
-  font-size:30px;
-  font-weight:700;
-  line-height:1.4;
-  text-shadow:0 2px 10px rgba(0,0,0,0.7);
-}
-
-.hint{
-  margin-top:14px;
-  font-size:13px;
-  opacity:0.75;
-}
-
-.footer{
   margin-top:20px;
   text-align:center;
 }
 
-.btn{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:12px 18px;
-  border-radius:14px;
-  background:#9B6A6C;
-  color:white;
-  text-decoration:none;
-  font-weight:600;
+.answer{
+  font-size:26px;
+  font-weight:700;
 }
 
-.btn img{
-  width:18px;
-  height:18px;
-}
-
-.fade-out{ opacity:0; }
-.fade-in{ opacity:1; }
+.fade-out{ opacity:0; transition:0.2s; }
+.fade-in{ opacity:1; transition:0.2s; }
 
 </style>
-
 </head>
 
 <body>
 
-<div class="card">
-
-  <div id="content">
-
-    <div class="bigtext" id="rolling">A sors dönt...</div>
-
-    <div class="bottom" id="bottom"></div>
-
-  </div>
-
-  <div class="footer">
-    <a class="btn" href="index.html">
-      <img src="brand-icon.png">
-      Kattkaland
-    </a>
-  </div>
-
+<div>
+  <div class="bigtext" id="rolling">A sors dönt...</div>
+  <div class="bottom" id="bottom"></div>
 </div>
 
 <script type="module">
@@ -127,11 +53,10 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const supabase = createClient(
   "https://eogrnzuarpqlyjclkcqq.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 )
 
-const sessionId =
-  new URLSearchParams(location.search).get("id")
+const sessionId = new URLSearchParams(location.search).get("id")
 
 const el = document.getElementById("rolling")
 const bottom = document.getElementById("bottom")
@@ -142,20 +67,25 @@ if (!sessionId) {
 }
 
 // ======================
-// SUPABASE LEKÉRÉS
+// FONTOS FIX: limit + select védelem
 // ======================
 
 const { data, error } =
   await supabase
     .from("magic8_links")
-    .select("*")
+    .select("answer, answer_type")
     .eq("session_id", sessionId)
+    .limit(1)
     .maybeSingle()
 
-if (error || !data) {
-  bottom.innerHTML =
-    "<pre>" + JSON.stringify(error || "Nincs adat", null, 2) + "</pre>"
-  throw error || new Error("No data")
+if (error) {
+  bottom.innerHTML = "Supabase hiba 😔"
+  throw error
+}
+
+if (!data) {
+  bottom.innerHTML = "Nincs adat 😔"
+  throw new Error("No data")
 }
 
 // ======================
@@ -172,13 +102,9 @@ function tick(){
   el.textContent = words[i % words.length]
   i++
 
-  if (navigator.vibrate) {
-    navigator.vibrate(10)
-  }
+  speed *= 1.10
 
-  speed *= 1.12
-
-  if (speed > 420) {
+  if (speed > 450) {
     stop()
     return
   }
@@ -187,17 +113,19 @@ function tick(){
 }
 
 // ======================
-// STOP + VÉGEREDMÉNY
+// STOP
 // ======================
 
 function stop(){
 
-  let final = "REJTÉLY"
+  const map = {
+    yes: "IGEN",
+    no: "NEM",
+    maybe: "TALÁN",
+    clue: "REJTÉLY"
+  }
 
-  if (data.answer_type === "yes") final = "IGEN"
-  if (data.answer_type === "no") final = "NEM"
-  if (data.answer_type === "maybe") final = "TALÁN"
-  if (data.answer_type === "clue") final = "REJTÉLY"
+  const final = map[data.answer_type] || "REJTÉLY"
 
   el.classList.add("fade-out")
 
@@ -208,12 +136,8 @@ function stop(){
     el.classList.add("fade-in")
 
     bottom.innerHTML = `
-      <div class="answer">
-        ${data.answer}
-      </div>
-      <div class="hint">
-        Új válaszért érintsd újra a bilétát
-      </div>
+      <div class="answer">${data.answer}</div>
+      <div>Új válaszért érintsd újra</div>
     `
 
   }, 200)
