@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="hu">
 <head>
 
@@ -17,11 +16,11 @@ body{
   min-height:100vh;
 
   display:flex;
-  justify-content:center;
-  align-items:center;
+  flex-direction:column;
+  justify-content:space-between;
 
   background:
-    linear-gradient(rgba(0,0,0,.4),rgba(0,0,0,.4)),
+    linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
     url("magic8.jpeg");
 
   background-size:cover;
@@ -31,29 +30,51 @@ body{
   font-family:"DM Sans",sans-serif;
 }
 
-.card{
+/* TOP */
+.top{
+  padding-top:30px;
   text-align:center;
-  width:min(420px,100%);
-  padding:20px;
 }
 
-.title{
-  font-size:18px;
-  opacity:.8;
+.category{
+  font-size:14px;
+  opacity:.75;
   letter-spacing:2px;
+  margin-bottom:10px;
+}
+
+.big{
+  font-size:40px;
+  font-weight:700;
+  min-height:50px;
+}
+
+/* BOTTOM */
+.bottom{
+  text-align:center;
+  padding-bottom:40px;
+}
+
+.answer{
+  font-size:26px;
+  font-weight:600;
+  margin-bottom:10px;
+}
+
+.hint{
+  font-size:13px;
+  opacity:.7;
   margin-bottom:20px;
 }
 
-.loading{
-  font-size:40px;
-  font-weight:700;
-  letter-spacing:2px;
-}
-
-.small{
-  margin-top:15px;
-  opacity:.7;
-  font-size:14px;
+.btn{
+  display:inline-block;
+  padding:12px 18px;
+  border-radius:14px;
+  background:#9B6A6C;
+  color:white;
+  text-decoration:none;
+  font-weight:600;
 }
 
 </style>
@@ -62,13 +83,21 @@ body{
 
 <body>
 
-<div class="card">
+<div class="top">
 
-  <div class="title">Válasz őrző</div>
+  <div class="category">Válasz őrző</div>
 
-  <div class="loading">A sors dönt...</div>
+  <div class="big" id="rolling">A sors dönt...</div>
 
-  <div class="small">Kérjük várj</div>
+</div>
+
+<div class="bottom">
+
+  <div class="answer" id="result"></div>
+
+  <div class="hint" id="hint"></div>
+
+  <a class="btn" href="index.html">Kattkaland</a>
 
 </div>
 
@@ -76,20 +105,36 @@ body{
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
-// SUPABASE
 const supabase = createClient(
   "https://eogrnzuarpqlyjclkcqq.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
-// TAG (NFC / URL)
-const params = new URLSearchParams(location.search)
-const tag = params.get("tag") || "valaszorzo"
+// ======================
+// EGYSÉGES ID RENDSZER
+// ======================
+const sessionId =
+  new URLSearchParams(location.search).get("id")
 
-// SESSION
-const sessionId = crypto.randomUUID()
+const tag =
+  new URLSearchParams(location.search).get("tag") || "valaszorzo"
 
-// 25 VÁLASZ (eredeti logika visszaépítve)
+console.log("SESSION ID:", sessionId)
+console.log("TAG:", tag)
+
+// ======================
+// UI
+// ======================
+const rolling = document.getElementById("rolling")
+const result = document.getElementById("result")
+const hint = document.getElementById("hint")
+
+// ======================
+// PÖRGÉS (maradt a klasszikus)
+const words = ["IGEN","NEM","TALÁN"]
+
+// ======================
+// 25 VÁLASZ (visszaépítve)
 const answers = [
   { type:"yes", text:"Igen." },
   { type:"yes", text:"Minden jel erre mutat." },
@@ -122,29 +167,61 @@ const answers = [
   { type:"maybe", text:"Még változhat minden." }
 ]
 
-// RANDOM VÁLASZ
+// ======================
+// RANDOM
+// ======================
 const randomAnswer =
   answers[Math.floor(Math.random() * answers.length)]
 
-// SUPABASE INSERT (csak naplózás, nem kritikus)
-const { error } = await supabase
-  .from("valaszorzo_links")
-  .insert({
-    tag: tag,
-    session_id: sessionId,
-    answer: randomAnswer.text,
-    answer_type: randomAnswer.type
-  })
+// ======================
+// SUPABASE INSERT
+// ======================
+async function save(){
 
-if(error){
-  console.error("Supabase hiba:", error)
-  document.body.innerHTML = "<h2>Supabase hiba</h2>"
-  throw error
+  const { error } = await supabase
+    .from("valaszorzo_links")
+    .insert({
+      session_id: sessionId,
+      tag: tag,
+      answer: randomAnswer.text,
+      answer_type: randomAnswer.type
+    })
+
+  if(error){
+    console.error("Supabase hiba:", error)
+    document.body.innerHTML = "<h2>Supabase hiba</h2>"
+    return
+  }
+
+  animate(randomAnswer)
 }
 
-// REDIRECT
-window.location.href =
-  "valaszorzoresults.html?id=" + sessionId
+function animate(data){
+
+  let i = 0
+
+  const interval = setInterval(() => {
+
+    rolling.textContent = words[i % words.length]
+    i++
+
+    if(i > 14){
+      clearInterval(interval)
+
+      rolling.textContent =
+        data.type === "clue" ? "REJTÉLY"
+        : data.type === "yes" ? "IGEN"
+        : data.type === "no" ? "NEM"
+        : "TALÁN"
+
+      result.textContent = data.text
+      hint.textContent = "Új válaszhoz érintsd újra a bilétát"
+    }
+
+  }, 80)
+}
+
+save()
 
 </script>
 
