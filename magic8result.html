@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Magic 8 Ball</title>
 
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&display=swap" rel="stylesheet">
@@ -30,37 +31,30 @@ body{
   font-family:'DM Sans',sans-serif;
 }
 
-/* KÁRTYA */
 .card{
   width:min(420px,100%);
   min-height:100vh;
-
   display:flex;
   flex-direction:column;
 }
 
-/* 🔝 FELÜL – KÖZEL A TETEJÉHEZ */
 .top{
   margin-top:10px;
   text-align:center;
 }
 
-/* KATEGÓRIA + FORGÁS EGY SZINT */
 .category{
   font-size:14px;
   opacity:0.8;
   margin-bottom:8px;
-  letter-spacing:1px;
 }
 
 .bigtext{
   font-size:42px;
   font-weight:700;
   letter-spacing:2px;
-  text-shadow:0 2px 10px rgba(0,0,0,0.7);
 }
 
-/* ALSÓ RÉSZ */
 .bottom{
   margin-top:auto;
   text-align:center;
@@ -70,17 +64,14 @@ body{
 .answer{
   font-size:28px;
   font-weight:700;
-  line-height:1.4;
-  text-shadow:0 2px 10px rgba(0,0,0,0.7);
 }
 
 .hint{
-  margin-top:10px;
   font-size:13px;
-  opacity:0.75;
+  opacity:0.7;
+  margin-top:10px;
 }
 
-/* GOMB */
 .footer{
   margin-top:20px;
   text-align:center;
@@ -90,26 +81,13 @@ body{
   display:inline-flex;
   align-items:center;
   gap:8px;
-
   padding:12px 18px;
   border-radius:14px;
-
   background:#9B6A6C;
   color:white;
   text-decoration:none;
-
   font-weight:600;
-  box-shadow:0 4px 12px rgba(0,0,0,0.25);
 }
-
-.btn img{
-  width:18px;
-  height:18px;
-}
-
-/* anim */
-.fade-out{ opacity:0; transition:0.2s; }
-.fade-in{ opacity:1; transition:0.2s; }
 
 </style>
 </head>
@@ -118,22 +96,16 @@ body{
 
 <div class="card">
 
-  <!-- 🔝 FELÜL -->
   <div class="top">
-
     <div class="category" id="category">Magic 8 Ball</div>
-
     <div class="bigtext" id="rolling">A sors dönt...</div>
-
   </div>
 
-  <!-- 🔻 VÁLASZ -->
   <div class="bottom" id="bottom"></div>
 
-  <!-- 🔘 GOMB (VISSZA!) -->
   <div class="footer">
     <a class="btn" href="index.html">
-      <img src="brand-icon.png">
+      <img src="brand-icon.png" width="18">
       Kattkaland
     </a>
   </div>
@@ -149,62 +121,85 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
+// ======================
+// SESSION (SAFE)
+// ======================
+
+const params = new URLSearchParams(location.search)
+
+const sessionId = decodeURIComponent(
+  (params.get("id") || "").trim()
+)
+
+// ======================
+// UI ELEMENTS
+// ======================
+
 const el = document.getElementById("rolling")
 const bottom = document.getElementById("bottom")
 const categoryEl = document.getElementById("category")
 
-const params = new URLSearchParams(location.search)
-const sessionId = (params.get("id") || "").trim()
+// ======================
+// FALLBACK
+// ======================
 
-// fallback
 const fallback = {
   answer: "A jelek bizonytalanok, próbáld újra.",
-  answer_type: "clue"
+  answer_type: "clue",
+  tag: "Magic 8 Ball"
 }
+
+// ======================
+// FORGÁS
+// ======================
 
 const words = ["IGEN","NEM","TALÁN"]
 
 let i = 0
-let speed = 55
+let speed = 50
 let finalData = fallback
 
 function tick(){
-
   el.textContent = words[i % words.length]
   i++
-
   speed *= 1.12
-
-  if(speed > 420){
-    stop()
-    return
-  }
-
+  if(speed > 420) return stop()
   setTimeout(tick, speed)
 }
 
-async function loadData(){
+// ======================
+// RETRY LOGIKA
+// ======================
 
-  try {
+async function fetchWithRetry(retries = 2){
 
-    const { data, error } =
-      await supabase
-        .from("magic8_links")
-        .select("answer, answer_type, tag")
-        .eq("session_id", sessionId)
-        .limit(1)
-        .maybeSingle()
+  for(let attempt = 0; attempt <= retries; attempt++){
 
-    if (!data || error) return fallback
+    try{
 
-    categoryEl.textContent = data.tag || "Magic 8 Ball"
+      const { data, error } =
+        await supabase
+          .from("magic8_links")
+          .select("answer, answer_type, tag")
+          .eq("session_id", sessionId)
+          .maybeSingle()
 
-    return data
+      if(data) return data
 
-  } catch {
-    return fallback
+      if(error) console.warn("Supabase error:", error)
+
+    }catch(e){
+      console.warn("Exception:", e)
+    }
+
   }
+
+  return fallback
 }
+
+// ======================
+// STOP
+// ======================
 
 function stop(){
 
@@ -217,25 +212,32 @@ function stop(){
 
   const final = map[finalData.answer_type] || "REJTÉLY"
 
-  el.classList.add("fade-out")
+  el.textContent = final
 
-  setTimeout(() => {
-
-    el.textContent = final
-    el.classList.remove("fade-out")
-    el.classList.add("fade-in")
-
-    bottom.innerHTML = `
-      <div class="answer">${finalData.answer}</div>
-      <div class="hint">Új válaszhoz érintsd újra a bilétát</div>
-    `
-
-  }, 200)
+  bottom.innerHTML = `
+    <div class="answer">${finalData.answer}</div>
+    <div class="hint">Új válaszhoz érintsd újra a bilétát</div>
+  `
 }
 
+// ======================
+// START
+// ======================
+
 (async () => {
-  finalData = await loadData()
+
+  if(!sessionId){
+    finalData = fallback
+    tick()
+    return
+  }
+
+  finalData = await fetchWithRetry()
+
+  categoryEl.textContent = finalData.tag || "Magic 8 Ball"
+
   tick()
+
 })()
 
 </script>
