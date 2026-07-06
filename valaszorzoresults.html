@@ -2,180 +2,152 @@
 <html lang="hu">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Válasz őrző</title>
-
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&display=swap" rel="stylesheet">
+<title>Válasz Őrző</title>
 
 <style>
-
-body{
-  margin:0;
-  min-height:100vh;
-
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between;
-  align-items:center;
-
-  background:
-    linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
-    url("magic8.jpeg");
-
-  background-size:cover;
-  background-position:center;
-
-  color:white;
-  font-family:"DM Sans",sans-serif;
+body {
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  color: white;
+  text-align: center;
+  background: url("magic8.jpeg") center/cover no-repeat;
 }
 
-/* TOP */
-.top{
-  padding-top:40px;
-  text-align:center;
+/* sötét overlay */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
 }
 
-.category{
-  font-size:14px;
-  opacity:.75;
-  letter-spacing:2px;
-  margin-bottom:10px;
+.container {
+  position: relative;
+  z-index: 2;
+  top: 40%;
+  transform: translateY(-50%);
 }
 
-.big{
-  font-size:42px;
-  font-weight:700;
-  min-height:50px;
+/* forgó szöveg */
+#spinner {
+  font-size: 48px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  height: 60px;
 }
 
-/* BOTTOM */
-.bottom{
-  text-align:center;
-  padding-bottom:40px;
+/* végső válasz */
+#answer {
+  margin-top: 30px;
+  font-size: 34px;
+  opacity: 0;
+  transition: 0.6s;
 }
 
-.answer{
-  font-size:26px;
-  font-weight:600;
-  margin-bottom:10px;
+/* kategória */
+#category {
+  margin-top: 10px;
+  font-size: 22px;
+  opacity: 0;
+  transition: 0.6s;
 }
 
-.hint{
-  font-size:13px;
-  opacity:.7;
-  margin-bottom:20px;
+/* gomb */
+button {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 14px 26px;
+  font-size: 18px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: white;
+  color: black;
 }
-
-/* BUTTON */
-.btn{
-  display:inline-block;
-  padding:12px 18px;
-  border-radius:14px;
-  background:#9B6A6C;
-  color:white;
-  text-decoration:none;
-  font-weight:600;
-  transition:0.2s;
-}
-
-.btn:hover{
-  transform:scale(1.05);
-  opacity:0.9;
-}
-
 </style>
 </head>
 
 <body>
 
-<div class="top">
+<div class="overlay"></div>
 
-  <div class="category">Válasz őrző</div>
-
-  <div class="big" id="rolling">A sors dönt...</div>
-
+<div class="container">
+  <div id="spinner">...</div>
+  <div id="answer"></div>
+  <div id="category"></div>
 </div>
 
-<div class="bottom">
+<button onclick="goBack()">Kattkaland</button>
 
-  <div class="answer" id="result"></div>
+<script>
+const params = new URLSearchParams(window.location.search);
+const raw = params.get("data");
 
-  <div class="hint" id="hint"></div>
+let item = null;
 
-  <a class="btn" href="index.html">Kattkaland</a>
+if (raw) {
+  item = JSON.parse(decodeURIComponent(raw));
+}
 
-</div>
+const spinnerEl = document.getElementById("spinner");
+const answerEl = document.getElementById("answer");
+const categoryEl = document.getElementById("category");
 
-<script type="module">
+// 🔁 csak ezek forognak
+const spinValues = ["Igen", "Nem", "Talán"];
 
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
+let i = 0;
+let interval;
 
-/* SUPABASE (csak olvasás, ha később kell log) */
-const supabase = createClient(
-  "https://eogrnzuarpqlyjclkcqq.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
-)
+// forgás indítás
+function startSpin() {
+  interval = setInterval(() => {
+    spinnerEl.textContent = spinValues[i % spinValues.length];
+    i++;
+  }, 120);
+}
 
-/* ID */
-const sessionId =
-  new URLSearchParams(location.search).get("id")
+// megállítás + eredmény
+function stopSpin() {
+  clearInterval(interval);
 
-const rolling = document.getElementById("rolling")
-const result = document.getElementById("result")
-const hint = document.getElementById("hint")
+  setTimeout(() => {
 
-const words = ["IGEN","NEM","TALÁN"]
+    answerEl.textContent = item.answer;
+    answerEl.style.opacity = 1;
 
-/* ANIM */
-function animate(data){
+    // kategória logika
+    let typeText = "";
 
-  let i = 0
+    if (item.type === "yes") typeText = "Igen";
+    if (item.type === "no") typeText = "Nem";
+    if (item.type === "maybe") typeText = "Talán";
+    if (item.type === "clue") typeText = "Rejtély";
 
-  const interval = setInterval(() => {
-
-    rolling.textContent = words[i % words.length]
-    i++
-
-    if(i > 14){
-      clearInterval(interval)
-
-      rolling.textContent =
-        data.type === "yes" ? "IGEN"
-        : data.type === "no" ? "NEM"
-        : "TALÁN"
-
-      result.textContent = data.text
-
-      hint.textContent =
-        "A sors már döntött. Új kérdés = új olvasás."
+    // spinner marad “végső állapotban”
+    if (item.type === "clue") {
+      spinnerEl.textContent = "Rejtély";
+    } else {
+      spinnerEl.textContent = typeText;
     }
 
-  }, 80)
+    categoryEl.textContent = typeText;
+    categoryEl.style.opacity = 1;
+
+  }, 500);
 }
 
-/* SIMPLE LOAD FROM URL OR FALLBACK */
-async function load(){
+// indulás
+startSpin();
+setTimeout(stopSpin, 2500);
 
-  // ha van ID → későbbi bővítés (log / stat)
-  console.log("SESSION:", sessionId)
-
-  // MOST: DEMO / FRONTEND ONLY LOGIKA
-  const demo = [
-    { type:"yes", text:"Igen." },
-    { type:"no", text:"Nem." },
-    { type:"maybe", text:"Talán." },
-    { type:"clue", text:"A válasz benned van." }
-  ]
-
-  const random =
-    demo[Math.floor(Math.random() * demo.length)]
-
-  animate(random)
+// vissza
+function goBack() {
+  window.location.href = "valaszorzo.html";
 }
-
-load()
-
 </script>
 
 </body>
