@@ -21,7 +21,7 @@ body{
 /* TOP */
 .top{
   position:absolute;
-  top:6%;
+  top:5%;
   width:100%;
   text-align:center;
 }
@@ -31,10 +31,12 @@ body{
   font-weight:bold;
 }
 
+/* ⚠️ CSAK EZ AZ EGY KATEGÓRIA MARAD */
 .category{
   font-size:42px;
   font-weight:bold;
-  margin-top:8px;
+  margin-top:6px;
+  min-height:50px;
 }
 
 /* BOTTOM */
@@ -59,7 +61,7 @@ body{
   margin-bottom:14px;
 }
 
-/* BUTTON (vikinges style) */
+/* BUTTON */
 .btn{
   display:flex;
   align-items:center;
@@ -106,55 +108,32 @@ body{
 <script>
 (() => {
 
-  // =========================
-  // SAFE PARAM READ
-  // =========================
   const params = new URLSearchParams(window.location.search);
-  const raw = params.get("data");
+  let item;
 
-  let item = null;
+  try {
+    item = JSON.parse(decodeURIComponent(params.get("data")));
+  } catch (e) {}
 
-  if (raw) {
-    try {
-      item = JSON.parse(decodeURIComponent(raw));
-    } catch (e) {
-      console.warn("JSON hiba:", e);
-    }
-  }
+  if (!item) item = { answer: "Nincs adat", type: "no" };
 
-  // fallback (NE legyen üres UI)
-  if (!item) {
-    item = { answer: "Nincs adat", type: "no" };
-  }
-
-  // =========================
-  // TYPE MAP (EGYETLEN FORRÁS)
-  // =========================
-  function getCategory(type){
-    switch(type){
-      case "yes": return "Igen";
-      case "no": return "Nem";
-      case "maybe": return "Talán";
-      case "clue": return "Rejtély";
-      default: return "Ismeretlen";
-    }
-  }
-
-  // =========================
-  // ELEMENTS
-  // =========================
   const spinner = document.getElementById("spinner");
-  const category = document.querySelector(".category");
+  const categoryEl = document.querySelector(".category");
   const answerEl = document.getElementById("answer");
 
-  // =========================
-  // ANIMATION
-  // =========================
+  function getCategory(type){
+    if(type === "yes") return "Igen";
+    if(type === "no") return "Nem";
+    if(type === "maybe") return "Talán";
+    if(type === "clue") return "Rejtély";
+    return "Ismeretlen";
+  }
+
   const spin = ["Igen", "Nem", "Talán"];
   let i = 0;
 
   const interval = setInterval(() => {
-    spinner.textContent = spin[i++ % spin.length];
+    spinner.textContent = spin[i++ % 3];
   }, 120);
 
   setTimeout(() => {
@@ -162,10 +141,14 @@ body{
 
     const cat = getCategory(item.type);
 
-    // clue special case: csak a végén jelenik meg
+    // 🔥 FONTOS:
+    // spinner = animáció vége
     spinner.textContent = cat;
 
-    category.textContent = cat;
+    // ❌ NINCS DUPLIKÁCIÓ:
+    // csak EZ az egy jelenik meg
+    categoryEl.textContent = cat;
+
     answerEl.textContent = item.answer ?? "-";
 
   }, 2200);
