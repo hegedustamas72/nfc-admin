@@ -3,78 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <title>Válasz Őrző</title>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap" rel="stylesheet">
 
 <style>
-body {
-  margin: 0;
-  height: 100vh;
-  overflow: hidden;
-  font-family: Arial, sans-serif;
-  color: white;
-  background: url("magic8.jpeg") center/cover no-repeat;
+body{
+  margin:0;
+  height:100vh;
+  overflow:hidden;
+  font-family:Arial;
+  background:url("magic8.jpeg") center/cover no-repeat;
+  color:white;
 }
 
 /* TOP */
-.top {
-  position: absolute;
-  top: 5%;
-  width: 100%;
-  text-align: center;
+.top{
+  position:absolute;
+  top:5%;
+  width:100%;
+  text-align:center;
 }
 
-#spinner {
-  font-size: 42px;
-  font-weight: bold;
-  height: 55px;
+#spinner{
+  font-size:42px;
+  font-weight:bold;
 }
 
-#category_big {
-  font-size: 42px;
-  font-weight: bold;
-  margin-top: 5px;
-}
-
-/* FORCE DUPLIKÁCIÓ ELLEN */
-#category_big + #category_big {
-  display: none !important;
-}
-
-#category {
-  display: none !important;
+.category{
+  font-size:42px;
+  font-weight:bold;
+  margin-top:6px;
 }
 
 /* BOTTOM */
-.bottom {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
-
-  padding-bottom: 6%;
-  text-align: center;
+.bottom{
+  position:absolute;
+  bottom:6%;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
 }
 
-#answer {
-  font-size: 36px;
-  margin-bottom: 18px;
+#answer{
+  font-size:34px;
+  margin-bottom:12px;
 }
 
-#hint {
-  font-size: 15px;
-  opacity: 0.85;
-  margin-bottom: 18px;
+#hint{
+  font-size:14px;
+  opacity:0.8;
+  margin-bottom:16px;
 }
 
-/* BUTTON */
+/* BUTTON (vikinges) */
 .btn{
   display:flex;
   align-items:center;
@@ -82,22 +67,16 @@ body {
   gap:10px;
 
   padding:12px 18px;
-
   border-radius:14px;
 
   background:#9B6A6C;
   color:white;
-
   text-decoration:none;
+
   font-family:'Alex Brush',cursive;
   font-weight:600;
 
   box-shadow:0 4px 10px rgba(0,0,0,0.12);
-  transition: 0.2s;
-}
-
-.btn:hover{
-  transform: scale(1.05);
 }
 
 .btn img{
@@ -110,88 +89,76 @@ body {
 <body>
 
 <div class="top">
-  <div id="spinner">...</div>
-  <div id="category_big"></div>
+  <div id="spinner"></div>
+  <div class="category"></div>
 </div>
 
 <div class="bottom">
-
   <div id="answer"></div>
-
-  <div id="hint">
-    Újabb válaszért érintsd újra a bilétát!
-  </div>
+  <div id="hint">Újabb válaszért érintsd újra a bilétát!</div>
 
   <a class="btn" href="valaszorzo.html">
     <img src="brand-icon.png">
     Kattkaland
   </a>
-
 </div>
 
 <script>
-const params = new URLSearchParams(window.location.search);
-const raw = params.get("data");
+/* =========================
+   🔥 HARD GUARD: DOUBLE RUN BLOCK
+========================= */
+if (window.__VALASZORZO_DONE__) {
+  console.warn("Dupla init blokkolva");
+} else {
+  window.__VALASZORZO_DONE__ = true;
 
-let item = null;
+  const params = new URLSearchParams(window.location.search);
+  let item = null;
 
-try {
-  if (raw) item = JSON.parse(decodeURIComponent(raw));
-} catch (e) {
-  console.error(e);
+  try {
+    item = JSON.parse(decodeURIComponent(params.get("data")));
+  } catch(e){}
+
+  if (!item) item = {answer:"Nincs válasz", type:"no"};
+
+  const spinner = document.getElementById("spinner");
+  const category = document.querySelector(".category");
+  const answer = document.getElementById("answer");
+
+  const spin = ["Igen","Nem","Talán"];
+  let i = 0;
+
+  function map(t){
+    if(t==="yes") return "Igen";
+    if(t==="no") return "Nem";
+    if(t==="maybe") return "Talán";
+    if(t==="clue") return "Rejtély";
+    return "Ismeretlen";
+  }
+
+  /* 🔥 SAFETY: clear any accidental duplicates in DOM */
+  document.querySelectorAll(".category").forEach((el, idx)=>{
+    if(idx>0) el.remove();
+  });
+
+  const interval = setInterval(()=>{
+    spinner.textContent = spin[i++ % 3];
+  },120);
+
+  setTimeout(()=>{
+    clearInterval(interval);
+
+    const m = map(item.type);
+
+    spinner.textContent = (item.type==="clue") ? "Rejtély" : m;
+
+    category.textContent = "";
+    requestAnimationFrame(()=> category.textContent = m);
+
+    answer.textContent = item.answer;
+
+  },2500);
 }
-
-if (!item || !item.answer) {
-  item = { answer: "Nincs válasz", type: "no" };
-}
-
-/* 🔥 HARD FIX: CSAK 1 ELEM LEHET */
-const categoryNodes = document.querySelectorAll("#category_big");
-categoryNodes.forEach((el, idx) => {
-  if (idx > 0) el.remove();
-});
-
-const spinnerEl = document.getElementById("spinner");
-const categoryEl = document.getElementById("category_big");
-const answerEl = document.getElementById("answer");
-
-const spinValues = ["Igen", "Nem", "Talán"];
-let i = 0;
-let interval;
-
-function mapType(t) {
-  if (t === "yes") return "Igen";
-  if (t === "no") return "Nem";
-  if (t === "maybe") return "Talán";
-  if (t === "clue") return "Rejtély";
-  return "Ismeretlen";
-}
-
-function startSpin() {
-  interval = setInterval(() => {
-    spinnerEl.textContent = spinValues[i++ % 3];
-  }, 120);
-}
-
-function stopSpin() {
-  clearInterval(interval);
-
-  setTimeout(() => {
-    const mapped = mapType(item.type);
-
-    spinnerEl.textContent = item.type === "clue" ? "Rejtély" : mapped;
-
-    categoryEl.textContent = "";
-    requestAnimationFrame(() => {
-      categoryEl.textContent = mapped;
-    });
-
-    answerEl.textContent = item.answer;
-  }, 500);
-}
-
-startSpin();
-setTimeout(stopSpin, 2500);
 </script>
 
 </body>
