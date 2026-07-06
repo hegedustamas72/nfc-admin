@@ -1,51 +1,38 @@
-<script type="module">
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<title>Válasz őrző</title>
+</head>
+<body>
 
-const SHEET_URL =
-  "https://opensheet.elk.sh/11R_-GOutX5MaApZoojq6h2_-iMmSq8DpscQO13f2qMw/Munkalap1"
+<h1>Válasz őrző</h1>
+<button onclick="generate()">Kérdezz</button>
 
-const res = await fetch(SHEET_URL)
-const rows = await res.json()
+<script>
+let data = [];
 
-if (!rows?.length) {
-  document.body.innerHTML = "Nincs adat 😔"
-  throw new Error("No data")
+async function loadCSV() {
+  const res = await fetch("valaszorzo.csv");
+  const text = await res.text();
+
+  const rows = text.trim().split("\n").slice(1);
+
+  data = rows.map(r => {
+    const [answer, type] = r.split(",");
+    return {answer, type};
+  });
 }
 
-// RANDOM VÁLASZ
-const random =
-  rows[Math.floor(Math.random() * rows.length)]
+function generate() {
+  const item = data[Math.floor(Math.random() * data.length)];
 
-// UI
-const words = ["IGEN","NEM","TALÁN"]
-
-const rolling = document.getElementById("rolling")
-const result = document.getElementById("result")
-const hint = document.getElementById("hint")
-
-function animate(){
-
-  let i = 0
-
-  const interval = setInterval(() => {
-
-    rolling.textContent = words[i % words.length]
-    i++
-
-    if (i > 14) {
-      clearInterval(interval)
-
-      rolling.textContent =
-        random.type === "yes" ? "IGEN"
-        : random.type === "no" ? "NEM"
-        : "TALÁN"
-
-      result.textContent = random.answer
-      hint.textContent = "Új válasz = új olvasás"
-    }
-
-  }, 80)
+  const encoded = encodeURIComponent(JSON.stringify(item));
+  window.location.href = "valaszorzoresults.html?data=" + encoded;
 }
 
-animate()
-
+loadCSV();
 </script>
+
+</body>
+</html>
