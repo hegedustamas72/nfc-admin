@@ -46,8 +46,8 @@ body{
   left:50%;
   transform:translate(-50%,-50%);
 
-  width:150px;
-  height:150px;
+  width:110px;
+  height:110px;
 
   border-radius:50%;
 
@@ -55,12 +55,14 @@ body{
   align-items:center;
   justify-content:center;
 
-  background:rgba(0,0,0,0.18);
-  backdrop-filter:blur(6px);
+  background:rgba(255,255,255,0.08);
 
-  transition:0.35s ease;
+  backdrop-filter:blur(5px);
 
-  box-shadow:0 0 18px rgba(255,255,255,0.10);
+  box-shadow:
+      0 0 20px rgba(255,255,255,.10);
+
+  transition:all .35s ease;
 }
 
 .inner{
@@ -129,13 +131,14 @@ body{
 
 }
 #spinner{
-  font-size:32px;
+  font-size:36px;
   font-weight:bold;
+
   color:white;
 
   text-shadow:
-    0 0 8px rgba(255,255,255,.25),
-    0 0 18px rgba(255,255,255,.18);
+      0 0 8px rgba(255,255,255,.25),
+      0 0 18px rgba(255,255,255,.18);
 
   animation:pulseText .9s ease-in-out infinite;
 }
@@ -198,9 +201,7 @@ body{
 
 <!-- CENTER CARD -->
 <div class="card">
-  <div class="inner">
-    <div id="spinner"></div>
-  </div>
+  <div id="spinner"></div>
 </div>
 
   
