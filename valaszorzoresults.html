@@ -1,47 +1,182 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Válasz őrző</title>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+  margin:0;
+  min-height:100vh;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  align-items:center;
+
+  background:
+    linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
+    url("magic8.jpeg");
+
+  background-size:cover;
+  background-position:center;
+
+  color:white;
+  font-family:"DM Sans",sans-serif;
+}
+
+/* TOP */
+.top{
+  padding-top:40px;
+  text-align:center;
+}
+
+.category{
+  font-size:14px;
+  opacity:.75;
+  letter-spacing:2px;
+  margin-bottom:10px;
+}
+
+.big{
+  font-size:42px;
+  font-weight:700;
+  min-height:50px;
+}
+
+/* BOTTOM */
+.bottom{
+  text-align:center;
+  padding-bottom:40px;
+}
+
+.answer{
+  font-size:26px;
+  font-weight:600;
+  margin-bottom:10px;
+}
+
+.hint{
+  font-size:13px;
+  opacity:.7;
+  margin-bottom:20px;
+}
+
+/* BUTTON */
+.btn{
+  display:inline-block;
+  padding:12px 18px;
+  border-radius:14px;
+  background:#9B6A6C;
+  color:white;
+  text-decoration:none;
+  font-weight:600;
+  transition:0.2s;
+}
+
+.btn:hover{
+  transform:scale(1.05);
+  opacity:0.9;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="top">
+
+  <div class="category">Válasz őrző</div>
+
+  <div class="big" id="rolling">A sors dönt...</div>
+
+</div>
+
+<div class="bottom">
+
+  <div class="answer" id="result"></div>
+
+  <div class="hint" id="hint"></div>
+
+  <a class="btn" href="index.html">Kattkaland</a>
+
+</div>
+
 <script type="module">
+
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
+/* SUPABASE (csak olvasás, ha később kell log) */
 const supabase = createClient(
   "https://eogrnzuarpqlyjclkcqq.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
-const id = new URLSearchParams(location.search).get("id")
+/* ID */
+const sessionId =
+  new URLSearchParams(location.search).get("id")
 
-const { data, error } = await supabase
-  .from("valaszorzo_links")
-  .select("*")
-  .eq("session_id", id)
-  .maybeSingle()
-
-if (error || !data) {
-  document.body.innerHTML = "Nincs adat"
-  throw error
-}
+const rolling = document.getElementById("rolling")
+const result = document.getElementById("result")
+const hint = document.getElementById("hint")
 
 const words = ["IGEN","NEM","TALÁN"]
 
+/* ANIM */
 function animate(data){
+
   let i = 0
 
   const interval = setInterval(() => {
+
     rolling.textContent = words[i % words.length]
     i++
 
-    if (i > 14) {
+    if(i > 14){
       clearInterval(interval)
 
       rolling.textContent =
-        data.answer_type === "yes" ? "IGEN"
-        : data.answer_type === "no" ? "NEM"
-        : data.answer_type === "clue" ? "REJTÉLY"
+        data.type === "yes" ? "IGEN"
+        : data.type === "no" ? "NEM"
         : "TALÁN"
 
-      result.textContent = data.answer
-      hint.textContent = "Új érintés = új válasz"
+      result.textContent = data.text
+
+      hint.textContent =
+        "A sors már döntött. Új kérdés = új olvasás."
     }
+
   }, 80)
 }
 
-animate(data)
+/* SIMPLE LOAD FROM URL OR FALLBACK */
+async function load(){
+
+  // ha van ID → későbbi bővítés (log / stat)
+  console.log("SESSION:", sessionId)
+
+  // MOST: DEMO / FRONTEND ONLY LOGIKA
+  const demo = [
+    { type:"yes", text:"Igen." },
+    { type:"no", text:"Nem." },
+    { type:"maybe", text:"Talán." },
+    { type:"clue", text:"A válasz benned van." }
+  ]
+
+  const random =
+    demo[Math.floor(Math.random() * demo.length)]
+
+  animate(random)
+}
+
+load()
+
 </script>
+
+</body>
+</html>
