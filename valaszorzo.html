@@ -189,32 +189,16 @@ const randomAnswer =
 // ======================
 // SUPABASE INSERT (FIXED)
 // ======================
-async function save(){
+const test = await supabase
+  .from("valaszorzo_links")
+  .insert({
+    session_id: crypto.randomUUID(),
+    tag: "debug",
+    answer: "teszt",
+    answer_type: "yes"
+  })
 
-  console.log("INSERT START")
-
-  const { data, error } = await supabase
-    .from("valaszorzo_links")
-    .insert({
-      session_id: sessionId,
-      tag: tag,
-      answer: randomAnswer.text,
-      answer_type: randomAnswer.type
-    })
-    .select()
-
-  console.log("INSERT RESULT:", { data, error })
-
-  if(error){
-    console.error("SUPABASE HIBA:", error)
-    document.body.innerHTML =
-      "<h2>Supabase hiba: " + error.message + "</h2>"
-    return
-  }
-
-  animate(randomAnswer)
-}
-
+console.log("TEST INSERT:", test)
 // ======================
 // ANIMÁCIÓ
 // ======================
