@@ -18,28 +18,62 @@ body{
   color:white;
 }
 
-/* TOP */
-.top{
+/* =========================
+   TOP CATEGORY (FINAL STATE)
+========================= */
+#category{
   position:absolute;
-  top:5%;
+  top:6%;
   width:100%;
+  text-align:center;
+  font-size:42px;
+  font-weight:bold;
+  opacity:0;
+  transform:translateY(-10px);
+  transition:0.6s ease;
+}
+
+#category.show{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* =========================
+   CENTER CARD
+========================= */
+.center{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
   text-align:center;
 }
 
+/* CARD */
+.card{
+  width:240px;
+  height:180px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+
+  border-radius:18px;
+  background:rgba(0,0,0,0.35);
+  backdrop-filter:blur(6px);
+
+  box-shadow:0 10px 25px rgba(0,0,0,0.3);
+}
+
+/* SPINNER */
 #spinner{
-  font-size:38px;
+  font-size:34px;
   font-weight:bold;
 }
 
-/* ⚠️ CSAK EZ AZ EGY KATEGÓRIA MARAD */
-.category{
-  font-size:42px;
-  font-weight:bold;
-  margin-top:6px;
-  min-height:50px;
-}
-
-/* BOTTOM */
+/* =========================
+   BOTTOM
+========================= */
 .bottom{
   position:absolute;
   bottom:7%;
@@ -61,7 +95,7 @@ body{
   margin-bottom:14px;
 }
 
-/* BUTTON */
+/* BUTTON (vikinges style) */
 .btn{
   display:flex;
   align-items:center;
@@ -90,11 +124,17 @@ body{
 
 <body>
 
-<div class="top">
-  <div id="spinner">-</div>
-  <div class="category"></div>
+<!-- TOP CATEGORY -->
+<div id="category"></div>
+
+<!-- CENTER CARD -->
+<div class="center">
+  <div class="card">
+    <div id="spinner">-</div>
+  </div>
 </div>
 
+<!-- BOTTOM -->
 <div class="bottom">
   <div id="answer">-</div>
   <div id="hint">Újabb válaszért érintsd újra a bilétát!</div>
@@ -109,47 +149,55 @@ body{
 (() => {
 
   const params = new URLSearchParams(window.location.search);
-  let item;
+  let item = null;
 
   try {
     item = JSON.parse(decodeURIComponent(params.get("data")));
-  } catch (e) {}
+  } catch(e){}
 
-  if (!item) item = { answer: "Nincs adat", type: "no" };
+  if (!item) item = { answer:"Nincs adat", type:"no" };
 
   const spinner = document.getElementById("spinner");
-  const categoryEl = document.querySelector(".category");
+  const categoryEl = document.getElementById("category");
   const answerEl = document.getElementById("answer");
 
-  function getCategory(type){
-    if(type === "yes") return "Igen";
-    if(type === "no") return "Nem";
-    if(type === "maybe") return "Talán";
-    if(type === "clue") return "Rejtély";
-    return "Ismeretlen";
-  }
-
-  const spin = ["Igen", "Nem", "Talán"];
+  const spin = ["Igen","Nem","Talán"];
   let i = 0;
+
+  function map(t){
+    switch(t){
+      case "yes": return "Igen";
+      case "no": return "Nem";
+      case "maybe": return "Talán";
+      case "clue": return "Rejtély";
+      default: return "Ismeretlen";
+    }
+  }
 
   const interval = setInterval(() => {
     spinner.textContent = spin[i++ % 3];
   }, 120);
 
   setTimeout(() => {
+
     clearInterval(interval);
 
-    const cat = getCategory(item.type);
+    const cat = map(item.type);
 
-    // 🔥 FONTOS:
-    // spinner = animáció vége
-    spinner.textContent = cat;
+    // CARD eltűnik
+    document.querySelector(".card").style.opacity = "0";
 
-    // ❌ NINCS DUPLIKÁCIÓ:
-    // csak EZ az egy jelenik meg
-    categoryEl.textContent = cat;
+    setTimeout(() => {
+      document.querySelector(".center").style.display = "none";
 
-    answerEl.textContent = item.answer ?? "-";
+      // TOP CATEGORY megjelenik
+      categoryEl.textContent = cat;
+      categoryEl.classList.add("show");
+
+      // válasz
+      answerEl.textContent = item.answer ?? "-";
+
+    }, 400);
 
   }, 2200);
 
