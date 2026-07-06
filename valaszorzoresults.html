@@ -5,6 +5,8 @@
 <title>Válasz Őrző</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<link href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap" rel="stylesheet">
+
 <style>
 body {
   margin: 0;
@@ -15,66 +17,97 @@ body {
   background: url("magic8.jpeg") center/cover no-repeat;
 }
 
-/* felső rész */
+/* ===== TOP ===== */
 .top {
   position: absolute;
-  top: 12%;
+  top: 5%;
   width: 100%;
   text-align: center;
 }
 
 #spinner {
-  font-size: 64px;
+  font-size: 42px;
   font-weight: bold;
-  height: 80px;
+  height: 55px;
 }
 
 #category {
-  font-size: 30px;
-  margin-top: 10px;
+  font-size: 18px;
+  opacity: 0.9;
+  margin-top: 5px;
 }
 
-/* alsó rész */
+/* ===== BOTTOM ===== */
 .bottom {
   position: absolute;
-  bottom: 10%;
+  bottom: 6%;
   width: 100%;
   text-align: center;
+  padding: 0 20px;
 }
 
 #answer {
-  font-size: 34px;
+  font-size: 36px;
   min-height: 50px;
+  margin-bottom: 18px;
 }
 
-/* instrukció szöveg */
 #hint {
-  margin: 18px 0;
-  font-size: 16px;
+  font-size: 15px;
   opacity: 0.85;
+  margin-bottom: 18px;
 }
 
-/* gomb */
-button {
-  padding: 16px 34px;
-  font-size: 20px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  background: white;
-  color: black;
-  margin-top: 10px;
+/* ===== VIKINGES GOMB ===== */
+.btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+
+  padding:12px 18px;
+
+  border-radius:14px;
+
+  background:#9B6A6C;
+
+  color:white;
+
+  text-decoration:none;
+  font-family:'Alex Brush',cursive;
+  font-weight:600;
+
+  box-shadow:0 4px 10px rgba(0,0,0,0.12);
+
+  margin-top:0px;
+
+  transition: 0.2s;
+
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.btn:hover{
+  transform: scale(1.05);
+}
+
+.btn img{
+  width:20px;
+  height:20px;
 }
 </style>
 </head>
 
 <body>
 
+<!-- TOP -->
 <div class="top">
   <div id="spinner">...</div>
   <div id="category"></div>
 </div>
 
+<!-- BOTTOM -->
 <div class="bottom">
   <div id="answer"></div>
 
@@ -82,7 +115,10 @@ button {
     Újabb válaszért érintsd újra a bilétát!
   </div>
 
-  <button onclick="goBack()">Kattkaland</button>
+  <a class="btn" href="valaszorzo.html">
+    <img src="brand-icon.png" alt="">
+    Kattkaland
+  </a>
 </div>
 
 <script>
@@ -143,7 +179,7 @@ function stopSpin() {
     // spinner végállapot
     spinnerEl.textContent = (item.type === "clue") ? "Rejtély" : mapped;
 
-    // CSAK FELÜL KATEGÓRIA
+    // CSAK FELÜL kategória
     categoryEl.textContent = mapped;
 
     // válasz
@@ -154,10 +190,6 @@ function stopSpin() {
 
 startSpin();
 setTimeout(stopSpin, 2500);
-
-function goBack() {
-  window.location.href = "valaszorzo.html";
-}
 </script>
 
 </body>
