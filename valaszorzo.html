@@ -1,64 +1,51 @@
 <script type="module">
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
-const supabase = createClient(
-  "https://eogrnzuarpqlyjclkcqq.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
-)
+const SHEET_URL =
+  "https://opensheet.elk.sh/11R_-GOutX5MaApZoojq6h2_-iMmSq8DpscQO13f2qMw/Munkalap1"
 
-const tag =
-  new URLSearchParams(location.search).get("tag") || "valaszorzo"
+const res = await fetch(SHEET_URL)
+const rows = await res.json()
 
-const sessionId = new URLSearchParams(location.search).get("tag")
-
-if(!sessionId){
-  throw new Error("Missing tag")
+if (!rows?.length) {
+  document.body.innerHTML = "Nincs adat 😔"
+  throw new Error("No data")
 }
 
-const answers = [
-  { type:"yes", text:"Igen." },
-  { type:"yes", text:"Minden jel erre mutat." },
-  { type:"yes", text:"Egyértelműen igen." },
-  { type:"yes", text:"Bátran vágj bele." },
-  { type:"yes", text:"Kétség sem fér hozzá." },
+// RANDOM VÁLASZ
+const random =
+  rows[Math.floor(Math.random() * rows.length)]
 
-  { type:"maybe", text:"Kérdezd újra később." },
-  { type:"maybe", text:"Most még nem tiszta." },
-  { type:"maybe", text:"A helyzet alakul." },
+// UI
+const words = ["IGEN","NEM","TALÁN"]
 
-  { type:"no", text:"Nem." },
-  { type:"no", text:"Erősen kétséges." },
-  { type:"no", text:"Most ne." },
+const rolling = document.getElementById("rolling")
+const result = document.getElementById("result")
+const hint = document.getElementById("hint")
 
-  { type:"clue", text:"A válasz a részletekben rejlik." },
-  { type:"clue", text:"Nem minden az, aminek látszik." }
-]
+function animate(){
 
-// 🔥 NEM ismételhet azonnal
-const last = sessionStorage.getItem("last_answer")
-let pool = answers.filter(a => a.text !== last)
+  let i = 0
 
-if (pool.length === 0) pool = answers
+  const interval = setInterval(() => {
 
-const randomAnswer = pool[Math.floor(Math.random() * pool.length)]
+    rolling.textContent = words[i % words.length]
+    i++
 
-sessionStorage.setItem("last_answer", randomAnswer.text)
+    if (i > 14) {
+      clearInterval(interval)
 
-const { error } = await supabase
-  .from("valaszorzo_links")
-  .insert({
-    session_id: sessionId,
-    tag,
-    answer: randomAnswer.text,
-    answer_type: randomAnswer.type
-  })
+      rolling.textContent =
+        random.type === "yes" ? "IGEN"
+        : random.type === "no" ? "NEM"
+        : "TALÁN"
 
-if (error) {
-  console.error(error)
-  document.body.innerHTML = "Supabase hiba: " + error.message
-  throw error
+      result.textContent = random.answer
+      hint.textContent = "Új válasz = új olvasás"
+    }
+
+  }, 80)
 }
 
-window.location.href =
-  "valaszorzoresults.html?id=" + sessionId
+animate()
+
 </script>
