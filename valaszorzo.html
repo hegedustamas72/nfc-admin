@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Válasz őrző</title>
 
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&display=swap" rel="stylesheet">
 
 <style>
-
 body{
   margin:0;
   min-height:100vh;
@@ -25,133 +22,63 @@ body{
   color:white;
   font-family:"DM Sans",sans-serif;
 }
-
-.card{
-  text-align:center;
-  width:min(420px,100%);
-  padding:20px;
-}
-
-.title{
-  font-size:18px;
-  opacity:.8;
-  letter-spacing:2px;
-  margin-bottom:20px;
-}
-
-.loading{
-  font-size:40px;
-  font-weight:700;
-}
-
-.small{
-  margin-top:15px;
-  opacity:.7;
-}
-
+.card{text-align:center;padding:20px}
+.loading{font-size:40px;font-weight:700}
+.small{opacity:.7}
 </style>
 
 </head>
-
 <body>
 
 <div class="card">
-
-<div class="title">
-Válasz őrző
-</div>
-
-<div class="loading">
-A sors dönt...
-</div>
-
-<div class="small">
-Kérjük várj...
-</div>
-
+  <div class="loading">A sors dönt...</div>
+  <div class="small">Kérjük várj</div>
 </div>
 
 <script type="module">
-
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
 const supabase = createClient(
-"https://eogrnzuarpqlyjclkcqq.supabase.co",
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
-)
+  "https://eogrnzuarpqlyjclkcqq.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
+);
 
-// NFC címke az URL-ből
-const tag =
-new URLSearchParams(location.search).get("tag") || "ismeretlen"
-
-// minden érintéskor új session
-const sessionId = crypto.randomUUID()
+const tag = new URLSearchParams(location.search).get("tag") || "unknown";
+const sessionId = crypto.randomUUID();
 
 const answers = [
+  {type:"yes",text:"Igen."},
+  {type:"yes",text:"Minden jel erre mutat."},
+  {type:"yes",text:"Egyértelműen igen."},
+  {type:"maybe",text:"Kérdezd újra később."},
+  {type:"maybe",text:"Nem tiszta még."},
+  {type:"no",text:"Nem."},
+  {type:"no",text:"Most ne."},
+  {type:"clue",text:"A válasz rejtve van."}
+];
 
-{type:"yes",text:"Igen."},
-{type:"yes",text:"Minden jel erre mutat."},
-{type:"yes",text:"Egyértelműen igen."},
-{type:"yes",text:"Bátran vágj bele."},
-{type:"yes",text:"Kétség sem fér hozzá."},
-{type:"yes",text:"Ez jó irány."},
-{type:"yes",text:"A csillagok is ezt mutatják."},
+const pick = answers[Math.floor(Math.random()*answers.length)];
 
-{type:"maybe",text:"Kérdezd újra később."},
-{type:"maybe",text:"Most még nem tiszta."},
-{type:"maybe",text:"A helyzet alakul."},
-{type:"maybe",text:"Nem egyértelmű."},
-{type:"maybe",text:"Várj egy kicsit."},
+async function run(){
+  const { error } = await supabase
+    .from("valaszorzo_links")
+    .insert({
+      tag,
+      session_id: sessionId,
+      answer: pick.text,
+      answer_type: pick.type
+    });
 
-{type:"no",text:"Nem."},
-{type:"no",text:"Erősen kétséges."},
-{type:"no",text:"Most ne."},
-{type:"no",text:"Nem ezt az utat válaszd."},
-{type:"no",text:"A válasz negatív."},
+  if(error){
+    document.body.innerHTML = "<h2>Supabase hiba</h2><pre>"+error.message+"</pre>";
+    console.error(error);
+    return;
+  }
 
-{type:"clue",text:"A válasz a részletekben rejlik."},
-{type:"clue",text:"Nem minden az, aminek látszik."},
-{type:"clue",text:"A döntés már megszületett benned."},
-{type:"clue",text:"A jelek több irányba mutatnak."},
-
-{type:"yes",text:"Igen, de légy türelmes."},
-{type:"no",text:"Nem most van itt az ideje."},
-{type:"maybe",text:"Még változhat minden."}
-
-]
-
-const randomAnswer =
-answers[Math.floor(Math.random()*answers.length)]
-
-async function save(){
-
-const {error}=await supabase
-.from("valaszorzo_links")
-.insert({
-tag:tag,
-session_id:sessionId,
-answer:randomAnswer.text,
-answer_type:randomAnswer.type
-})
-
-if(error){
-
-document.body.innerHTML=
-"<h2>Supabase hiba</h2><pre>"+error.message+"</pre>"
-
-console.error(error)
-
-return
-
+  window.location.href = "valaszorzoresults.html?id=" + sessionId;
 }
 
-window.location.href=
-"valaszorzoresults.html?id="+sessionId
-
-}
-
-save()
-
+run();
 </script>
 
 </body>
