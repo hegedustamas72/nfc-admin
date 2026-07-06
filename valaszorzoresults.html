@@ -46,31 +46,55 @@ body{
   left:50%;
   transform:translate(-50%,-50%);
 
-  width:140px;
-  height:140px;
+  width:150px;
+  height:150px;
+
+  border-radius:50%;
 
   display:flex;
   align-items:center;
   justify-content:center;
 
-  border-radius:50%;
-
-  background:rgba(0,0,0,0.25);
+  background:rgba(0,0,0,0.18);
   backdrop-filter:blur(6px);
 
   transition:0.35s ease;
 
-  box-shadow:0 0 20px rgba(255,255,255,0.15);
-
-  border:1px solid rgba(255,255,255,0.08);
+  box-shadow:0 0 18px rgba(255,255,255,0.10);
 }
+
+.inner{
+  width:85px;
+  height:85px;
+
+  border-radius:50%;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(4px);
+
+  border:1px solid rgba(255,255,255,0.12);
+
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float{
+  0%   { transform:translateY(0px); }
+  50%  { transform:translateY(-4px); }
+  100% { transform:translateY(0px); }
+}
+
+  
 .card.hide{
   opacity:0;
   transform:translate(-50%,-50%) scale(0.85);
 }
 
 #spinner{
-  font-size:34px;
+  font-size:30px;
   font-weight:bold;
 }
 
@@ -131,8 +155,11 @@ body{
 </div>
 
 <!-- CENTER CARD -->
+  
 <div class="card">
-  <div id="spinner">-</div>
+  <div class="inner">
+    <div id="spinner">-</div>
+  </div>
 </div>
 
 <!-- BOTTOM -->
