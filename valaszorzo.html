@@ -1,104 +1,16 @@
-<!DOCTYPE html>
-<html lang="hu">
-<head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Válasz őrző</title>
-
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&display=swap" rel="stylesheet">
-
-<style>
-
-body{
-  margin:0;
-  min-height:100vh;
-
-  display:flex;
-  justify-content:center;
-  align-items:center;
-
-  background:
-    linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
-    url("magic8.jpeg");
-
-  background-size:cover;
-  background-position:center;
-
-  color:white;
-  font-family:"DM Sans",sans-serif;
-}
-
-.card{
-  text-align:center;
-  width:min(420px,100%);
-  padding:20px;
-}
-
-.title{
-  font-size:18px;
-  opacity:.8;
-  letter-spacing:2px;
-  margin-bottom:20px;
-}
-
-.loading{
-  font-size:40px;
-  font-weight:700;
-  letter-spacing:2px;
-}
-
-.small{
-  margin-top:15px;
-  opacity:.7;
-  font-size:14px;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<div class="card">
-
-  <div class="title">Válasz őrző</div>
-
-  <div class="loading">A sors dönt...</div>
-
-  <div class="small">Kérjük várj</div>
-
-</div>
-
 <script type="module">
-
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
-/* ======================
-   SUPABASE
-====================== */
 const supabase = createClient(
   "https://eogrnzuarpqlyjclkcqq.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
-/* ======================
-   URL PARAMS
-====================== */
-const params = new URLSearchParams(location.search)
+const tag =
+  new URLSearchParams(location.search).get("tag") || "valaszorzo"
 
-const tag = params.get("tag") || "valaszorzo"
-
-/* 🔥 FONTOS: minden érintés új session */
 const sessionId = crypto.randomUUID()
 
-console.log("SESSION:", sessionId)
-console.log("TAG:", tag)
-
-/* ======================
-   VÁLASZOK (25 db)
-====================== */
 const answers = [
   { type:"yes", text:"Igen." },
   { type:"yes", text:"Minden jel erre mutat." },
@@ -106,99 +18,43 @@ const answers = [
   { type:"yes", text:"Bátran vágj bele." },
   { type:"yes", text:"Kétség sem fér hozzá." },
 
-  { type:"yes", text:"Ez jó irány." },
-  { type:"yes", text:"A csillagok is ezt mutatják." },
-
   { type:"maybe", text:"Kérdezd újra később." },
   { type:"maybe", text:"Most még nem tiszta." },
   { type:"maybe", text:"A helyzet alakul." },
-  { type:"maybe", text:"Nem egyértelmű." },
-  { type:"maybe", text:"Várj egy kicsit." },
 
   { type:"no", text:"Nem." },
   { type:"no", text:"Erősen kétséges." },
   { type:"no", text:"Most ne." },
-  { type:"no", text:"Nem ezt az utat válaszd." },
-  { type:"no", text:"A válasz negatív." },
 
   { type:"clue", text:"A válasz a részletekben rejlik." },
-  { type:"clue", text:"Nem minden az, aminek látszik." },
-  { type:"clue", text:"A döntés már megszületett benned." },
-  { type:"clue", text:"A jelek több irányba mutatnak." },
-
-  { type:"yes", text:"Igen, de légy türelmes." },
-  { type:"no", text:"Nem most van itt az ideje." },
-  { type:"maybe", text:"Még változhat minden." }
+  { type:"clue", text:"Nem minden az, aminek látszik." }
 ]
 
-const randomAnswer =
-  answers[Math.floor(Math.random() * answers.length)]
+// 🔥 NEM ismételhet azonnal
+const last = sessionStorage.getItem("last_answer")
+let pool = answers.filter(a => a.text !== last)
 
-/* ======================
-   SUPABASE INSERT
-====================== */
-async function save(){
+if (pool.length === 0) pool = answers
 
-  console.log("INSERT START")
+const randomAnswer = pool[Math.floor(Math.random() * pool.length)]
 
-  const { data, error } = await supabase
-    .from("valaszorzo_links")
-    .insert({
-      session_id: sessionId,
-      tag: tag,
-      answer: randomAnswer.text,
-      answer_type: randomAnswer.type
-    })
-    .select()
+sessionStorage.setItem("last_answer", randomAnswer.text)
 
-  console.log("INSERT RESULT:", { data, error })
+const { error } = await supabase
+  .from("valaszorzo_links")
+  .insert({
+    session_id: sessionId,
+    tag,
+    answer: randomAnswer.text,
+    answer_type: randomAnswer.type
+  })
 
-  if(error){
-    document.body.innerHTML =
-      "<h2>Supabase hiba: " + error.message + "</h2>"
-    return
-  }
-
-  animate(randomAnswer)
+if (error) {
+  console.error(error)
+  document.body.innerHTML = "Supabase hiba: " + error.message
+  throw error
 }
 
-/* ======================
-   ANIMÁCIÓ
-====================== */
-function animate(data){
-
-  const words = ["IGEN","NEM","TALÁN"]
-  let i = 0
-
-  const interval = setInterval(() => {
-
-    document.querySelector(".loading").textContent =
-      words[i % words.length]
-
-    i++
-
-    if(i > 14){
-      clearInterval(interval)
-
-      document.querySelector(".loading").textContent =
-        data.type === "yes" ? "IGEN"
-        : data.type === "no" ? "NEM"
-        : data.type === "clue" ? "REJTÉLY"
-        : "TALÁN"
-
-      document.querySelector(".small").textContent =
-        data.text
-    }
-
-  }, 80)
-}
-
-/* ======================
-   START
-====================== */
-save()
-
+window.location.href =
+  "valaszorzoresults.html?id=" + sessionId
 </script>
-
-</body>
-</html>
