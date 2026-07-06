@@ -37,15 +37,29 @@ body {
   margin-top: 5px;
 }
 
-/* ===== BOTTOM ===== */
+/* ===== BOTTOM CENTER FIX ===== */
 .bottom {
   position: absolute;
-  bottom: 6%;
+  top: 0;
+  left: 0;
   width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+
+  padding-bottom: 6%;
   text-align: center;
-  padding: 0 20px;
 }
 
+/* spacing blokk */
+.spacer {
+  height: 40%;
+}
+
+/* ===== CONTENT ===== */
 #answer {
   font-size: 36px;
   min-height: 50px;
@@ -79,13 +93,7 @@ body {
 
   box-shadow:0 4px 10px rgba(0,0,0,0.12);
 
-  margin-top:0px;
-
   transition: 0.2s;
-
-  width: fit-content;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .btn:hover{
@@ -109,6 +117,9 @@ body {
 
 <!-- BOTTOM -->
 <div class="bottom">
+
+  <div class="spacer"></div>
+
   <div id="answer"></div>
 
   <div id="hint">
@@ -119,6 +130,7 @@ body {
     <img src="brand-icon.png" alt="">
     Kattkaland
   </a>
+
 </div>
 
 <script>
@@ -150,6 +162,9 @@ const spinnerEl = document.getElementById("spinner");
 const categoryEl = document.getElementById("category");
 const answerEl = document.getElementById("answer");
 
+/* 🔴 FIX: duplikáció ellen */
+categoryEl.innerHTML = "";
+
 let i = 0;
 let interval;
 
@@ -176,11 +191,14 @@ function stopSpin() {
   setTimeout(() => {
     const mapped = mapType(item.type);
 
-    // spinner végállapot
+    // spinner vége
     spinnerEl.textContent = (item.type === "clue") ? "Rejtély" : mapped;
 
-    // CSAK FELÜL kategória
-    categoryEl.textContent = mapped;
+    /* 🔴 FIX: kategória dupla render ellen */
+    categoryEl.textContent = "";
+    requestAnimationFrame(() => {
+      categoryEl.textContent = mapped;
+    });
 
     // válasz
     answerEl.textContent = item.answer;
