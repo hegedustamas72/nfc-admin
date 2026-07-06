@@ -18,50 +18,58 @@ body{
   color:white;
 }
 
-/* =========================
-   CENTER CARD
-========================= */
-.center-wrap{
+/* ===== TOP CATEGORY ===== */
+.top{
   position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  text-align:center;
-}
-
-.card{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  min-width:160px;
-  min-height:90px;
-
-  padding:14px 22px;
-
-  border-radius:16px;
-
-  background:rgba(0,0,0,0.35);
-  backdrop-filter: blur(6px);
-
-  font-size:34px;
-  font-weight:bold;
-}
-
-/* CATEGORY (after spin) */
-.category-top{
-  position:absolute;
-  top:6%;
+  top:5%;
   width:100%;
   text-align:center;
+  opacity:0;
+  transform:translateY(-10px);
+  transition:0.35s ease;
+}
 
+.top.show{
+  opacity:1;
+  transform:translateY(0);
+}
+
+.category{
   font-size:42px;
   font-weight:bold;
 }
 
-/* =========================
-   BOTTOM BLOCK
-========================= */
+/* ===== CENTER CARD ===== */
+.card{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  width:160px;
+  height:160px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:18px;
+  background:rgba(0,0,0,0.25);
+  backdrop-filter:blur(6px);
+
+  transition:0.35s ease;
+}
+
+.card.hide{
+  opacity:0;
+  transform:translate(-50%,-50%) scale(0.85);
+}
+
+#spinner{
+  font-size:34px;
+  font-weight:bold;
+}
+
+/* ===== BOTTOM ===== */
 .bottom{
   position:absolute;
   bottom:5%;
@@ -83,7 +91,7 @@ body{
   margin-bottom:14px;
 }
 
-/* BUTTON (vikinges style marad) */
+/* BUTTON (viking style) */
 .btn{
   display:flex;
   align-items:center;
@@ -112,18 +120,19 @@ body{
 
 <body>
 
-<!-- CENTER CARD -->
-<div class="center-wrap">
-  <div class="card" id="spinner">-</div>
+<!-- TOP CATEGORY -->
+<div class="top">
+  <div class="category"></div>
 </div>
 
-<!-- TOP CATEGORY -->
-<div class="category-top" id="category"></div>
+<!-- CENTER CARD -->
+<div class="card">
+  <div id="spinner">-</div>
+</div>
 
 <!-- BOTTOM -->
 <div class="bottom">
   <div id="answer">-</div>
-
   <div id="hint">Újabb válaszért érintsd újra a bilétát!</div>
 
   <a class="btn" href="valaszorzo.html">
@@ -142,46 +151,47 @@ body{
     item = JSON.parse(decodeURIComponent(params.get("data")));
   } catch(e){}
 
-  if (!item) {
-    item = { answer:"Nincs adat", type:"no" };
-  }
+  if (!item) item = { answer:"Nincs adat", type:"no" };
 
   const spinner = document.getElementById("spinner");
-  const categoryEl = document.getElementById("category");
+  const card = document.querySelector(".card");
+  const top = document.querySelector(".top");
+  const categoryEl = document.querySelector(".category");
   const answerEl = document.getElementById("answer");
 
   const spin = ["Igen","Nem","Talán"];
   let i = 0;
 
-  function mapType(t){
-    switch(t){
-      case "yes": return "Igen";
-      case "no": return "Nem";
-      case "maybe": return "Talán";
-      case "clue": return "Rejtély";
-      default: return "Ismeretlen";
-    }
-  }
-
-  // SPIN (shorter + smoother feel)
+  // spin
   const interval = setInterval(()=>{
     spinner.textContent = spin[i++ % 3];
-  }, 100);
+  }, 110);
 
-  // FAST TRANSITION (reduced delay)
+  // stop + reveal (GYORSABB VÁLTÁS)
   setTimeout(()=>{
+
     clearInterval(interval);
 
-    const cat = mapType(item.type);
+    const map = {
+      yes:"Igen",
+      no:"Nem",
+      maybe:"Talán",
+      clue:"Rejtély"
+    };
 
-    // spinner disappears
-    spinner.style.opacity = "0";
+    const cat = map[item.type] || "Ismeretlen";
+
+    // CARD collapse (érzékelhető!)
+    card.classList.add("hide");
 
     setTimeout(()=>{
-      document.querySelector(".center-wrap").style.display = "none";
 
+      // top category appear
       categoryEl.textContent = cat;
-      answerEl.textContent = item.answer;
+      top.classList.add("show");
+
+      // bottom content
+      answerEl.textContent = item.answer ?? "-";
 
     }, 250);
 
