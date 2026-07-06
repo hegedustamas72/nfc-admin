@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Válasz Őrző</title>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap" rel="stylesheet">
@@ -26,20 +27,20 @@ body{
 }
 
 #spinner{
-  font-size:42px;
+  font-size:38px;
   font-weight:bold;
 }
 
 .category{
   font-size:42px;
   font-weight:bold;
-  margin-top:6px;
+  margin-top:8px;
 }
 
 /* BOTTOM */
 .bottom{
   position:absolute;
-  bottom:6%;
+  bottom:7%;
   width:100%;
   display:flex;
   flex-direction:column;
@@ -48,7 +49,7 @@ body{
 }
 
 #answer{
-  font-size:34px;
+  font-size:36px;
   margin-bottom:10px;
 }
 
@@ -58,7 +59,7 @@ body{
   margin-bottom:14px;
 }
 
-/* BUTTON (vikinges style, de marad) */
+/* BUTTON (vikinges style) */
 .btn{
   display:flex;
   align-items:center;
@@ -88,12 +89,12 @@ body{
 <body>
 
 <div class="top">
-  <div id="spinner"></div>
+  <div id="spinner">-</div>
   <div class="category"></div>
 </div>
 
 <div class="bottom">
-  <div id="answer"></div>
+  <div id="answer">-</div>
   <div id="hint">Újabb válaszért érintsd újra a bilétát!</div>
 
   <a class="btn" href="valaszorzo.html">
@@ -105,55 +106,69 @@ body{
 <script>
 (() => {
 
-  const params = new URLSearchParams(location.search);
+  // =========================
+  // SAFE PARAM READ
+  // =========================
+  const params = new URLSearchParams(window.location.search);
+  const raw = params.get("data");
 
   let item = null;
-  try {
-    item = JSON.parse(decodeURIComponent(params.get("data") || ""));
-  } catch(e){}
 
-  // fallback védelem
-  if (!item || typeof item !== "object") {
-    item = { answer: "Nincs válasz", type: "no" };
+  if (raw) {
+    try {
+      item = JSON.parse(decodeURIComponent(raw));
+    } catch (e) {
+      console.warn("JSON hiba:", e);
+    }
   }
 
-  const spinner = document.getElementById("spinner");
-  const categoryEl = document.querySelector(".category");
-  const answerEl = document.getElementById("answer");
+  // fallback (NE legyen üres UI)
+  if (!item) {
+    item = { answer: "Nincs adat", type: "no" };
+  }
 
-  const spin = ["Igen", "Nem", "Talán"];
-  let i = 0;
-
-  function mapType(t){
-    switch((t || "").toLowerCase()){
+  // =========================
+  // TYPE MAP (EGYETLEN FORRÁS)
+  // =========================
+  function getCategory(type){
+    switch(type){
       case "yes": return "Igen";
       case "no": return "Nem";
       case "maybe": return "Talán";
       case "clue": return "Rejtély";
-      default: return null; // <-- NINCS Ismeretlen a UI-ban
+      default: return "Ismeretlen";
     }
   }
 
+  // =========================
+  // ELEMENTS
+  // =========================
+  const spinner = document.getElementById("spinner");
+  const category = document.querySelector(".category");
+  const answerEl = document.getElementById("answer");
+
+  // =========================
+  // ANIMATION
+  // =========================
+  const spin = ["Igen", "Nem", "Talán"];
+  let i = 0;
+
   const interval = setInterval(() => {
-    spinner.textContent = spin[i++ % 3];
+    spinner.textContent = spin[i++ % spin.length];
   }, 120);
 
   setTimeout(() => {
     clearInterval(interval);
 
-    const category = mapType(item.type);
+    const cat = getCategory(item.type);
 
-    // spinner fix
-    spinner.textContent = category || "—";
+    // clue special case: csak a végén jelenik meg
+    spinner.textContent = cat;
 
-    // CSAK 1 kategória jelenik meg
-    categoryEl.textContent = category || "";
+    category.textContent = cat;
+    answerEl.textContent = item.answer ?? "-";
 
-    answerEl.textContent = item.answer || "";
-
-    console.log("ITEM:", item);
-
-  }, 2500);
+  }, 2200);
 
 })();
 </script>
