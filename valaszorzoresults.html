@@ -15,20 +15,12 @@ body {
   background: url("magic8.jpeg") center/cover no-repeat;
 }
 
-/* sötétítés */
-.overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-}
-
-/* felső blokk */
+/* felső rész */
 .top {
   position: absolute;
-  top: 10%;
+  top: 12%;
   width: 100%;
   text-align: center;
-  z-index: 2;
 }
 
 #spinner {
@@ -38,29 +30,32 @@ body {
 }
 
 #category {
-  font-size: 28px;
+  font-size: 30px;
   margin-top: 10px;
-  opacity: 0.9;
 }
 
-/* alsó blokk */
+/* alsó rész */
 .bottom {
   position: absolute;
-  bottom: 12%;
+  bottom: 10%;
   width: 100%;
   text-align: center;
-  z-index: 2;
 }
 
 #answer {
   font-size: 34px;
-  padding: 0 20px;
   min-height: 50px;
+}
+
+/* instrukció szöveg */
+#hint {
+  margin: 18px 0;
+  font-size: 16px;
+  opacity: 0.85;
 }
 
 /* gomb */
 button {
-  margin-top: 25px;
   padding: 16px 34px;
   font-size: 20px;
   border: none;
@@ -68,13 +63,12 @@ button {
   cursor: pointer;
   background: white;
   color: black;
+  margin-top: 10px;
 }
 </style>
 </head>
 
 <body>
-
-<div class="overlay"></div>
 
 <div class="top">
   <div id="spinner">...</div>
@@ -83,6 +77,11 @@ button {
 
 <div class="bottom">
   <div id="answer"></div>
+
+  <div id="hint">
+    Újabb válaszért érintsd újra a bilétát!
+  </div>
+
   <button onclick="goBack()">Kattkaland</button>
 </div>
 
@@ -92,16 +91,12 @@ const raw = params.get("data");
 
 let item = null;
 
-// 🔥 SAFE PARSE + üres védelem
 try {
-  if (raw) {
-    item = JSON.parse(decodeURIComponent(raw));
-  }
+  if (raw) item = JSON.parse(decodeURIComponent(raw));
 } catch (e) {
   console.error("JSON hiba:", e);
 }
 
-// 🚨 üres / hibás rekord kiszűrése
 function isValidItem(i) {
   return i && i.answer && i.answer.trim() !== "" && i.type;
 }
@@ -113,17 +108,15 @@ if (!isValidItem(item)) {
   };
 }
 
-// spinner csak ezekből
 const spinValues = ["Igen", "Nem", "Talán"];
 
 const spinnerEl = document.getElementById("spinner");
-const answerEl = document.getElementById("answer");
 const categoryEl = document.getElementById("category");
+const answerEl = document.getElementById("answer");
 
 let i = 0;
 let interval;
 
-// kategória mapping
 function mapType(type) {
   switch(type) {
     case "yes": return "Igen";
@@ -150,10 +143,10 @@ function stopSpin() {
     // spinner végállapot
     spinnerEl.textContent = (item.type === "clue") ? "Rejtély" : mapped;
 
-    // kategória felül
+    // CSAK FELÜL KATEGÓRIA
     categoryEl.textContent = mapped;
 
-    // válasz alul
+    // válasz
     answerEl.textContent = item.answer;
 
   }, 500);
