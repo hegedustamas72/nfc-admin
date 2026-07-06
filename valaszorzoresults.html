@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Válasz Őrző</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap" rel="stylesheet">
@@ -21,7 +20,7 @@ body{
 /* TOP */
 .top{
   position:absolute;
-  top:5%;
+  top:6%;
   width:100%;
   text-align:center;
 }
@@ -50,16 +49,16 @@ body{
 
 #answer{
   font-size:34px;
-  margin-bottom:12px;
+  margin-bottom:10px;
 }
 
 #hint{
   font-size:14px;
-  opacity:0.8;
-  margin-bottom:16px;
+  opacity:0.85;
+  margin-bottom:14px;
 }
 
-/* BUTTON (vikinges) */
+/* BUTTON (vikinges style, de marad) */
 .btn{
   display:flex;
   align-items:center;
@@ -104,61 +103,59 @@ body{
 </div>
 
 <script>
-/* =========================
-   🔥 HARD GUARD: DOUBLE RUN BLOCK
-========================= */
-if (window.__VALASZORZO_DONE__) {
-  console.warn("Dupla init blokkolva");
-} else {
-  window.__VALASZORZO_DONE__ = true;
+(() => {
 
-  const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(location.search);
+
   let item = null;
-
   try {
-    item = JSON.parse(decodeURIComponent(params.get("data")));
+    item = JSON.parse(decodeURIComponent(params.get("data") || ""));
   } catch(e){}
 
-  if (!item) item = {answer:"Nincs válasz", type:"no"};
-
-  const spinner = document.getElementById("spinner");
-  const category = document.querySelector(".category");
-  const answer = document.getElementById("answer");
-
-  const spin = ["Igen","Nem","Talán"];
-  let i = 0;
-
-  function map(t){
-    if(t==="yes") return "Igen";
-    if(t==="no") return "Nem";
-    if(t==="maybe") return "Talán";
-    if(t==="clue") return "Rejtély";
-    return "Ismeretlen";
+  // fallback védelem
+  if (!item || typeof item !== "object") {
+    item = { answer: "Nincs válasz", type: "no" };
   }
 
-  /* 🔥 SAFETY: clear any accidental duplicates in DOM */
-  document.querySelectorAll(".category").forEach((el, idx)=>{
-    if(idx>0) el.remove();
-  });
+  const spinner = document.getElementById("spinner");
+  const categoryEl = document.querySelector(".category");
+  const answerEl = document.getElementById("answer");
 
-  const interval = setInterval(()=>{
+  const spin = ["Igen", "Nem", "Talán"];
+  let i = 0;
+
+  function mapType(t){
+    switch((t || "").toLowerCase()){
+      case "yes": return "Igen";
+      case "no": return "Nem";
+      case "maybe": return "Talán";
+      case "clue": return "Rejtély";
+      default: return null; // <-- NINCS Ismeretlen a UI-ban
+    }
+  }
+
+  const interval = setInterval(() => {
     spinner.textContent = spin[i++ % 3];
-  },120);
+  }, 120);
 
-  setTimeout(()=>{
+  setTimeout(() => {
     clearInterval(interval);
 
-    const m = map(item.type);
+    const category = mapType(item.type);
 
-    spinner.textContent = (item.type==="clue") ? "Rejtély" : m;
+    // spinner fix
+    spinner.textContent = category || "—";
 
-    category.textContent = "";
-    requestAnimationFrame(()=> category.textContent = m);
+    // CSAK 1 kategória jelenik meg
+    categoryEl.textContent = category || "";
 
-    answer.textContent = item.answer;
+    answerEl.textContent = item.answer || "";
 
-  },2500);
-}
+    console.log("ITEM:", item);
+
+  }, 2500);
+
+})();
 </script>
 
 </body>
