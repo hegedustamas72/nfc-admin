@@ -73,12 +73,12 @@ body{
   align-items:center;
   justify-content:center;
 
-  background:rgba(255,255,255,0.08);
-  backdrop-filter:blur(4px);
-
+  background:rgba(255,255,255,0.06);
   border:1px solid rgba(255,255,255,0.12);
 
-  animation: float 3s ease-in-out infinite;
+  backdrop-filter:blur(4px);
+
+  animation: float 3.5s ease-in-out infinite;
 }
 
 @keyframes float{
@@ -87,15 +87,57 @@ body{
   100% { transform:translateY(0px); }
 }
 
+@keyframes pulse{
+  0%{
+    transform:scale(0.7);
+    opacity:0.4;
+    box-shadow:0 0 8px rgba(255,255,255,0.2);
+  }
+  50%{
+    transform:scale(1.1);
+    opacity:0.9;
+    box-shadow:0 0 18px rgba(255,255,255,0.35);
+  }
+  100%{
+    transform:scale(0.7);
+    opacity:0.4;
+    box-shadow:0 0 8px rgba(255,255,255,0.2);
+  }
+}
   
 .card.hide{
   opacity:0;
   transform:translate(-50%,-50%) scale(0.85);
 }
 
+  @keyframes pulseText{
+
+  0%{
+    transform:scale(.95);
+    opacity:.65;
+  }
+
+  50%{
+    transform:scale(1.08);
+    opacity:1;
+  }
+
+  100%{
+    transform:scale(.95);
+    opacity:.65;
+  }
+
+}
 #spinner{
-  font-size:30px;
+  font-size:32px;
   font-weight:bold;
+  color:white;
+
+  text-shadow:
+    0 0 8px rgba(255,255,255,.25),
+    0 0 18px rgba(255,255,255,.18);
+
+  animation:pulseText .9s ease-in-out infinite;
 }
 
 /* ===== BOTTOM ===== */
@@ -155,13 +197,13 @@ body{
 </div>
 
 <!-- CENTER CARD -->
-  
 <div class="card">
   <div class="inner">
-    <div id="spinner">-</div>
+    <div id="spinner"></div>
   </div>
 </div>
 
+  
 <!-- BOTTOM -->
 <div class="bottom">
   <div id="answer">-</div>
@@ -215,6 +257,9 @@ body{
 
     // CARD collapse (érzékelhető!)
     card.classList.add("hide");
+    setTimeout(()=>{
+    card.style.display="none";
+},350);
 
     setTimeout(()=>{
 
