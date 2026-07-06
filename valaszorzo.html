@@ -9,7 +9,11 @@ const supabase = createClient(
 const tag =
   new URLSearchParams(location.search).get("tag") || "valaszorzo"
 
-const sessionId = crypto.randomUUID()
+const sessionId = new URLSearchParams(location.search).get("tag")
+
+if(!sessionId){
+  throw new Error("Missing tag")
+}
 
 const answers = [
   { type:"yes", text:"Igen." },
