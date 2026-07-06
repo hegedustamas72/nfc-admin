@@ -56,6 +56,93 @@ body{
 </div>
 
 <script type="module">
+
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const supabase = createClient(
+  "https://eogrnzuarpqlyjclkcqq.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
+);
+
+const id = new URLSearchParams(location.search).get("id");
+
+const rolling = document.getElementById("rolling");
+const result = document.getElementById("result");
+const hint = document.getElementById("hint");
+
+const words = ["IGEN","NEM","TALÁN"];
+
+function animate(data){
+  let i = 0;
+
+  const interval = setInterval(() => {
+    rolling.textContent = words[i % words.length];
+    i++;
+
+    if(i > 14){
+      clearInterval(interval);
+
+      rolling.textContent =
+        data.answer_type === "yes" ? "IGEN" :
+        data.answer_type === "no" ? "NEM" :
+        data.answer_type === "clue" ? "REJTÉLY" :
+        "TALÁN";
+
+      result.textContent = data.answer;
+      hint.textContent = "Új válaszhoz érintsd újra a bilétát";
+    }
+  }, 80);
+}
+
+async function load(){
+
+  const { data, error } = await supabase
+    .from("valaszorzo_links")
+    .select("*")
+    .eq("session_id", id)
+    .maybeSingle();   // 🔥 EZ A FIX
+
+  if(error){
+    console.error(error);
+    rolling.textContent = "Supabase hiba";
+    return;
+  }
+
+  if(!data){
+    rolling.textContent = "Nincs adat";
+    return;
+  }
+
+  animate(data);
+}
+
+load();
+
+</script>
+
+</body>
+</html>  border-radius:14px;
+  background:#9B6A6C;
+  color:white;
+  text-decoration:none;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="top">
+  <div class="big" id="rolling">A sors dönt...</div>
+</div>
+
+<div class="bottom">
+  <div class="answer" id="result"></div>
+  <div class="hint" id="hint"></div>
+  <a class="btn" href="index.html">Kattkaland</a>
+</div>
+
+<script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
 const supabase = createClient(
