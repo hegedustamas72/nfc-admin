@@ -31,6 +31,17 @@ body {
   height: 55px;
 }
 
+/* ✔ ONLY ONE CATEGORY (42px) */
+#category_big {
+  font-size: 42px;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+/* ✔ FORCE REMOVE OLD DUPLICATE */
+#category {
+  display: none !important;
+}
 
 /* ===== BOTTOM CENTER FIX ===== */
 .bottom {
@@ -49,12 +60,6 @@ body {
   text-align: center;
 }
 
-/* spacing blokk */
-.spacer {
-  height: 40%;
-}
-
-/* ===== CONTENT ===== */
 #answer {
   font-size: 36px;
   min-height: 50px;
@@ -107,12 +112,12 @@ body {
 <!-- TOP -->
 <div class="top">
   <div id="spinner">...</div>
- </div>
+  <div id="category_big"></div>
+  <div id="category"></div> <!-- régi duplikáció elnyelése -->
+</div>
 
 <!-- BOTTOM -->
 <div class="bottom">
-
-  <div class="spacer"></div>
 
   <div id="answer"></div>
 
@@ -153,11 +158,8 @@ if (!isValidItem(item)) {
 const spinValues = ["Igen", "Nem", "Talán"];
 
 const spinnerEl = document.getElementById("spinner");
-const categoryEl = document.getElementById("category");
+const categoryEl = document.getElementById("category_big");
 const answerEl = document.getElementById("answer");
-
-/* 🔴 FIX: duplikáció ellen */
-categoryEl.innerHTML = "";
 
 let i = 0;
 let interval;
@@ -185,16 +187,16 @@ function stopSpin() {
   setTimeout(() => {
     const mapped = mapType(item.type);
 
-    // spinner vége
+    // spinner final
     spinnerEl.textContent = (item.type === "clue") ? "Rejtély" : mapped;
 
-    /* 🔴 FIX: kategória dupla render ellen */
+    // category (ONLY ONE)
     categoryEl.textContent = "";
     requestAnimationFrame(() => {
       categoryEl.textContent = mapped;
     });
 
-    // válasz
+    // answer
     answerEl.textContent = item.answer;
 
   }, 500);
