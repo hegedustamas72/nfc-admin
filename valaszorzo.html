@@ -17,22 +17,6 @@ h1 {
   margin-top: 60px;
   font-size: 40px;
 }
-
-button {
-  margin-top: 40px;
-  padding: 14px 28px;
-  font-size: 18px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  background: white;
-  color: black;
-  transition: 0.2s;
-}
-
-button:hover {
-  transform: scale(1.05);
-}
 </style>
 </head>
 
@@ -40,40 +24,64 @@ button:hover {
 
 <h1>Válasz őrző</h1>
 
-<button onclick="generate()">Kérdezz</button>
-
 <script>
 let data = [];
 
-// 🔗 Google Sheet → Opensheet JSON API
 const SHEET_URL =
   "https://opensheet.elk.sh/11R_-GOutX5MaApZoojq6h2_-iMmSq8DpscQO13f2qMw/Munkalap1";
 
+/* ---------------------------
+   🔄 SAFE DATA LOAD
+----------------------------*/
 async function loadData() {
   try {
     const res = await fetch(SHEET_URL);
-    data = await res.json();
-    console.log("Betöltve:", data);
+    const json = await res.json();
+
+    // 🔥 SZŰRÉS: csak valid sorok
+    data = json.filter(x =>
+      x &&
+      typeof x.answer === "string" &&
+      x.answer.trim() !== "" &&
+      typeof x.type === "string" &&
+      x.type.trim() !== ""
+    );
+
+    console.log("Betöltve (szűrt):", data);
+
+    // automatikus indulás
+    generate();
+
   } catch (err) {
-    console.error("Hiba a betöltésnél:", err);
+    console.error("Hiba:", err);
     alert("Nem sikerült betölteni az adatokat.");
   }
 }
 
+/* ---------------------------
+   🎲 GENERATE
+----------------------------*/
 function generate() {
-  if (!data || data.length === 0) {
-    alert("Még nem töltődtek be az adatok.");
+  if (!data.length) {
+    alert("Nincs betölthető adat.");
     return;
   }
 
   const item = data[Math.floor(Math.random() * data.length)];
 
-  // átadás results oldalnak
+  // extra védelem
+  if (!item.answer || !item.type) {
+    console.warn("HIBÁS SOR KIHAGYVA:", item);
+    return generate();
+  }
+
   const encoded = encodeURIComponent(JSON.stringify(item));
   window.location.href = "valaszorzoresults.html?data=" + encoded;
 }
 
-// betöltés induláskor
+/* ---------------------------
+   START
+----------------------------*/
 loadData();
 </script>
 
