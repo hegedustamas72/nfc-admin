@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="hu">
 <head>
 
@@ -15,67 +14,39 @@
 body{
   margin:0;
   min-height:100vh;
-
   display:flex;
-  flex-direction:column;
-  justify-content:space-between;
-
+  justify-content:center;
+  align-items:center;
   background:
-    linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
+    linear-gradient(rgba(0,0,0,.4),rgba(0,0,0,.4)),
     url("magic8.jpeg");
-
   background-size:cover;
   background-position:center;
-
   color:white;
   font-family:"DM Sans",sans-serif;
 }
 
-/* TOP */
-.top{
-  padding-top:30px;
+.card{
   text-align:center;
+  width:min(420px,100%);
+  padding:20px;
 }
 
-.category{
-  font-size:14px;
-  opacity:.75;
+.title{
+  font-size:18px;
+  opacity:.8;
   letter-spacing:2px;
-  margin-bottom:10px;
-}
-
-.big{
-  font-size:40px;
-  font-weight:700;
-  min-height:50px;
-}
-
-/* BOTTOM */
-.bottom{
-  text-align:center;
-  padding-bottom:40px;
-}
-
-.answer{
-  font-size:26px;
-  font-weight:600;
-  margin-bottom:10px;
-}
-
-.hint{
-  font-size:13px;
-  opacity:.7;
   margin-bottom:20px;
 }
 
-.btn{
-  display:inline-block;
-  padding:12px 18px;
-  border-radius:14px;
-  background:#9B6A6C;
-  color:white;
-  text-decoration:none;
-  font-weight:600;
+.loading{
+  font-size:40px;
+  font-weight:700;
+}
+
+.small{
+  margin-top:15px;
+  opacity:.7;
 }
 
 </style>
@@ -84,21 +55,19 @@ body{
 
 <body>
 
-<div class="top">
+<div class="card">
 
-  <div class="category">Válasz őrző</div>
-
-  <div class="big" id="rolling">A sors dönt...</div>
-
+<div class="title">
+Válasz őrző
 </div>
 
-<div class="bottom">
+<div class="loading">
+A sors dönt...
+</div>
 
-  <div class="answer" id="result"></div>
-
-  <div class="hint" id="hint"></div>
-
-  <a class="btn" href="index.html">Kattkaland</a>
+<div class="small">
+Kérjük várj...
+</div>
 
 </div>
 
@@ -106,130 +75,81 @@ body{
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
-// ======================
-// SUPABASE
-// ======================
 const supabase = createClient(
-  "https://eogrnzuarpqlyjclkcqq.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
+"https://eogrnzuarpqlyjclkcqq.supabase.co",
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvZ3JuenVhcnBxbHlqY2xrY3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzQyOTYsImV4cCI6MjA4OTUxMDI5Nn0.VA2nMHVZJRHFntfCrsoxNOLJYvDp_a5-zIR4qdWUp8U"
 )
 
-// ======================
-// ID RENDSZER (STABIL)
-// ======================
-const sessionId =
-  new URLSearchParams(location.search).get("id")
-  || new URLSearchParams(location.search).get("tag")
-
+// NFC címke az URL-ből
 const tag =
-  new URLSearchParams(location.search).get("tag") || "valaszorzo"
+new URLSearchParams(location.search).get("tag") || "ismeretlen"
 
-console.log("SESSION:", sessionId)
-console.log("TAG:", tag)
+// minden érintéskor új session
+const sessionId = crypto.randomUUID()
 
-// HA NINCS ID → STOP
-if(!sessionId){
-  document.body.innerHTML = "<h2>Hiányzó ID az URL-ben</h2>"
-  throw new Error("Missing sessionId")
-}
-
-// ======================
-// UI
-// ======================
-const rolling = document.getElementById("rolling")
-const result = document.getElementById("result")
-const hint = document.getElementById("hint")
-
-// ======================
-// PÖRGÉS
-// ======================
-const words = ["IGEN","NEM","TALÁN"]
-
-// ======================
-// 25 VÁLASZ
-// ======================
 const answers = [
-  { type:"yes", text:"Igen." },
-  { type:"yes", text:"Minden jel erre mutat." },
-  { type:"yes", text:"Egyértelműen igen." },
-  { type:"yes", text:"Bátran vágj bele." },
-  { type:"yes", text:"Kétség sem fér hozzá." },
 
-  { type:"yes", text:"Ez jó irány." },
-  { type:"yes", text:"A csillagok is ezt mutatják." },
+{type:"yes",text:"Igen."},
+{type:"yes",text:"Minden jel erre mutat."},
+{type:"yes",text:"Egyértelműen igen."},
+{type:"yes",text:"Bátran vágj bele."},
+{type:"yes",text:"Kétség sem fér hozzá."},
+{type:"yes",text:"Ez jó irány."},
+{type:"yes",text:"A csillagok is ezt mutatják."},
 
-  { type:"maybe", text:"Kérdezd újra később." },
-  { type:"maybe", text:"Most még nem tiszta." },
-  { type:"maybe", text:"A helyzet alakul." },
-  { type:"maybe", text:"Nem egyértelmű." },
-  { type:"maybe", text:"Várj egy kicsit." },
+{type:"maybe",text:"Kérdezd újra később."},
+{type:"maybe",text:"Most még nem tiszta."},
+{type:"maybe",text:"A helyzet alakul."},
+{type:"maybe",text:"Nem egyértelmű."},
+{type:"maybe",text:"Várj egy kicsit."},
 
-  { type:"no", text:"Nem." },
-  { type:"no", text:"Erősen kétséges." },
-  { type:"no", text:"Most ne." },
-  { type:"no", text:"Nem ezt az utat válaszd." },
-  { type:"no", text:"A válasz negatív." },
+{type:"no",text:"Nem."},
+{type:"no",text:"Erősen kétséges."},
+{type:"no",text:"Most ne."},
+{type:"no",text:"Nem ezt az utat válaszd."},
+{type:"no",text:"A válasz negatív."},
 
-  { type:"clue", text:"A válasz a részletekben rejlik." },
-  { type:"clue", text:"Nem minden az, aminek látszik." },
-  { type:"clue", text:"A döntés már megszületett benned." },
-  { type:"clue", text:"A jelek több irányba mutatnak." },
+{type:"clue",text:"A válasz a részletekben rejlik."},
+{type:"clue",text:"Nem minden az, aminek látszik."},
+{type:"clue",text:"A döntés már megszületett benned."},
+{type:"clue",text:"A jelek több irányba mutatnak."},
 
-  { type:"yes", text:"Igen, de légy türelmes." },
-  { type:"no", text:"Nem most van itt az ideje." },
-  { type:"maybe", text:"Még változhat minden." }
+{type:"yes",text:"Igen, de légy türelmes."},
+{type:"no",text:"Nem most van itt az ideje."},
+{type:"maybe",text:"Még változhat minden."}
+
 ]
 
-// ======================
-// RANDOM VÁLASZ
-// ======================
 const randomAnswer =
-  answers[Math.floor(Math.random() * answers.length)]
+answers[Math.floor(Math.random()*answers.length)]
 
-// ======================
-// SUPABASE INSERT (FIXED)
-// ======================
-const test = await supabase
-  .from("valaszorzo_links")
-  .insert({
-    session_id: crypto.randomUUID(),
-    tag: "debug",
-    answer: "teszt",
-    answer_type: "yes"
-  })
+async function save(){
 
-console.log("TEST INSERT:", test)
-// ======================
-// ANIMÁCIÓ
-// ======================
-function animate(data){
+const {error}=await supabase
+.from("valaszorzo_links")
+.insert({
+tag:tag,
+session_id:sessionId,
+answer:randomAnswer.text,
+answer_type:randomAnswer.type
+})
 
-  let i = 0
+if(error){
 
-  const interval = setInterval(() => {
+document.body.innerHTML=
+"<h2>Supabase hiba</h2><pre>"+error.message+"</pre>"
 
-    rolling.textContent = words[i % words.length]
-    i++
+console.error(error)
 
-    if(i > 14){
-      clearInterval(interval)
+return
 
-      rolling.textContent =
-        data.type === "clue" ? "REJTÉLY"
-        : data.type === "yes" ? "IGEN"
-        : data.type === "no" ? "NEM"
-        : "TALÁN"
-
-      result.textContent = data.text
-      hint.textContent = "Új válaszhoz érintsd újra a bilétát"
-    }
-
-  }, 80)
 }
 
-// ======================
-// START
-// ======================
+window.location.href=
+"valaszorzoresults.html?id="+sessionId
+
+}
+
 save()
 
 </script>
