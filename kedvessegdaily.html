@@ -198,10 +198,14 @@ if (data.expires_at !== today) {
 // BACKGROUND (SPEAKER)
 // ======================
 
+background: random["hatter"] || ""
+
 const hatter = data.hatter || "szivhatter"
 
+const bg = data.background || "default";
+
 document.body.style.backgroundImage =
-  `linear-gradient(rgba(255,255,255,0.42), rgba(255,255,255,0.42)), url('kedvesseg${hatter}.jpg')`
+  `linear-gradient(rgba(255,255,255,.42), rgba(255,255,255,.42)), url('kedvesseg${bg}.jpg')`;
 
 document.body.style.backgroundSize = "cover"
 document.body.style.backgroundPosition = "center"
