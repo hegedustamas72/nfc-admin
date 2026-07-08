@@ -199,13 +199,11 @@ if (data.expires_at !== today) {
 // ======================
 
 
-const hatter = data.hatter || "szivhatter"
-
-const bg = data.background || "default";
+const bg = data.speaker || "szivhatter";
 
 document.body.style.backgroundImage =
   `linear-gradient(rgba(255,255,255,.42), rgba(255,255,255,.42)), url('kedvesseg${bg}.jpg')`;
-
+  
 document.body.style.backgroundSize = "cover"
 document.body.style.backgroundPosition = "center"
 document.body.style.backgroundRepeat = "no-repeat"
