@@ -103,7 +103,7 @@ if (selectError) {
 if (existingRows?.length) {
 
   window.location.href =
-    "bigbangdaily.html?id=" + existingRows[0].session_id
+    "kedvessegdaily.html?id=" + existingRows[0].session_id
 
   throw new Error("Existing session")
 }
@@ -113,7 +113,7 @@ if (existingRows?.length) {
 // ======================
 
 const SHEET_URL =
-  "https://opensheet.elk.sh/1S-snwxtcGauL3BVJVB8pEB0y1CVP_wNDwiU4JAmhLRg/Munkalap1"
+  "https://opensheet.elk.sh/113gGI1n_YxT53xiaRrBQbmH_aTn6b-L-aVDZU7pADMs/edit?usp=drivesdk/Munkalap1"
 
 const response =
   await fetch(SHEET_URL)
@@ -171,7 +171,7 @@ const { error: insertError } =
       author: random["Szerző"] || "",
       device_id: deviceId,
 
-      category: random["Kategória"] || "",
+      category: random["Hangulat"] || "",
 
       expires_at: today
     })
@@ -198,7 +198,7 @@ ${JSON.stringify(insertError, null, 2)}
 // ======================
 
 window.location.href =
-  "bigbangdaily.html?id=" + sessionId
+  "kedvessegdaily.html?id=" + sessionId
 
 </script>
 
