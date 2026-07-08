@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Agymenők idézetek</title>
+<title>Kedvesség küldetés</title>
 
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&family=Alex+Brush&display=swap" rel="stylesheet">
 
@@ -122,7 +122,7 @@ body{
 <div class="card">
 
   <div class="title">
-    Agymenők idézetek
+    Kedvesség küldetés
   </div>
 
   <div id="content">
@@ -187,8 +187,8 @@ const today =
 if (data.expires_at !== today) {
   el.innerHTML = `
     <div class="error">
-      Ez a napi üzenet lejárt.<br><br>
-      Olvasd be újra a bilétát! ✨
+      A tegnapi küldetést sikeresen teljesítetted?<br><br>
+      A maihoz olvasd be újra a bilétát! ✨
     </div>
   `
   throw new Error("Expired")
@@ -201,7 +201,7 @@ if (data.expires_at !== today) {
 const author = data.author || "szivhatter"
 
 document.body.style.backgroundImage =
-  `linear-gradient(rgba(255,255,255,0.42), rgba(255,255,255,0.42)), url('${author}.jpg')`
+  `linear-gradient(rgba(255,255,255,0.42), rgba(255,255,255,0.42)), url(kedvesseg'$category.jpg')`
 
 document.body.style.backgroundSize = "cover"
 document.body.style.backgroundPosition = "center"
