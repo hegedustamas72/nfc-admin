@@ -22,7 +22,7 @@ h1 {
 
 <body>
 
-<h1>Betöltés...</h1>
+<h1 id="status">Betöltés...</h1>
 
 <script>
 let data = [];
@@ -30,54 +30,108 @@ let data = [];
 const SHEET_URL =
   "https://opensheet.elk.sh/11R_-GOutX5MaApZoojq6h2_-iMmSq8DpscQO13f2qMw/Munkalap1";
 
+const statusEl =
+  document.getElementById("status");
+
+const validTypes =
+  ["yes", "no", "maybe", "clue"];
+
 /* ---------------------------
-   🔄 SAFE DATA LOAD
+   SAFE DATA LOAD
 ----------------------------*/
 async function loadData() {
-  try {
-    const res = await fetch(SHEET_URL);
-    const json = await res.json();
 
-    // 🔥 SZŰRÉS: csak valid sorok
-    data = json.filter(x =>
-      x &&
-      typeof x.answer === "string" &&
-      x.answer.trim() !== "" &&
-      typeof x.type === "string" &&
-      x.type.trim() !== ""
+  try {
+
+    const res = await fetch(
+      SHEET_URL,
+      { cache: "no-store" }
     );
 
-    console.log("Betöltve (szűrt):", data);
+    if (!res.ok) {
+      throw new Error(
+        "OpenSheet hiba: " + res.status
+      );
+    }
 
-    // automatikus indulás
+    const json = await res.json();
+
+    if (!Array.isArray(json)) {
+      throw new Error(
+        "Hibás adatstruktúra érkezett."
+      );
+    }
+
+    data = json
+      .map(row => ({
+        answer:
+          String(row.answer || "").trim(),
+
+        type:
+          String(row.type || "")
+            .trim()
+            .toLowerCase()
+      }))
+      .filter(row =>
+        row.answer !== "" &&
+        validTypes.includes(row.type)
+      );
+
+    console.log(
+      "Betöltve (szűrt):",
+      data
+    );
+
+    if (!data.length) {
+      throw new Error(
+        "Nincs betölthető válasz."
+      );
+    }
+
     generate();
 
   } catch (err) {
-    console.error("Hiba:", err);
-    alert("Nem sikerült betölteni az adatokat.");
+
+    console.error(
+      "Hiba:",
+      err
+    );
+
+    statusEl.textContent =
+      "Nem sikerült betölteni az adatokat.";
+
   }
 }
 
+
 /* ---------------------------
-   🎲 GENERATE
+   RANDOM VÁLASZ
 ----------------------------*/
 function generate() {
-  if (!data.length) {
-    alert("Nincs betölthető adat.");
+
+  const item =
+    data[
+      Math.floor(
+        Math.random() * data.length
+      )
+    ];
+
+  if (!item) {
+    statusEl.textContent =
+      "Nem sikerült választ kiválasztani.";
     return;
   }
 
-  const item = data[Math.floor(Math.random() * data.length)];
+  const encoded =
+    encodeURIComponent(
+      JSON.stringify(item)
+    );
 
-  // extra védelem
-  if (!item.answer || !item.type) {
-    console.warn("HIBÁS SOR KIHAGYVA:", item);
-    return generate();
-  }
-
-  const encoded = encodeURIComponent(JSON.stringify(item));
-  window.location.href = "valaszorzoresults.html?data=" + encoded;
+  window.location.href =
+    "valaszorzoresults.html?data=" +
+    encoded;
 }
+
 
 /* ---------------------------
    START
