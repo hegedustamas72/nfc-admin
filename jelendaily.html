@@ -188,7 +188,7 @@ if (data.expires_at !== today) {
 }
 
 // ======================
-// HÁTTÉR A TÉMA ALAPJÁN
+// TÉMA NORMALIZÁLÁSA
 // ======================
 
 const normalizeTopic = (value) =>
@@ -196,25 +196,76 @@ const normalizeTopic = (value) =>
     .trim()
     .toLocaleLowerCase("hu-HU")
 
+// ======================
+// HÁTTÉRKÉPEK
+// ======================
+
 const backgrounds = {
-  "természet": "jelen-termeszet.jpg",
-  "hála": "jelen-hala.jpg",
-  "tudatosság": "jelen-tudatossag.jpg",
-  "elengedés": "jelen-elengedes.jpg",
-  "kapcsolódás": "jelen-kapcsolodas.jpg",
-  "jelenlét / csend": "jelen-csend.jpg",
-  "önreflexió": "jelen-onreflexio.jpg"
+
+  "jelenlét":
+    "jelen-jelenlet.jpg",
+
+  "önreflekció":
+    "jelen-onreflekcio.jpg",
+
+  "kapcsolódás":
+    "jelen-kapcsolodas.jpg",
+
+  "elengedés":
+    "jelen-elengedes.jpg",
+
+  "légzés":
+    "jelen-legzes.jpg",
+
+  "mozgás":
+    "jelen-mozgas.jpg",
+
+  "természet":
+    "jelen-termeszet.jpg",
+
+  "kreativitás":
+    "jelen-kreativitas.jpg",
+
+  "öngondoskodás":
+    "jelen-ongondoskodas.jpg",
+
+  "bátorság / játékosság":
+    "jelen-batorsag.jpg",
+
+  "hála":
+    "jelen-hala.jpg",
+
+  "önismeret":
+    "jelen-onismeret.jpg"
+
 }
+
+// ======================
+// HÁTTÉR KIVÁLASZTÁSA
+// ======================
 
 const bg =
   backgrounds[normalizeTopic(data.category)] ||
-  "jelen-termeszet.jpg"
+  "jelen-jelenlet.jpg"
 
 document.body.style.backgroundImage =
-  `linear-gradient(rgba(255,255,255,.42), rgba(255,255,255,.42)), url('${bg}')`
+  `linear-gradient(
+    rgba(255,255,255,.42),
+    rgba(255,255,255,.42)
+  ),
+  url('${bg}')`
+
+document.body.style.backgroundSize =
+  "cover"
+
+document.body.style.backgroundPosition =
+  "center"
+
+document.body.style.backgroundRepeat =
+  "no-repeat"
 
 // ======================
-// DISPLAY
+// MEGJELENÍTÉS
 // ======================
 
 el.innerHTML = `
