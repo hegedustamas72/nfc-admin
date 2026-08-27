@@ -9,16 +9,22 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&family=Alex+Brush&display=swap" rel="stylesheet">
 
 <style>
+
 body{
   margin:0;
   font-family:'DM Sans',sans-serif;
+
   min-height:100vh;
+
   display:flex;
   align-items:center;
   justify-content:center;
+
   padding:20px;
   box-sizing:border-box;
+
   background-color:#111;
+
   background-size:cover;
   background-position:center;
   background-repeat:no-repeat;
@@ -26,11 +32,17 @@ body{
 
 .card{
   background:rgba(255,255,255,0.7);
+
   padding:28px;
+
   border-radius:24px;
+
   width:min(100%, 380px);
+
   text-align:center;
+
   box-shadow:0 12px 30px rgba(0,0,0,0.1);
+
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -39,7 +51,9 @@ body{
 
 .title{
   font-family:'Alex Brush',cursive;
-  font-size:42px;
+  font-size:clamp(30px, 9vw, 42px);
+  line-height:1.1;
+  white-space:nowrap;
   margin:0;
 }
 
@@ -59,14 +73,21 @@ body{
   align-items:center;
   justify-content:center;
   gap:10px;
+
   padding:12px 18px;
+
   border-radius:14px;
+
   background:#9B6A6C;
+
   color:white;
+
   text-decoration:none;
   font-family:'Alex Brush',cursive;
   font-weight:600;
+
   box-shadow:0 4px 10px rgba(0,0,0,0.12);
+
   margin-top:0;
 }
 
@@ -85,6 +106,7 @@ body{
   color:#b00020;
   font-weight:700;
 }
+
 </style>
 </head>
 
