@@ -24,7 +24,7 @@
 
     .card {
       width: 100%;
-      max-width: 520px;
+      max-width: 560px;
       background: #ffffff;
       border-radius: 24px;
       padding: 32px 24px;
@@ -79,6 +79,69 @@
       color: #847970;
     }
 
+    .history-button {
+      width: 100%;
+      margin-top: 26px;
+      padding: 14px 18px;
+      border: 0;
+      border-radius: 16px;
+      background: #f1ece6;
+      color: #2f2b28;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .history-button:active {
+      transform: scale(0.99);
+    }
+
+    .history-section {
+      margin-top: 18px;
+      text-align: left;
+    }
+
+    .history-item {
+      border-top: 1px solid #ece6df;
+      padding: 18px 0;
+    }
+
+    .history-item:first-child {
+      border-top: 0;
+    }
+
+    .history-number {
+      font-size: 13px;
+      color: #8c7f73;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .history-title {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      line-height: 1.35;
+    }
+
+    .history-item audio {
+      margin: 0;
+    }
+
+    .history-empty {
+      text-align: center;
+      color: #847970;
+      padding: 16px 0 4px;
+      font-size: 14px;
+    }
+
+    .history-loading {
+      text-align: center;
+      color: #847970;
+      padding: 16px 0 4px;
+      font-size: 14px;
+    }
+
     .error {
       padding: 14px 16px;
       border-radius: 14px;
@@ -124,6 +187,28 @@
 
       <div id="status" class="status"></div>
 
+      <button
+        id="historyButton"
+        class="history-button"
+        type="button"
+      >
+        Korábbi hangüzeneteim
+      </button>
+
+      <div
+        id="historySection"
+        class="history-section hidden"
+      >
+        <div
+          id="historyLoading"
+          class="history-loading hidden"
+        >
+          Korábbi hangüzenetek betöltése…
+        </div>
+
+        <div id="historyList"></div>
+      </div>
+
     </div>
 
     <div id="errorBox" class="error hidden"></div>
@@ -133,6 +218,30 @@
   <script>
     const EDGE_FUNCTION_URL =
       "https://eogrnzuarpqlyjclkcqq.supabase.co/functions/v1/audio-message";
+
+    let currentTag = null;
+    let currentSequenceNo = null;
+    let historyLoaded = false;
+
+    async function callAudioFunction(payload) {
+      const response = await fetch(EDGE_FUNCTION_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error || "Nem sikerült lekérni az adatokat."
+        );
+      }
+
+      return data;
+    }
 
     async function loadAudioMessage() {
 
@@ -156,25 +265,15 @@
         return;
       }
 
+      currentTag = tag;
+
       try {
 
-        const response = await fetch(EDGE_FUNCTION_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            tag: tag
-          })
+        const data = await callAudioFunction({
+          tag: tag
         });
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data.error || "Nem sikerült lekérni a hangüzenetet."
-          );
-        }
+        currentSequenceNo = data.sequence_no;
 
         messageNumber.textContent =
           data.sequence_no + ". hangüzenet";
@@ -205,6 +304,130 @@
         errorBox.classList.remove("hidden");
       }
     }
+
+    async function loadHistory() {
+
+      if (historyLoaded) {
+        return;
+      }
+
+      const historyLoading =
+        document.getElementById("historyLoading");
+
+      const historyList =
+        document.getElementById("historyList");
+
+      historyLoading.classList.remove("hidden");
+
+      try {
+
+        const data = await callAudioFunction({
+          tag: currentTag,
+          action: "history"
+        });
+
+        historyList.innerHTML = "";
+
+        const previousMessages =
+          (data.messages || []).filter(
+            message =>
+              message.sequence_no !== currentSequenceNo
+          );
+
+        if (previousMessages.length === 0) {
+
+          historyList.innerHTML =
+            '<div class="history-empty">' +
+            'Még nincs korábbi hangüzeneted.' +
+            '</div>';
+
+          historyLoaded = true;
+          return;
+        }
+
+        previousMessages.forEach(message => {
+
+          const item =
+            document.createElement("div");
+
+          item.className = "history-item";
+
+          const number =
+            document.createElement("div");
+
+          number.className = "history-number";
+          number.textContent =
+            message.sequence_no + ". hangüzenet";
+
+          const title =
+            document.createElement("div");
+
+          title.className = "history-title";
+          title.textContent =
+            message.title || "Hangüzenet";
+
+          const audio =
+            document.createElement("audio");
+
+          audio.controls = true;
+          audio.preload = "metadata";
+          audio.src = message.audio_url;
+
+          item.appendChild(number);
+          item.appendChild(title);
+          item.appendChild(audio);
+
+          historyList.appendChild(item);
+        });
+
+        historyLoaded = true;
+
+      } catch (error) {
+
+        console.error(error);
+
+        historyList.innerHTML =
+          '<div class="error">' +
+          (
+            error.message ||
+            "Nem sikerült betölteni a korábbi hangüzeneteket."
+          ) +
+          '</div>';
+
+      } finally {
+
+        historyLoading.classList.add("hidden");
+      }
+    }
+
+    document
+      .getElementById("historyButton")
+      .addEventListener("click", async () => {
+
+        const section =
+          document.getElementById("historySection");
+
+        const button =
+          document.getElementById("historyButton");
+
+        const isHidden =
+          section.classList.contains("hidden");
+
+        if (isHidden) {
+
+          section.classList.remove("hidden");
+          button.textContent =
+            "Korábbi hangüzeneteim elrejtése";
+
+          await loadHistory();
+
+        } else {
+
+          section.classList.add("hidden");
+          button.textContent =
+            "Korábbi hangüzeneteim";
+        }
+      });
 
     loadAudioMessage();
   </script>
