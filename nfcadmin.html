@@ -173,10 +173,7 @@ button:disabled{
       <option value="valaszorzo">Válasz őrző</option>
       <option value="kedvesseg">Apró örömök</option>
       <option value="jelen">A Jelen Játéka</option>
-
-      <option value="lelekviragzas">
-        Lélekvirágzás
-      </option>
+      <option value="lelekviragzas">Lélekvirágzás</option>
 
     </select>
 
@@ -266,7 +263,7 @@ const categories = {
 
 // ======================
 // AKTUÁLIS ADMIN JELSZÓ
-// csak memóriában
+// csak az oldal memóriájában
 // ======================
 
 let adminPassword = "";
@@ -296,11 +293,15 @@ async function callCreateAudioTag(payload){
   let data = null;
 
   try{
+
     data =
       await response.json();
+
   }
   catch{
+
     data = {};
+
   }
 
   if(!response.ok){
@@ -309,6 +310,7 @@ async function callCreateAudioTag(payload){
       data.error ||
       "Hiba történt a kérés során."
     );
+
   }
 
   return data;
@@ -347,6 +349,7 @@ async function login(){
   }
 
   loginBtn.disabled = true;
+
   loginBtn.textContent =
     "Ellenőrzés…";
 
@@ -383,8 +386,10 @@ async function login(){
   finally{
 
     loginBtn.disabled = false;
+
     loginBtn.textContent =
       "Belépés";
+
   }
 }
 
@@ -400,7 +405,9 @@ document
     event => {
 
       if(event.key === "Enter"){
+
         login();
+
       }
 
     }
@@ -446,6 +453,7 @@ function clearOutput(){
     .textContent = "";
 
   window.generatedUrl = null;
+
 }
 
 
@@ -470,8 +478,17 @@ function showGeneratedUrl(
   const hint =
     document.getElementById("hint");
 
+
+  // A képernyőn is NFC-re kész,
+  // https:// nélküli link jelenjen meg.
+
+  const nfcUrl =
+    String(url)
+      .replace(/^https?:\/\//, "");
+
+
   result.textContent =
-    url;
+    nfcUrl;
 
   result.classList.remove("hidden");
 
@@ -480,6 +497,7 @@ function showGeneratedUrl(
   hint.textContent =
     "Kategória: " +
     categoryText;
+
 }
 
 
@@ -519,6 +537,7 @@ async function generate(){
 
 
   generateBtn.disabled = true;
+
   generateBtn.textContent =
     "Generálás…";
 
@@ -527,7 +546,9 @@ async function generate(){
 
     // ==================================
     // LÉLEKVIRÁGZÁS
-    // Supabase rekord is készül
+    //
+    // Ennél a Supabase-ben
+    // audio_progress rekord is készül.
     // ==================================
 
     if(category === "lelekviragzas"){
@@ -547,6 +568,7 @@ async function generate(){
         throw new Error(
           "A biléta létrejött, de nem érkezett vissza link."
         );
+
       }
 
 
@@ -557,19 +579,19 @@ async function generate(){
 
 
       generateMessage.textContent =
-        "A Lélekvirágzás biléta létrejött és aktiválásra kész.";
+        "A Lélekvirágzás biléta létrejött.";
 
       generateMessage
         .classList
         .remove("hidden");
 
       return;
+
     }
 
 
     // ==================================
     // TÖBBI NFC BILÉTA
-    // régi működés
     // ==================================
 
     const tag =
@@ -578,11 +600,13 @@ async function generate(){
     const page =
       categories[category];
 
+
     if(!page){
 
       throw new Error(
         "Ismeretlen kategória."
       );
+
     }
 
 
@@ -615,28 +639,46 @@ async function generate(){
   finally{
 
     generateBtn.disabled = false;
+
     generateBtn.textContent =
       "Új link generálása";
+
   }
+
 }
 
 
 // ======================
-// MÁSOLÁS
+// LINK MÁSOLÁSA
+//
+// FONTOS:
+// Az NFC-író alkalmazás maga
+// teszi elé a https:// részt.
+// Ezért mindig protokoll nélkül
+// másolunk.
 // ======================
 
 async function copyLink(){
 
   if(!window.generatedUrl){
+
     return;
+
   }
+
+
+  const nfcUrl =
+    String(window.generatedUrl)
+      .replace(/^https?:\/\//, "");
+
 
   try{
 
     await navigator.clipboard
       .writeText(
-        window.generatedUrl
+        nfcUrl
       );
+
 
     alert(
       "Link másolva ✔"
@@ -647,10 +689,13 @@ async function copyLink(){
 
     console.error(error);
 
+
     alert(
       "A link másolása nem sikerült."
     );
+
   }
+
 }
 
 </script>
