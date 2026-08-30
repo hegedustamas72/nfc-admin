@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lélekvirágzás</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font-family: Arial, sans-serif;
+      background: #f7f4ef;
+      color: #2f2b28;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 32px 24px;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.08);
+      text-align: center;
+    }
+
+    .eyebrow {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #8c7f73;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 32px;
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      margin: 0 0 28px;
+      color: #746b64;
+      line-height: 1.5;
+    }
+
+    .message-number {
+      display: inline-block;
+      margin-bottom: 14px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #f1ece6;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .message-title {
+      font-size: 22px;
+      line-height: 1.35;
+      margin: 0 0 24px;
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .status {
+      margin-top: 18px;
+      font-size: 14px;
+      color: #847970;
+    }
+
+    .error {
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: #fbeaea;
+      color: #8f2f2f;
+      line-height: 1.45;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .loading {
+      font-size: 16px;
+      color: #746b64;
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="card">
+
+    <div class="eyebrow">Napi hangüzenet</div>
+
+    <h1>Lélekvirágzás</h1>
+
+    <p class="subtitle">
+      Egy pillanat csak neked.
+    </p>
+
+    <div id="loading" class="loading">
+      A mai üzeneted betöltése…
+    </div>
+
+    <div id="content" class="hidden">
+
+      <div id="messageNumber" class="message-number"></div>
+
+      <h2 id="messageTitle" class="message-title"></h2>
+
+      <audio id="audioPlayer" controls preload="metadata"></audio>
+
+      <div id="status" class="status"></div>
+
+    </div>
+
+    <div id="errorBox" class="error hidden"></div>
+
+  </main>
+
+  <script>
+    const EDGE_FUNCTION_URL =
+      "https://eogrnzuarpqlyjclkcqq.supabase.co/functions/v1/audio-message";
+
+    async function loadAudioMessage() {
+
+      const loading = document.getElementById("loading");
+      const content = document.getElementById("content");
+      const errorBox = document.getElementById("errorBox");
+
+      const messageNumber = document.getElementById("messageNumber");
+      const messageTitle = document.getElementById("messageTitle");
+      const audioPlayer = document.getElementById("audioPlayer");
+      const status = document.getElementById("status");
+
+      const params = new URLSearchParams(window.location.search);
+      const tag = params.get("tag");
+
+      if (!tag) {
+        loading.classList.add("hidden");
+        errorBox.textContent =
+          "Hiányzik a biléta azonosítója az URL-ből.";
+        errorBox.classList.remove("hidden");
+        return;
+      }
+
+      try {
+
+        const response = await fetch(EDGE_FUNCTION_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            tag: tag
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error || "Nem sikerült lekérni a hangüzenetet."
+          );
+        }
+
+        messageNumber.textContent =
+          data.sequence_no + ". hangüzenet";
+
+        messageTitle.textContent =
+          data.title || "A mai üzeneted";
+
+        audioPlayer.src = data.audio_url;
+
+        status.textContent =
+          data.is_new
+            ? "Ma egy új hangüzenet nyílt meg számodra."
+            : "Ezt a mai hangüzenetedet már megnyitottad.";
+
+        loading.classList.add("hidden");
+        content.classList.remove("hidden");
+
+      } catch (error) {
+
+        console.error(error);
+
+        loading.classList.add("hidden");
+
+        errorBox.textContent =
+          error.message ||
+          "Hiba történt a hangüzenet betöltése közben.";
+
+        errorBox.classList.remove("hidden");
+      }
+    }
+
+    loadAudioMessage();
+  </script>
+
+</body>
+</html>
