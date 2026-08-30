@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lélekvirágzás</title>
 
+  <link
+    href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap"
+    rel="stylesheet"
+  >
+
   <style>
     * {
       box-sizing: border-box;
@@ -13,150 +18,396 @@
     body {
       margin: 0;
       min-height: 100vh;
+
       display: flex;
       align-items: center;
       justify-content: center;
+
       padding: 24px;
+
       font-family: Arial, sans-serif;
-      background: #f7f4ef;
+
+      background:
+        linear-gradient(
+          rgba(247, 244, 239, 0.30),
+          rgba(247, 244, 239, 0.30)
+        ),
+        url("lelekviragzas-bg.jpg")
+        center center / cover
+        no-repeat fixed;
+
       color: #2f2b28;
     }
 
     .card {
       width: 100%;
       max-width: 560px;
-      background: #ffffff;
+
+      background:
+        rgba(255, 255, 255, 0.88);
+
+      backdrop-filter:
+        blur(8px);
+
+      -webkit-backdrop-filter:
+        blur(8px);
+
       border-radius: 24px;
+
       padding: 32px 24px;
-      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.08);
+
+      box-shadow:
+        0 14px 40px
+        rgba(0, 0, 0, 0.12);
+
       text-align: center;
     }
 
     .eyebrow {
       font-size: 14px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: #8c7f73;
-      margin-bottom: 10px;
+
+      text-transform:
+        uppercase;
+
+      letter-spacing:
+        0.16em;
+
+      color:
+        #8c7f73;
+
+      margin-bottom:
+        8px;
     }
 
     h1 {
-      margin: 0 0 10px;
-      font-size: 32px;
-      line-height: 1.1;
+      margin:
+        0 0 4px;
+
+      font-family:
+        'Alex Brush',
+        cursive;
+
+      font-size:
+        46px;
+
+      font-weight:
+        400;
+
+      line-height:
+        1;
+
+      color:
+        #4f4038;
     }
 
     .subtitle {
-      margin: 0 0 28px;
-      color: #746b64;
-      line-height: 1.5;
+      margin:
+        0 0 28px;
+
+      color:
+        #746b64;
+
+      line-height:
+        1.5;
+
+      font-size:
+        15px;
     }
 
     .message-number {
-      display: inline-block;
-      margin-bottom: 14px;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: #f1ece6;
-      font-size: 14px;
-      font-weight: 700;
+      display:
+        inline-block;
+
+      margin-bottom:
+        14px;
+
+      padding:
+        8px 14px;
+
+      border-radius:
+        999px;
+
+      background:
+        rgba(241, 236, 230, 0.94);
+
+      font-size:
+        14px;
+
+      font-weight:
+        700;
     }
 
     .message-title {
-      font-size: 22px;
-      line-height: 1.35;
-      margin: 0 0 24px;
+      font-size:
+        22px;
+
+      line-height:
+        1.35;
+
+      margin:
+        0 0 24px;
+
+      color:
+        #3f3630;
     }
 
     audio {
-      width: 100%;
-      margin-top: 8px;
+      width:
+        100%;
+
+      margin-top:
+        8px;
     }
 
     .status {
-      margin-top: 18px;
-      font-size: 14px;
-      color: #847970;
+      margin-top:
+        18px;
+
+      font-size:
+        14px;
+
+      color:
+        #847970;
     }
 
     .history-button {
-      width: 100%;
-      margin-top: 26px;
-      padding: 14px 18px;
-      border: 0;
-      border-radius: 16px;
-      background: #f1ece6;
-      color: #2f2b28;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
+      width:
+        100%;
+
+      margin-top:
+        26px;
+
+      padding:
+        14px 18px;
+
+      border:
+        0;
+
+      border-radius:
+        16px;
+
+      background:
+        rgba(241, 236, 230, 0.95);
+
+      color:
+        #2f2b28;
+
+      font-size:
+        16px;
+
+      font-weight:
+        700;
+
+      cursor:
+        pointer;
     }
 
     .history-button:active {
-      transform: scale(0.99);
+      transform:
+        scale(0.99);
     }
 
     .history-section {
-      margin-top: 18px;
-      text-align: left;
+      margin-top:
+        18px;
+
+      text-align:
+        left;
     }
 
     .history-item {
-      border-top: 1px solid #ece6df;
-      padding: 18px 0;
+      border-top:
+        1px solid
+        #ece6df;
+
+      padding:
+        18px 0;
     }
 
     .history-item:first-child {
-      border-top: 0;
+      border-top:
+        0;
     }
 
     .history-number {
-      font-size: 13px;
-      color: #8c7f73;
-      margin-bottom: 6px;
-      font-weight: 700;
+      font-size:
+        13px;
+
+      color:
+        #8c7f73;
+
+      margin-bottom:
+        6px;
+
+      font-weight:
+        700;
     }
 
     .history-title {
-      font-size: 17px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      line-height: 1.35;
+      font-size:
+        17px;
+
+      font-weight:
+        700;
+
+      margin-bottom:
+        12px;
+
+      line-height:
+        1.35;
+
+      color:
+        #3f3630;
     }
 
     .history-item audio {
-      margin: 0;
+      margin:
+        0;
     }
 
     .history-empty {
-      text-align: center;
-      color: #847970;
-      padding: 16px 0 4px;
-      font-size: 14px;
+      text-align:
+        center;
+
+      color:
+        #847970;
+
+      padding:
+        16px 0 4px;
+
+      font-size:
+        14px;
     }
 
     .history-loading {
-      text-align: center;
-      color: #847970;
-      padding: 16px 0 4px;
-      font-size: 14px;
+      text-align:
+        center;
+
+      color:
+        #847970;
+
+      padding:
+        16px 0 4px;
+
+      font-size:
+        14px;
     }
 
     .error {
-      padding: 14px 16px;
-      border-radius: 14px;
-      background: #fbeaea;
-      color: #8f2f2f;
-      line-height: 1.45;
+      padding:
+        14px 16px;
+
+      border-radius:
+        14px;
+
+      background:
+        #fbeaea;
+
+      color:
+        #8f2f2f;
+
+      line-height:
+        1.45;
     }
 
     .hidden {
-      display: none;
+      display:
+        none;
     }
 
     .loading {
-      font-size: 16px;
-      color: #746b64;
+      font-size:
+        16px;
+
+      color:
+        #746b64;
+    }
+
+    /* ===== KATTKALAND GOMB ===== */
+
+    .kattkaland-wrap {
+      display:
+        flex;
+
+      justify-content:
+        center;
+
+      margin-top:
+        28px;
+    }
+
+    .btn {
+      display:
+        inline-flex;
+
+      align-items:
+        center;
+
+      justify-content:
+        center;
+
+      gap:
+        10px;
+
+      padding:
+        12px 18px;
+
+      border-radius:
+        14px;
+
+      background:
+        #9B6A6C;
+
+      color:
+        white;
+
+      text-decoration:
+        none;
+
+      font-family:
+        'Alex Brush',
+        cursive;
+
+      font-size:
+        22px;
+
+      font-weight:
+        600;
+
+      box-shadow:
+        0 4px 10px
+        rgba(0, 0, 0, 0.12);
+    }
+
+    .btn img {
+      width:
+        20px;
+
+      height:
+        20px;
+    }
+
+    @media (max-width: 600px) {
+
+      body {
+        padding:
+          14px;
+      }
+
+      .card {
+        padding:
+          26px 18px;
+      }
+
+      h1 {
+        font-size:
+          42px;
+      }
+
+      .message-title {
+        font-size:
+          20px;
+      }
     }
   </style>
 </head>
@@ -165,27 +416,50 @@
 
   <main class="card">
 
-    <div class="eyebrow">Napi hangüzenet</div>
+    <div class="eyebrow">
+      Napi hangüzenet
+    </div>
 
-    <h1>Lélekvirágzás</h1>
+    <h1>
+      Lélekvirágzás
+    </h1>
 
     <p class="subtitle">
       Egy pillanat csak neked.
     </p>
 
-    <div id="loading" class="loading">
+    <div
+      id="loading"
+      class="loading"
+    >
       A mai üzeneted betöltése…
     </div>
 
-    <div id="content" class="hidden">
+    <div
+      id="content"
+      class="hidden"
+    >
 
-      <div id="messageNumber" class="message-number"></div>
+      <div
+        id="messageNumber"
+        class="message-number"
+      ></div>
 
-      <h2 id="messageTitle" class="message-title"></h2>
+      <h2
+        id="messageTitle"
+        class="message-title"
+      ></h2>
 
-      <audio id="audioPlayer" controls preload="metadata"></audio>
+      <audio
+        id="audioPlayer"
+        controls
+        preload="metadata"
+      ></audio>
 
-      <div id="status" class="status"></div>
+      <div
+        id="status"
+        class="status"
+      ></div>
 
       <button
         id="historyButton"
@@ -199,6 +473,7 @@
         id="historySection"
         class="history-section hidden"
       >
+
         <div
           id="historyLoading"
           class="history-loading hidden"
@@ -206,12 +481,33 @@
           Korábbi hangüzenetek betöltése…
         </div>
 
-        <div id="historyList"></div>
+        <div
+          id="historyList"
+        ></div>
+
       </div>
 
     </div>
 
-    <div id="errorBox" class="error hidden"></div>
+    <div
+      id="errorBox"
+      class="error hidden"
+    ></div>
+
+    <div
+      class="kattkaland-wrap"
+    >
+      <a
+        class="btn"
+        href="https://kattkaland.hu"
+      >
+        <img
+          src="brand-icon.png"
+          alt=""
+        >
+        Kattkaland
+      </a>
+    </div>
 
   </main>
 
@@ -224,19 +520,34 @@
     let historyLoaded = false;
 
     async function callAudioFunction(payload) {
-      const response = await fetch(EDGE_FUNCTION_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
 
-      const data = await response.json();
+      const response =
+        await fetch(
+          EDGE_FUNCTION_URL,
+          {
+            method:
+              "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body:
+              JSON.stringify(
+                payload
+              )
+          }
+        );
+
+      const data =
+        await response.json();
 
       if (!response.ok) {
+
         throw new Error(
-          data.error || "Nem sikerült lekérni az adatokat."
+          data.error ||
+          "Nem sikerült lekérni az adatokat."
         );
       }
 
@@ -245,63 +556,120 @@
 
     async function loadAudioMessage() {
 
-      const loading = document.getElementById("loading");
-      const content = document.getElementById("content");
-      const errorBox = document.getElementById("errorBox");
+      const loading =
+        document.getElementById(
+          "loading"
+        );
 
-      const messageNumber = document.getElementById("messageNumber");
-      const messageTitle = document.getElementById("messageTitle");
-      const audioPlayer = document.getElementById("audioPlayer");
-      const status = document.getElementById("status");
+      const content =
+        document.getElementById(
+          "content"
+        );
 
-      const params = new URLSearchParams(window.location.search);
-      const tag = params.get("tag");
+      const errorBox =
+        document.getElementById(
+          "errorBox"
+        );
+
+      const messageNumber =
+        document.getElementById(
+          "messageNumber"
+        );
+
+      const messageTitle =
+        document.getElementById(
+          "messageTitle"
+        );
+
+      const audioPlayer =
+        document.getElementById(
+          "audioPlayer"
+        );
+
+      const status =
+        document.getElementById(
+          "status"
+        );
+
+      const params =
+        new URLSearchParams(
+          window.location.search
+        );
+
+      const tag =
+        params.get("tag");
 
       if (!tag) {
-        loading.classList.add("hidden");
+
+        loading.classList.add(
+          "hidden"
+        );
+
         errorBox.textContent =
           "Hiányzik a biléta azonosítója az URL-ből.";
-        errorBox.classList.remove("hidden");
+
+        errorBox.classList.remove(
+          "hidden"
+        );
+
         return;
       }
 
-      currentTag = tag;
+      currentTag =
+        tag;
 
       try {
 
-        const data = await callAudioFunction({
-          tag: tag
-        });
+        const data =
+          await callAudioFunction({
+            tag:
+              tag
+          });
 
-        currentSequenceNo = data.sequence_no;
+        currentSequenceNo =
+          data.sequence_no;
 
         messageNumber.textContent =
-          data.sequence_no + ". hangüzenet";
+          data.sequence_no +
+          ". hangüzenet";
 
         messageTitle.textContent =
-          data.title || "A mai üzeneted";
+          data.title ||
+          "A mai üzeneted";
 
-        audioPlayer.src = data.audio_url;
+        audioPlayer.src =
+          data.audio_url;
 
         status.textContent =
           data.is_new
             ? "Ma egy új hangüzenet nyílt meg számodra."
             : "Ezt a mai hangüzenetedet már megnyitottad.";
 
-        loading.classList.add("hidden");
-        content.classList.remove("hidden");
+        loading.classList.add(
+          "hidden"
+        );
+
+        content.classList.remove(
+          "hidden"
+        );
 
       } catch (error) {
 
-        console.error(error);
+        console.error(
+          error
+        );
 
-        loading.classList.add("hidden");
+        loading.classList.add(
+          "hidden"
+        );
 
         errorBox.textContent =
           error.message ||
           "Hiba történt a hangüzenet betöltése közben.";
 
-        errorBox.classList.remove("hidden");
+        errorBox.classList.remove(
+          "hidden"
+        );
       }
     }
 
@@ -312,79 +680,131 @@
       }
 
       const historyLoading =
-        document.getElementById("historyLoading");
+        document.getElementById(
+          "historyLoading"
+        );
 
       const historyList =
-        document.getElementById("historyList");
+        document.getElementById(
+          "historyList"
+        );
 
-      historyLoading.classList.remove("hidden");
+      historyLoading.classList.remove(
+        "hidden"
+      );
 
       try {
 
-        const data = await callAudioFunction({
-          tag: currentTag,
-          action: "history"
-        });
+        const data =
+          await callAudioFunction({
+            tag:
+              currentTag,
 
-        historyList.innerHTML = "";
+            action:
+              "history"
+          });
+
+        historyList.innerHTML =
+          "";
 
         const previousMessages =
-          (data.messages || []).filter(
-            message =>
-              message.sequence_no !== currentSequenceNo
-          );
+          (data.messages || [])
+            .filter(
+              message =>
+                message.sequence_no !==
+                currentSequenceNo
+            );
 
-        if (previousMessages.length === 0) {
+        if (
+          previousMessages.length === 0
+        ) {
 
           historyList.innerHTML =
             '<div class="history-empty">' +
             'Még nincs korábbi hangüzeneted.' +
             '</div>';
 
-          historyLoaded = true;
+          historyLoaded =
+            true;
+
           return;
         }
 
-        previousMessages.forEach(message => {
+        previousMessages.forEach(
+          message => {
 
-          const item =
-            document.createElement("div");
+            const item =
+              document.createElement(
+                "div"
+              );
 
-          item.className = "history-item";
+            item.className =
+              "history-item";
 
-          const number =
-            document.createElement("div");
+            const number =
+              document.createElement(
+                "div"
+              );
 
-          number.className = "history-number";
-          number.textContent =
-            message.sequence_no + ". hangüzenet";
+            number.className =
+              "history-number";
 
-          const title =
-            document.createElement("div");
+            number.textContent =
+              message.sequence_no +
+              ". hangüzenet";
 
-          title.className = "history-title";
-          title.textContent =
-            message.title || "Hangüzenet";
+            const title =
+              document.createElement(
+                "div"
+              );
 
-          const audio =
-            document.createElement("audio");
+            title.className =
+              "history-title";
 
-          audio.controls = true;
-          audio.preload = "metadata";
-          audio.src = message.audio_url;
+            title.textContent =
+              message.title ||
+              "Hangüzenet";
 
-          item.appendChild(number);
-          item.appendChild(title);
-          item.appendChild(audio);
+            const audio =
+              document.createElement(
+                "audio"
+              );
 
-          historyList.appendChild(item);
-        });
+            audio.controls =
+              true;
 
-        historyLoaded = true;
+            audio.preload =
+              "metadata";
+
+            audio.src =
+              message.audio_url;
+
+            item.appendChild(
+              number
+            );
+
+            item.appendChild(
+              title
+            );
+
+            item.appendChild(
+              audio
+            );
+
+            historyList.appendChild(
+              item
+            );
+          }
+        );
+
+        historyLoaded =
+          true;
 
       } catch (error) {
 
-        console.error(error);
+        console.error(
+          error
+        );
 
         historyList.innerHTML =
           '<div class="error">' +
@@ -396,38 +816,57 @@
 
       } finally {
 
-        historyLoading.classList.add("hidden");
+        historyLoading.classList.add(
+          "hidden"
+        );
       }
     }
 
     document
-      .getElementById("historyButton")
-      .addEventListener("click", async () => {
+      .getElementById(
+        "historyButton"
+      )
+      .addEventListener(
+        "click",
+        async () => {
 
-        const section =
-          document.getElementById("historySection");
+          const section =
+            document.getElementById(
+              "historySection"
+            );
 
-        const button =
-          document.getElementById("historyButton");
+          const button =
+            document.getElementById(
+              "historyButton"
+            );
 
-        const isHidden =
-          section.classList.contains("hidden");
+          const isHidden =
+            section.classList.contains(
+              "hidden"
+            );
 
-        if (isHidden) {
+          if (isHidden) {
 
-          section.classList.remove("hidden");
-          button.textContent =
-            "Korábbi hangüzeneteim elrejtése";
+            section.classList.remove(
+              "hidden"
+            );
 
-          await loadHistory();
+            button.textContent =
+              "Korábbi hangüzeneteim elrejtése";
 
-        } else {
+            await loadHistory();
 
-          section.classList.add("hidden");
-          button.textContent =
-            "Korábbi hangüzeneteim";
+          } else {
+
+            section.classList.add(
+              "hidden"
+            );
+
+            button.textContent =
+              "Korábbi hangüzeneteim";
+          }
         }
-      });
+      );
 
     loadAudioMessage();
   </script>
