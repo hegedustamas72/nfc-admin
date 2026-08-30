@@ -41,6 +41,7 @@ select{
   border-radius:10px;
   border:1px solid #ccc;
   box-sizing:border-box;
+  font-family:'DM Sans',sans-serif;
 }
 
 button{
@@ -51,11 +52,18 @@ button{
   border-radius:12px;
   cursor:pointer;
   font-weight:600;
+  font-family:'DM Sans',sans-serif;
   transition:0.2s ease;
 }
 
 button:hover{
   transform:translateY(-1px);
+}
+
+button:disabled{
+  opacity:0.55;
+  cursor:not-allowed;
+  transform:none;
 }
 
 .login-btn{
@@ -92,6 +100,24 @@ button:hover{
   margin-top:5px;
 }
 
+.error{
+  margin-top:12px;
+  padding:10px;
+  border-radius:10px;
+  background:#fbeaea;
+  color:#8f2f2f;
+  font-size:13px;
+}
+
+.success{
+  margin-top:12px;
+  padding:10px;
+  border-radius:10px;
+  background:#edf7ee;
+  color:#2e7d32;
+  font-size:13px;
+}
+
 </style>
 </head>
 
@@ -109,16 +135,24 @@ button:hover{
       type="password"
       id="pass"
       placeholder="Jelszó"
+      autocomplete="current-password"
     >
 
     <button
       class="login-btn"
+      id="loginBtn"
       onclick="login()"
     >
       Belépés
     </button>
 
+    <div
+      id="loginError"
+      class="error hidden"
+    ></div>
+
   </div>
+
 
   <!-- ADMIN -->
 
@@ -140,10 +174,15 @@ button:hover{
       <option value="kedvesseg">Apró örömök</option>
       <option value="jelen">A Jelen Játéka</option>
 
+      <option value="lelekviragzas">
+        Lélekvirágzás
+      </option>
+
     </select>
 
     <button
       class="gen-btn"
+      id="generateBtn"
       onclick="generate()"
     >
       Új link generálása
@@ -159,6 +198,16 @@ button:hover{
       id="hint"
     ></div>
 
+    <div
+      id="generateMessage"
+      class="success hidden"
+    ></div>
+
+    <div
+      id="generateError"
+      class="error hidden"
+    ></div>
+
     <button
       class="copy-btn hidden"
       id="copyBtn"
@@ -171,13 +220,16 @@ button:hover{
 
 </div>
 
+
 <script>
 
 // ======================
-// JELSZÓ
+// EDGE FUNCTION
 // ======================
 
-const PASSWORD = "K4ttk4l4nd"
+const CREATE_AUDIO_TAG_URL =
+  "https://eogrnzuarpqlyjclkcqq.supabase.co/functions/v1/create-audio-tag";
+
 
 // ======================
 // KATEGÓRIÁK
@@ -205,103 +257,400 @@ const categories = {
 
   kedvesseg: "kedvessegnfc.html",
 
-  jelen: "jelen.html"
+  jelen: "jelen.html",
 
+  lelekviragzas: "lelekviragzas.html"
+
+};
+
+
+// ======================
+// AKTUÁLIS ADMIN JELSZÓ
+// csak memóriában
+// ======================
+
+let adminPassword = "";
+
+
+// ======================
+// EDGE FUNCTION HÍVÁS
+// ======================
+
+async function callCreateAudioTag(payload){
+
+  const response =
+    await fetch(
+      CREATE_AUDIO_TAG_URL,
+      {
+        method:"POST",
+
+        headers:{
+          "Content-Type":"application/json"
+        },
+
+        body:
+          JSON.stringify(payload)
+      }
+    );
+
+  let data = null;
+
+  try{
+    data =
+      await response.json();
+  }
+  catch{
+    data = {};
+  }
+
+  if(!response.ok){
+
+    throw new Error(
+      data.error ||
+      "Hiba történt a kérés során."
+    );
+  }
+
+  return data;
 }
+
 
 // ======================
 // LOGIN
 // ======================
 
-function login(){
+async function login(){
 
-  const pass =
-    document.getElementById("pass").value
+  const passInput =
+    document.getElementById("pass");
 
-  if(pass !== PASSWORD){
+  const loginBtn =
+    document.getElementById("loginBtn");
 
-    alert("Hibás jelszó")
+  const loginError =
+    document.getElementById("loginError");
 
-    return
+  const password =
+    passInput.value;
+
+  loginError.classList.add("hidden");
+  loginError.textContent = "";
+
+  if(!password){
+
+    loginError.textContent =
+      "Add meg a jelszót.";
+
+    loginError.classList.remove("hidden");
+
+    return;
   }
 
-  document
-    .getElementById("loginBox")
-    .classList.add("hidden")
+  loginBtn.disabled = true;
+  loginBtn.textContent =
+    "Ellenőrzés…";
 
-  document
-    .getElementById("adminBox")
-    .classList.remove("hidden")
+  try{
+
+    await callCreateAudioTag({
+      password:password,
+      action:"verify"
+    });
+
+    adminPassword =
+      password;
+
+    passInput.value = "";
+
+    document
+      .getElementById("loginBox")
+      .classList.add("hidden");
+
+    document
+      .getElementById("adminBox")
+      .classList.remove("hidden");
+
+  }
+  catch(error){
+
+    loginError.textContent =
+      error.message ||
+      "Sikertelen belépés.";
+
+    loginError.classList.remove("hidden");
+
+  }
+  finally{
+
+    loginBtn.disabled = false;
+    loginBtn.textContent =
+      "Belépés";
+  }
 }
+
+
+// ======================
+// ENTER = BELÉPÉS
+// ======================
+
+document
+  .getElementById("pass")
+  .addEventListener(
+    "keydown",
+    event => {
+
+      if(event.key === "Enter"){
+        login();
+      }
+
+    }
+  );
+
 
 // ======================
 // RANDOM TAG
+// normál bilétákhoz
 // ======================
 
 function randomTag(){
 
-  return crypto.randomUUID()
+  return crypto.randomUUID();
 
 }
+
+
+// ======================
+// KIMENET TÖRLÉSE
+// ======================
+
+function clearOutput(){
+
+  document
+    .getElementById("result")
+    .classList.add("hidden");
+
+  document
+    .getElementById("copyBtn")
+    .classList.add("hidden");
+
+  document
+    .getElementById("generateMessage")
+    .classList.add("hidden");
+
+  document
+    .getElementById("generateError")
+    .classList.add("hidden");
+
+  document
+    .getElementById("hint")
+    .textContent = "";
+
+  window.generatedUrl = null;
+}
+
+
+// ======================
+// LINK MEGJELENÍTÉSE
+// ======================
+
+function showGeneratedUrl(
+  url,
+  categoryText
+){
+
+  window.generatedUrl =
+    url;
+
+  const result =
+    document.getElementById("result");
+
+  const copyBtn =
+    document.getElementById("copyBtn");
+
+  const hint =
+    document.getElementById("hint");
+
+  result.textContent =
+    url;
+
+  result.classList.remove("hidden");
+
+  copyBtn.classList.remove("hidden");
+
+  hint.textContent =
+    "Kategória: " +
+    categoryText;
+}
+
 
 // ======================
 // LINK GENERÁLÁS
 // ======================
 
-function generate(){
+async function generate(){
 
-  const tag =
-    randomTag()
+  clearOutput();
+
+  const categorySelect =
+    document.getElementById("category");
 
   const category =
-    document.getElementById("category").value
+    categorySelect.value;
 
-  const page =
-    categories[category]
-
-  const url =
-    "vigyazzram.kattkaland.hu/" +
-    page +
-    "?tag=" +
-    tag
-
-  window.generatedUrl = url
-
-  const result =
-    document.getElementById("result")
-
-  const copyBtn =
-    document.getElementById("copyBtn")
-
-  const hint =
-    document.getElementById("hint")
-
-  result.textContent = url
-
-  result.classList.remove("hidden")
-
-  copyBtn.classList.remove("hidden")
-
-  hint.textContent =
-    "Kategória: " +
-    document
-      .getElementById("category")
+  const categoryText =
+    categorySelect
       .selectedOptions[0]
-      .text
+      .text;
 
+  const generateBtn =
+    document.getElementById(
+      "generateBtn"
+    );
+
+  const generateMessage =
+    document.getElementById(
+      "generateMessage"
+    );
+
+  const generateError =
+    document.getElementById(
+      "generateError"
+    );
+
+
+  generateBtn.disabled = true;
+  generateBtn.textContent =
+    "Generálás…";
+
+
+  try{
+
+    // ==================================
+    // LÉLEKVIRÁGZÁS
+    // Supabase rekord is készül
+    // ==================================
+
+    if(category === "lelekviragzas"){
+
+      const data =
+        await callCreateAudioTag({
+          password:
+            adminPassword,
+
+          action:
+            "create"
+        });
+
+
+      if(!data?.url){
+
+        throw new Error(
+          "A biléta létrejött, de nem érkezett vissza link."
+        );
+      }
+
+
+      showGeneratedUrl(
+        data.url,
+        categoryText
+      );
+
+
+      generateMessage.textContent =
+        "A Lélekvirágzás biléta létrejött és aktiválásra kész.";
+
+      generateMessage
+        .classList
+        .remove("hidden");
+
+      return;
+    }
+
+
+    // ==================================
+    // TÖBBI NFC BILÉTA
+    // régi működés
+    // ==================================
+
+    const tag =
+      randomTag();
+
+    const page =
+      categories[category];
+
+    if(!page){
+
+      throw new Error(
+        "Ismeretlen kategória."
+      );
+    }
+
+
+    const url =
+      "https://vigyazzram.kattkaland.hu/" +
+      page +
+      "?tag=" +
+      encodeURIComponent(tag);
+
+
+    showGeneratedUrl(
+      url,
+      categoryText
+    );
+
+  }
+  catch(error){
+
+    console.error(error);
+
+    generateError.textContent =
+      error.message ||
+      "Nem sikerült létrehozni a linket.";
+
+    generateError
+      .classList
+      .remove("hidden");
+
+  }
+  finally{
+
+    generateBtn.disabled = false;
+    generateBtn.textContent =
+      "Új link generálása";
+  }
 }
+
 
 // ======================
 // MÁSOLÁS
 // ======================
 
-function copyLink(){
+async function copyLink(){
 
-  navigator.clipboard
-    .writeText(window.generatedUrl)
+  if(!window.generatedUrl){
+    return;
+  }
 
-  alert("Link másolva ✔")
+  try{
 
+    await navigator.clipboard
+      .writeText(
+        window.generatedUrl
+      );
+
+    alert(
+      "Link másolva ✔"
+    );
+
+  }
+  catch(error){
+
+    console.error(error);
+
+    alert(
+      "A link másolása nem sikerült."
+    );
+  }
 }
 
 </script>
