@@ -23,7 +23,6 @@
 
     body {
       min-height: 100vh;
-
       padding: 24px;
 
       font-family: Arial, sans-serif;
@@ -551,13 +550,20 @@
           data.sequence_no;
 
 
+        /*
+          A 0. technikai sorszámot
+          nem mutatjuk a felhasználónak.
+        */
+
         messageNumber.textContent =
-          data.sequence_no +
-          ". hangüzenet";
+          data.sequence_no === 0
+            ? "Bevezető"
+            : data.sequence_no +
+              ". hangüzenet";
 
 
         /*
-          A SUPABASE audio_messages
+          A Supabase audio_messages
           title mezője jelenik meg itt.
         */
 
@@ -692,9 +698,17 @@
               "history-number";
 
 
+            /*
+              A 0. technikai sorszám
+              itt is "Bevezető" néven
+              jelenik meg.
+            */
+
             number.textContent =
-              message.sequence_no +
-              ". hangüzenet";
+              message.sequence_no === 0
+                ? "Bevezető"
+                : message.sequence_no +
+                  ". hangüzenet";
 
 
             const title =
