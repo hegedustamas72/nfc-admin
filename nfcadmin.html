@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
+
 <meta charset="UTF-8">
 
 <meta
@@ -10,10 +11,52 @@
 
 <title>NFC Admin</title>
 
+<!-- =========================
+     APP / FŐKÉPERNYŐ IKON
+     ========================= -->
+
+<link
+  rel="icon"
+  type="image/png"
+  href="brand-icon.png"
+>
+
+<link
+  rel="apple-touch-icon"
+  href="brand-icon.png"
+>
+
+<meta
+  name="apple-mobile-web-app-capable"
+  content="yes"
+>
+
+<meta
+  name="mobile-web-app-capable"
+  content="yes"
+>
+
+<meta
+  name="apple-mobile-web-app-status-bar-style"
+  content="default"
+>
+
+<meta
+  name="apple-mobile-web-app-title"
+  content="NFC Admin"
+>
+
+<meta
+  name="theme-color"
+  content="#9B6A6C"
+>
+
+
 <link
   href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;600;700&display=swap"
   rel="stylesheet"
 >
+
 
 <style>
 
@@ -36,7 +79,7 @@ body{
   padding:
     max(14px, env(safe-area-inset-top))
     max(14px, env(safe-area-inset-right))
-    max(14px, env(safe-area-inset-bottom))
+    max(18px, env(safe-area-inset-bottom))
     max(14px, env(safe-area-inset-left));
 
   font-family:'DM Sans',sans-serif;
@@ -44,7 +87,7 @@ body{
   background:#f5f5f5;
 
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   justify-content:center;
 
   color:#252525;
@@ -53,9 +96,11 @@ body{
 .card{
   width:min(100%,420px);
 
+  margin:auto;
+
   background:white;
 
-  padding:28px;
+  padding:26px;
 
   border-radius:20px;
 
@@ -97,11 +142,7 @@ select{
 
   border-radius:11px;
 
-  border:
-    1px solid
-    #cfcfcf;
-
-  box-sizing:border-box;
+  border:1px solid #cfcfcf;
 
   font-family:'DM Sans',sans-serif;
 
@@ -130,26 +171,11 @@ button{
   font-size:15px;
 
   font-weight:600;
-
-  transition:
-    transform .15s ease,
-    opacity .15s ease;
-}
-
-button:hover{
-  transform:translateY(-1px);
-}
-
-button:active{
-  transform:scale(.99);
 }
 
 button:disabled{
   opacity:.55;
-
   cursor:not-allowed;
-
-  transform:none;
 }
 
 .login-btn{
@@ -177,6 +203,11 @@ button:disabled{
   color:white;
 }
 
+.reset-btn{
+  background:#9B6A6C;
+  color:white;
+}
+
 .hidden{
   display:none !important;
 }
@@ -195,8 +226,6 @@ button:disabled{
   line-height:1.4;
 
   overflow-wrap:anywhere;
-
-  word-break:break-word;
 }
 
 .subtext{
@@ -219,8 +248,6 @@ button:disabled{
   color:#8f2f2f;
 
   font-size:13px;
-
-  line-height:1.4;
 }
 
 .success{
@@ -235,8 +262,6 @@ button:disabled{
   color:#2e7d32;
 
   font-size:13px;
-
-  line-height:1.4;
 }
 
 .test-info{
@@ -267,8 +292,6 @@ button:disabled{
   text-align:left;
 
   font-size:14px;
-
-  line-height:1.55;
 }
 
 .status-row{
@@ -278,7 +301,7 @@ button:disabled{
 
   gap:12px;
 
-  padding:3px 0;
+  padding:4px 0;
 }
 
 .status-label{
@@ -289,24 +312,14 @@ button:disabled{
   font-weight:600;
 
   text-align:right;
-
-  overflow-wrap:anywhere;
 }
 
 .divider{
   height:1px;
 
-  margin:30px 0;
+  margin:28px 0;
 
   background:#e7e7e7;
-}
-
-.existing-section{
-  text-align:left;
-}
-
-.existing-section h2{
-  text-align:center;
 }
 
 .helper{
@@ -320,100 +333,47 @@ button:disabled{
   font-size:13px;
 
   line-height:1.45;
-
-  text-align:center;
 }
 
 
-/* =========================
-   MOBIL
-   ========================= */
+/* MOBIL */
 
-@media (max-width:600px){
+@media(max-width:600px){
 
   body{
-    align-items:flex-start;
-
     padding:
-      max(12px, env(safe-area-inset-top))
-      max(12px, env(safe-area-inset-right))
-      max(18px, env(safe-area-inset-bottom))
-      max(12px, env(safe-area-inset-left));
+      max(10px,env(safe-area-inset-top))
+      max(10px,env(safe-area-inset-right))
+      max(16px,env(safe-area-inset-bottom))
+      max(10px,env(safe-area-inset-left));
   }
 
   .card{
     width:100%;
-
-    padding:22px 16px;
-
+    padding:20px 15px;
     border-radius:18px;
   }
 
   h1{
-    font-size:21px;
-
-    margin-bottom:18px;
-  }
-
-  input,
-  select{
-    font-size:16px;
-  }
-
-  button{
-    padding:13px 12px;
-
-    font-size:15px;
+    font-size:20px;
+    margin-bottom:17px;
   }
 
   .divider{
-    margin:26px 0;
+    margin:23px 0;
   }
+
 }
 
 
-/* =========================
-   ALACSONY KIJELZŐ
-   ========================= */
+/* ALACSONY KIJELZŐ */
 
-@media (max-height:700px){
-
-  body{
-    align-items:flex-start;
-  }
+@media(max-height:700px){
 
   .card{
     margin:0 auto;
   }
-}
 
-
-/* =========================
-   FEKVŐ MOBIL
-   ========================= */
-
-@media
-  (orientation:landscape)
-  and
-  (max-height:550px){
-
-  body{
-    align-items:flex-start;
-  }
-
-  .card{
-    max-width:500px;
-
-    padding:18px;
-  }
-
-  h1{
-    margin-bottom:14px;
-  }
-
-  .divider{
-    margin:20px 0;
-  }
 }
 
 </style>
@@ -425,9 +385,7 @@ button:disabled{
 <div class="card">
 
 
-  <!-- ======================
-       LOGIN
-       ====================== -->
+  <!-- LOGIN -->
 
   <div id="loginBox">
 
@@ -459,9 +417,7 @@ button:disabled{
 
 
 
-  <!-- ======================
-       ADMIN
-       ====================== -->
+  <!-- ADMIN -->
 
   <div
     id="adminBox"
@@ -473,59 +429,20 @@ button:disabled{
     </h1>
 
 
-    <!-- ======================
-         ÚJ LINK GENERÁLÁSA
-         ====================== -->
-
     <select id="category">
 
-      <option value="motoros">
-        Motoros
-      </option>
-
-      <option value="viking">
-        Viking
-      </option>
-
-      <option value="kutya">
-        Kutya
-      </option>
-
-      <option value="macska">
-        Macska
-      </option>
-
-      <option value="pozitiv">
-        Napi pozitív
-      </option>
-
-      <option value="artofwar">
-        Art of War
-      </option>
-
-      <option value="bigbang">
-        Agymenők
-      </option>
-
-      <option value="friends">
-        Jóbarátok
-      </option>
-
-      <option value="valaszorzo">
-        Válasz őrző
-      </option>
-
-      <option value="kedvesseg">
-        Apró örömök
-      </option>
-
-      <option value="jelen">
-        A Jelen Játéka
-      </option>
-
-      <option value="lelekviragzas">
-        Lélekvirágzás
-      </option>
+      <option value="motoros">Motoros</option>
+      <option value="viking">Viking</option>
+      <option value="kutya">Kutya</option>
+      <option value="macska">Macska</option>
+      <option value="pozitiv">Napi pozitív</option>
+      <option value="artofwar">Art of War</option>
+      <option value="bigbang">Agymenők</option>
+      <option value="friends">Jóbarátok</option>
+      <option value="valaszorzo">Válasz őrző</option>
+      <option value="kedvesseg">Apró örömök</option>
+      <option value="jelen">A Jelen Játéka</option>
+      <option value="lelekviragzas">Lélekvirágzás</option>
 
     </select>
 
@@ -544,18 +461,15 @@ button:disabled{
       class="output hidden"
     ></div>
 
-
     <div
       class="subtext"
       id="hint"
     ></div>
 
-
     <div
       id="generateMessage"
       class="success hidden"
     ></div>
-
 
     <div
       id="generateError"
@@ -571,12 +485,6 @@ button:disabled{
       Link másolása
     </button>
 
-
-
-    <!-- ======================
-         FRISSEN GENERÁLT
-         LÉLEKVIRÁGZÁS
-         ====================== -->
 
     <div
       id="testInfo"
@@ -597,119 +505,118 @@ button:disabled{
 
 
 
-    <!-- ======================
-         ELVÁLASZTÓ
-         ====================== -->
-
     <div class="divider"></div>
 
 
 
-    <!-- ======================
-         MEGLÉVŐ BILÉTA
-         ====================== -->
+    <!-- MEGLÉVŐ BILÉTA -->
 
-    <section class="existing-section">
+    <h2>
+      Meglévő Lélekvirágzás biléta
+    </h2>
 
-      <h2>
-        Meglévő Lélekvirágzás biléta
-      </h2>
-
-      <p class="helper">
-        Illeszd be a biléta teljes linkjét
-        vagy csak a tag azonosítóját.
-      </p>
+    <p class="helper">
+      Illeszd be a biléta teljes linkjét
+      vagy csak a tag azonosítóját.
+    </p>
 
 
-      <input
-        type="text"
-        id="existingTagInput"
-        placeholder="Biléta linkje vagy tag-je"
-        autocomplete="off"
-        autocapitalize="off"
-        spellcheck="false"
-      >
+    <input
+      type="text"
+      id="existingTagInput"
+      placeholder="Biléta linkje vagy tag-je"
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+    >
 
 
-      <button
-        class="check-btn"
-        id="checkTagBtn"
-        onclick="checkExistingTag()"
-      >
-        Biléta ellenőrzése
-      </button>
+    <button
+      class="check-btn"
+      id="checkTagBtn"
+      onclick="checkExistingTag()"
+    >
+      Biléta ellenőrzése
+    </button>
 
 
-      <div
-        id="existingError"
-        class="error hidden"
-      ></div>
+    <div
+      id="existingError"
+      class="error hidden"
+    ></div>
+
+    <div
+      id="existingSuccess"
+      class="success hidden"
+    ></div>
 
 
-      <div
-        id="existingSuccess"
-        class="success hidden"
-      ></div>
+    <div
+      id="existingStatus"
+      class="status-box hidden"
+    >
 
+      <div class="status-row">
 
-      <div
-        id="existingStatus"
-        class="status-box hidden"
-      >
+        <span class="status-label">
+          Állapot
+        </span>
 
-        <div class="status-row">
-
-          <span class="status-label">
-            Állapot
-          </span>
-
-          <span
-            class="status-value"
-            id="statusMode"
-          ></span>
-
-        </div>
-
-
-        <div class="status-row">
-
-          <span class="status-label">
-            Aktuális szint
-          </span>
-
-          <span
-            class="status-value"
-            id="statusMessage"
-          ></span>
-
-        </div>
-
-
-        <div class="status-row">
-
-          <span class="status-label">
-            Aktív
-          </span>
-
-          <span
-            class="status-value"
-            id="statusActive"
-          ></span>
-
-        </div>
+        <span
+          class="status-value"
+          id="statusMode"
+        ></span>
 
       </div>
 
 
-      <button
-        class="activate-btn hidden"
-        id="activateExistingBtn"
-        onclick="activateExistingTag()"
-      >
-        Biléta élesítése
-      </button>
+      <div class="status-row">
 
-    </section>
+        <span class="status-label">
+          Aktuális szint
+        </span>
+
+        <span
+          class="status-value"
+          id="statusMessage"
+        ></span>
+
+      </div>
+
+
+      <div class="status-row">
+
+        <span class="status-label">
+          Aktív
+        </span>
+
+        <span
+          class="status-value"
+          id="statusActive"
+        ></span>
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="activate-btn hidden"
+      id="activateExistingBtn"
+      onclick="activateExistingTag()"
+    >
+      Biléta élesítése
+    </button>
+
+
+    <button
+      class="reset-btn hidden"
+      id="resetExistingBtn"
+      onclick="resetExistingTag()"
+    >
+      Visszaállítás teszt módba
+    </button>
+
 
   </div>
 
@@ -719,53 +626,33 @@ button:disabled{
 
 <script>
 
-// ========================================================
-// EDGE FUNCTION
-// ========================================================
-
 const CREATE_AUDIO_TAG_URL =
   "https://eogrnzuarpqlyjclkcqq.supabase.co/functions/v1/create-audio-tag";
 
 
-
-// ========================================================
-// KATEGÓRIÁK
-// ========================================================
-
 const categories = {
 
-  motoros:
-    "motorosnfc.html",
+  motoros:"motorosnfc.html",
 
-  viking:
-    "vikingnfc.html",
+  viking:"vikingnfc.html",
 
-  kutya:
-    "kutyanfc.html",
+  kutya:"kutyanfc.html",
 
-  macska:
-    "catkalandnfc.html",
+  macska:"catkalandnfc.html",
 
-  pozitiv:
-    "nfc.html",
+  pozitiv:"nfc.html",
 
-  artofwar:
-    "artofwarnfc.html",
+  artofwar:"artofwarnfc.html",
 
-  bigbang:
-    "bigbangnfc.html",
+  bigbang:"bigbangnfc.html",
 
-  friends:
-    "friendsnfc.html",
+  friends:"friendsnfc.html",
 
-  valaszorzo:
-    "valaszorzo.html",
+  valaszorzo:"valaszorzo.html",
 
-  kedvesseg:
-    "kedvessegnfc.html",
+  kedvesseg:"kedvessegnfc.html",
 
-  jelen:
-    "jelen.html",
+  jelen:"jelen.html",
 
   lelekviragzas:
     "lelekviragzas.html"
@@ -773,36 +660,13 @@ const categories = {
 };
 
 
-
-// ========================================================
-// ADMIN JELSZÓ
-// csak az oldal memóriájában
-// ========================================================
-
 let adminPassword = "";
 
-
-
-// ========================================================
-// FRISSEN GENERÁLT
-// LÉLEKVIRÁGZÁS TAG
-// ========================================================
-
 let generatedAudioTag = null;
-
-
-
-// ========================================================
-// BEILLESZTETT / ELLENŐRZÖTT TAG
-// ========================================================
 
 let existingAudioTag = null;
 
 
-
-// ========================================================
-// EDGE FUNCTION HÍVÁS
-// ========================================================
 
 async function callCreateAudioTag(
   payload
@@ -813,8 +677,7 @@ async function callCreateAudioTag(
       CREATE_AUDIO_TAG_URL,
       {
 
-        method:
-          "POST",
+        method:"POST",
 
         headers:{
           "Content-Type":
@@ -830,7 +693,7 @@ async function callCreateAudioTag(
     );
 
 
-  let data = null;
+  let data = {};
 
 
   try{
@@ -839,11 +702,7 @@ async function callCreateAudioTag(
       await response.json();
 
   }
-  catch{
-
-    data = {};
-
-  }
+  catch{}
 
 
   if(!response.ok){
@@ -857,61 +716,49 @@ async function callCreateAudioTag(
 
 
   return data;
+
 }
 
 
 
-// ========================================================
 // LOGIN
-// ========================================================
 
 async function login(){
 
-  const passInput =
-    document.getElementById(
-      "pass"
-    );
-
-  const loginBtn =
-    document.getElementById(
-      "loginBtn"
-    );
-
-  const loginError =
-    document.getElementById(
-      "loginError"
-    );
-
   const password =
-    passInput.value;
+    document
+      .getElementById("pass")
+      .value;
 
 
-  loginError
-    .classList
-    .add("hidden");
+  const button =
+    document
+      .getElementById("loginBtn");
 
-  loginError.textContent =
-    "";
+
+  const error =
+    document
+      .getElementById("loginError");
+
+
+  error.classList.add("hidden");
 
 
   if(!password){
 
-    loginError.textContent =
+    error.textContent =
       "Add meg a jelszót.";
 
-    loginError
-      .classList
-      .remove("hidden");
+    error.classList.remove("hidden");
 
     return;
 
   }
 
 
-  loginBtn.disabled =
-    true;
+  button.disabled = true;
 
-  loginBtn.textContent =
+  button.textContent =
     "Ellenőrzés…";
 
 
@@ -919,11 +766,8 @@ async function login(){
 
     await callCreateAudioTag({
 
-      password:
-        password,
-
-      action:
-        "verify"
+      password,
+      action:"verify"
 
     });
 
@@ -932,59 +776,46 @@ async function login(){
       password;
 
 
-    passInput.value =
-      "";
+    document
+      .getElementById("pass")
+      .value =
+        "";
 
 
     document
-      .getElementById(
-        "loginBox"
-      )
+      .getElementById("loginBox")
       .classList
       .add("hidden");
 
 
     document
-      .getElementById(
-        "adminBox"
-      )
+      .getElementById("adminBox")
       .classList
       .remove("hidden");
 
   }
-  catch(error){
+  catch(err){
 
-    loginError.textContent =
-      error.message ||
-      "Sikertelen belépés.";
+    error.textContent =
+      err.message;
 
-
-    loginError
-      .classList
-      .remove("hidden");
+    error.classList.remove("hidden");
 
   }
   finally{
 
-    loginBtn.disabled =
-      false;
+    button.disabled = false;
 
-    loginBtn.textContent =
+    button.textContent =
       "Belépés";
 
   }
+
 }
 
 
-
-// ========================================================
-// ENTER = LOGIN
-// ========================================================
-
 document
-  .getElementById(
-    "pass"
-  )
+  .getElementById("pass")
   .addEventListener(
     "keydown",
     event => {
@@ -1003,10 +834,7 @@ document
 
 
 
-// ========================================================
 // RANDOM TAG
-// normál bilétákhoz
-// ========================================================
 
 function randomTag(){
 
@@ -1016,64 +844,29 @@ function randomTag(){
 
 
 
-// ========================================================
-// GENERÁTOR KIMENET TÖRLÉSE
-// ========================================================
+// GENERÁTOR RESET
 
 function clearOutput(){
 
-  document
-    .getElementById(
-      "result"
-    )
-    .classList
-    .add("hidden");
+  [
+    "result",
+    "copyBtn",
+    "generateMessage",
+    "generateError",
+    "testInfo",
+    "activateBtn"
+  ]
+  .forEach(
+    id =>
+      document
+        .getElementById(id)
+        .classList
+        .add("hidden")
+  );
 
 
   document
-    .getElementById(
-      "copyBtn"
-    )
-    .classList
-    .add("hidden");
-
-
-  document
-    .getElementById(
-      "generateMessage"
-    )
-    .classList
-    .add("hidden");
-
-
-  document
-    .getElementById(
-      "generateError"
-    )
-    .classList
-    .add("hidden");
-
-
-  document
-    .getElementById(
-      "testInfo"
-    )
-    .classList
-    .add("hidden");
-
-
-  document
-    .getElementById(
-      "activateBtn"
-    )
-    .classList
-    .add("hidden");
-
-
-  document
-    .getElementById(
-      "hint"
-    )
+    .getElementById("hint")
     .textContent =
       "";
 
@@ -1089,9 +882,7 @@ function clearOutput(){
 
 
 
-// ========================================================
-// LINK MEGJELENÍTÉSE
-// ========================================================
+// LINK MEGJELENÍTÉS
 
 function showGeneratedUrl(
   url,
@@ -1102,30 +893,17 @@ function showGeneratedUrl(
     url;
 
 
-  const result =
-    document.getElementById(
-      "result"
-    );
-
-
-  const copyBtn =
-    document.getElementById(
-      "copyBtn"
-    );
-
-
-  const hint =
-    document.getElementById(
-      "hint"
-    );
-
-
   const nfcUrl =
     String(url)
       .replace(
         /^https?:\/\//,
         ""
       );
+
+
+  const result =
+    document
+      .getElementById("result");
 
 
   result.textContent =
@@ -1137,22 +915,23 @@ function showGeneratedUrl(
     .remove("hidden");
 
 
-  copyBtn
+  document
+    .getElementById("copyBtn")
     .classList
     .remove("hidden");
 
 
-  hint.textContent =
-    "Kategória: " +
-    categoryText;
+  document
+    .getElementById("hint")
+    .textContent =
+      "Kategória: " +
+      categoryText;
 
 }
 
 
 
-// ========================================================
-// LINK GENERÁLÁS
-// ========================================================
+// GENERÁLÁS
 
 async function generate(){
 
@@ -1160,9 +939,8 @@ async function generate(){
 
 
   const categorySelect =
-    document.getElementById(
-      "category"
-    );
+    document
+      .getElementById("category");
 
 
   const category =
@@ -1175,38 +953,31 @@ async function generate(){
       .text;
 
 
-  const generateBtn =
-    document.getElementById(
-      "generateBtn"
-    );
+  const button =
+    document
+      .getElementById("generateBtn");
 
 
-  const generateMessage =
-    document.getElementById(
-      "generateMessage"
-    );
+  const message =
+    document
+      .getElementById("generateMessage");
 
 
-  const generateError =
-    document.getElementById(
-      "generateError"
-    );
+  const error =
+    document
+      .getElementById("generateError");
 
 
-  generateBtn.disabled =
+  button.disabled =
     true;
 
 
-  generateBtn.textContent =
+  button.textContent =
     "Generálás…";
 
 
   try{
 
-
-    // ====================================================
-    // LÉLEKVIRÁGZÁS
-    // ====================================================
 
     if(
       category ===
@@ -1225,18 +996,6 @@ async function generate(){
         });
 
 
-      if(
-        !data?.url ||
-        !data?.tag
-      ){
-
-        throw new Error(
-          "A biléta létrejött, de hiányos válasz érkezett."
-        );
-
-      }
-
-
       generatedAudioTag =
         data.tag;
 
@@ -1247,27 +1006,23 @@ async function generate(){
       );
 
 
-      generateMessage.textContent =
+      message.textContent =
         "A Lélekvirágzás biléta létrejött teszt módban.";
 
 
-      generateMessage
+      message
         .classList
         .remove("hidden");
 
 
       document
-        .getElementById(
-          "testInfo"
-        )
+        .getElementById("testInfo")
         .classList
         .remove("hidden");
 
 
       document
-        .getElementById(
-          "activateBtn"
-        )
+        .getElementById("activateBtn")
         .classList
         .remove("hidden");
 
@@ -1277,37 +1032,15 @@ async function generate(){
     }
 
 
-
-    // ====================================================
-    // TÖBBI NFC BILÉTA
-    // ====================================================
-
     const tag =
       randomTag();
 
 
-    const page =
-      categories[
-        category
-      ];
-
-
-    if(!page){
-
-      throw new Error(
-        "Ismeretlen kategória."
-      );
-
-    }
-
-
     const url =
       "https://vigyazzram.kattkaland.hu/" +
-      page +
+      categories[category] +
       "?tag=" +
-      encodeURIComponent(
-        tag
-      );
+      encodeURIComponent(tag);
 
 
     showGeneratedUrl(
@@ -1316,30 +1049,24 @@ async function generate(){
     );
 
   }
-  catch(error){
+  catch(err){
 
-    console.error(
-      error
-    );
-
-
-    generateError.textContent =
-      error.message ||
-      "Nem sikerült létrehozni a linket.";
+    error.textContent =
+      err.message;
 
 
-    generateError
+    error
       .classList
       .remove("hidden");
 
   }
   finally{
 
-    generateBtn.disabled =
+    button.disabled =
       false;
 
 
-    generateBtn.textContent =
+    button.textContent =
       "Új link generálása";
 
   }
@@ -1348,116 +1075,63 @@ async function generate(){
 
 
 
-// ========================================================
-// FRISSEN GENERÁLT
-// BILÉTA ÉLESÍTÉSE
-// ========================================================
+// FRISS GENERÁLT ÉLESÍTÉS
 
 async function activateGeneratedTag(){
 
   if(!generatedAudioTag){
-
-    alert(
-      "Nincs élesíthető Lélekvirágzás biléta."
-    );
-
     return;
-
   }
 
 
-  const confirmed =
-    confirm(
+  if(
+    !confirm(
       "Biztosan élesíted ezt a bilétát?\n\n" +
-      "Élesítés után az 1. napi hang azonnal elérhetővé válik."
-    );
-
-
-  if(!confirmed){
-
+      "Élesítés után az 1. napi hang azonnal elérhető."
+    )
+  ){
     return;
-
   }
-
-
-  const activateBtn =
-    document.getElementById(
-      "activateBtn"
-    );
-
-
-  const testInfo =
-    document.getElementById(
-      "testInfo"
-    );
-
-
-  const generateMessage =
-    document.getElementById(
-      "generateMessage"
-    );
-
-
-  const generateError =
-    document.getElementById(
-      "generateError"
-    );
-
-
-  activateBtn.disabled =
-    true;
-
-
-  activateBtn.textContent =
-    "Élesítés…";
-
-
-  generateError
-    .classList
-    .add("hidden");
 
 
   try{
 
-    const data =
-      await callCreateAudioTag({
+    await callCreateAudioTag({
 
-        password:
-          adminPassword,
+      password:
+        adminPassword,
 
-        action:
-          "activate",
+      action:
+        "activate",
 
-        tag:
-          generatedAudioTag
+      tag:
+        generatedAudioTag
 
-      });
-
-
-    if(!data?.success){
-
-      throw new Error(
-        "Az élesítés nem sikerült."
-      );
-
-    }
+    });
 
 
-    testInfo
+    document
+      .getElementById("testInfo")
       .classList
       .add("hidden");
 
 
-    activateBtn
+    document
+      .getElementById("activateBtn")
       .classList
       .add("hidden");
 
 
-    generateMessage.textContent =
-      "✓ A Lélekvirágzás biléta élesítve. Az 1. nap elérhető.";
+    const message =
+      document
+        .getElementById("generateMessage");
 
 
-    generateMessage
+    message.textContent =
+      "✓ A biléta élesítve. Az 1. nap elérhető.";
+
+
+    message
       .classList
       .remove("hidden");
 
@@ -1466,29 +1140,20 @@ async function activateGeneratedTag(){
       null;
 
   }
-  catch(error){
+  catch(err){
 
-    console.error(
-      error
-    );
-
-
-    generateError.textContent =
-      error.message ||
-      "Nem sikerült élesíteni a bilétát.";
+    const error =
+      document
+        .getElementById("generateError");
 
 
-    generateError
+    error.textContent =
+      err.message;
+
+
+    error
       .classList
       .remove("hidden");
-
-
-    activateBtn.disabled =
-      false;
-
-
-    activateBtn.textContent =
-      "Biléta élesítése";
 
   }
 
@@ -1496,71 +1161,49 @@ async function activateGeneratedTag(){
 
 
 
-// ========================================================
-// LINK / TAG KINYERÉSE
-// ========================================================
+// TAG KINYERÉS LINKBŐL
 
-function extractTag(
-  value
-){
+function extractTag(value){
 
-  let input =
-    String(
-      value || ""
-    )
-    .trim();
+  const input =
+    String(value || "")
+      .trim();
 
 
   if(!input){
-
     return null;
-
   }
 
 
-  /*
-    Teljes URL vagy
-    https:// nélküli URL.
-  */
-
   if(
-    input.includes(
-      "tag="
-    )
+    input.includes("tag=")
   ){
 
     try{
 
-      let urlText =
+      let text =
         input;
 
 
       if(
         !/^https?:\/\//i
-          .test(
-            urlText
-          )
+          .test(text)
       ){
 
-        urlText =
+        text =
           "https://" +
-          urlText;
+          text;
 
       }
 
 
       const url =
-        new URL(
-          urlText
-        );
+        new URL(text);
 
 
       const tag =
-        url
-          .searchParams
-          .get(
-            "tag"
-          );
+        url.searchParams
+          .get("tag");
 
 
       if(tag){
@@ -1570,13 +1213,7 @@ function extractTag(
       }
 
     }
-    catch{
-      /*
-        Ha a URL parser nem
-        boldogul vele, még
-        próbálunk regexet.
-      */
-    }
+    catch{}
 
 
     const match =
@@ -1585,35 +1222,17 @@ function extractTag(
       );
 
 
-    if(
-      match &&
-      match[1]
-    ){
+    if(match?.[1]){
 
-      try{
-
-        return decodeURIComponent(
-          match[1]
-        )
-        .trim();
-
-      }
-      catch{
-
-        return match[1]
-          .trim();
-
-      }
+      return decodeURIComponent(
+        match[1]
+      )
+      .trim();
 
     }
 
   }
 
-
-  /*
-    Ha csak maga a tag van
-    beillesztve.
-  */
 
   return input;
 
@@ -1621,112 +1240,72 @@ function extractTag(
 
 
 
-// ========================================================
-// MEGLÉVŐ BILÉTA
-// UI TÖRLÉSE
-// ========================================================
+// MEGLÉVŐ UI RESET
 
-function clearExistingStatus(){
+function clearExisting(){
 
   existingAudioTag =
     null;
 
 
-  document
-    .getElementById(
-      "existingError"
-    )
-    .classList
-    .add("hidden");
-
-
-  document
-    .getElementById(
-      "existingSuccess"
-    )
-    .classList
-    .add("hidden");
-
-
-  document
-    .getElementById(
-      "existingStatus"
-    )
-    .classList
-    .add("hidden");
-
-
-  document
-    .getElementById(
-      "activateExistingBtn"
-    )
-    .classList
-    .add("hidden");
+  [
+    "existingError",
+    "existingSuccess",
+    "existingStatus",
+    "activateExistingBtn",
+    "resetExistingBtn"
+  ]
+  .forEach(
+    id =>
+      document
+        .getElementById(id)
+        .classList
+        .add("hidden")
+  );
 
 }
 
 
 
-// ========================================================
-// MEGLÉVŐ BILÉTA ELLENŐRZÉSE
-// ========================================================
+// MEGLÉVŐ ELLENŐRZÉS
 
 async function checkExistingTag(){
 
-  clearExistingStatus();
-
-
-  const input =
-    document
-      .getElementById(
-        "existingTagInput"
-      )
-      .value;
+  clearExisting();
 
 
   const tag =
     extractTag(
-      input
+      document
+        .getElementById(
+          "existingTagInput"
+        )
+        .value
     );
 
 
-  const checkBtn =
-    document.getElementById(
-      "checkTagBtn"
-    );
+  const button =
+    document
+      .getElementById("checkTagBtn");
 
 
-  const errorBox =
-    document.getElementById(
-      "existingError"
-    );
+  const error =
+    document
+      .getElementById("existingError");
 
 
-  const successBox =
-    document.getElementById(
-      "existingSuccess"
-    );
-
-
-  const statusBox =
-    document.getElementById(
-      "existingStatus"
-    );
-
-
-  const activateBtn =
-    document.getElementById(
-      "activateExistingBtn"
-    );
+  const success =
+    document
+      .getElementById("existingSuccess");
 
 
   if(!tag){
 
-    errorBox.textContent =
-      "Illeszd be a biléta linkjét vagy tag azonosítóját.";
+    error.textContent =
+      "Illeszd be a biléta linkjét vagy tag-jét.";
 
 
-    errorBox
+    error
       .classList
       .remove("hidden");
 
@@ -1736,11 +1315,11 @@ async function checkExistingTag(){
   }
 
 
-  checkBtn.disabled =
+  button.disabled =
     true;
 
 
-  checkBtn.textContent =
+  button.textContent =
     "Ellenőrzés…";
 
 
@@ -1761,23 +1340,12 @@ async function checkExistingTag(){
       });
 
 
-    if(!data?.success){
-
-      throw new Error(
-        "Nem sikerült ellenőrizni a bilétát."
-      );
-
-    }
-
-
     existingAudioTag =
       tag;
 
 
     document
-      .getElementById(
-        "statusMode"
-      )
+      .getElementById("statusMode")
       .textContent =
         data.test_mode
           ? "Teszt mód"
@@ -1785,9 +1353,7 @@ async function checkExistingTag(){
 
 
     document
-      .getElementById(
-        "statusActive"
-      )
+      .getElementById("statusActive")
       .textContent =
         data.active
           ? "Igen"
@@ -1795,96 +1361,84 @@ async function checkExistingTag(){
 
 
     document
-      .getElementById(
-        "statusMessage"
-      )
+      .getElementById("statusMessage")
       .textContent =
         data.test_mode
           ? "Bevezető"
-          : (
-              data.current_message === 1
-                ? "1. nap"
-                : (
-                    data.current_message +
-                    ". nap"
-                  )
-            );
+          : data.current_message +
+            ". nap";
 
 
-    statusBox
+    document
+      .getElementById("existingStatus")
       .classList
       .remove("hidden");
 
 
     if(
-      data.active === true &&
-      data.test_mode === true
+      data.active &&
+      data.test_mode
     ){
 
-      successBox.textContent =
-        "A biléta teszt módban van és élesíthető.";
+      success.textContent =
+        "A biléta teszt módban van.";
 
 
-      successBox
+      success
         .classList
         .remove("hidden");
 
 
-      activateBtn
+      document
+        .getElementById(
+          "activateExistingBtn"
+        )
         .classList
         .remove("hidden");
 
     }
     else if(
-      data.test_mode === false
+      data.active &&
+      !data.test_mode
     ){
 
-      successBox.textContent =
-        "✓ A biléta már élesítve van.";
+      success.textContent =
+        "✓ A biléta éles állapotban van.";
 
 
-      successBox
+      success
         .classList
         .remove("hidden");
 
-    }
-    else{
 
-      errorBox.textContent =
-        "A biléta jelenleg nem élesíthető.";
-
-
-      errorBox
+      document
+        .getElementById(
+          "resetExistingBtn"
+        )
         .classList
         .remove("hidden");
 
     }
 
   }
-  catch(error){
+  catch(err){
 
-    console.error(
-      error
-    );
-
-
-    errorBox.textContent =
-      error.message ||
-      "Nem sikerült ellenőrizni a bilétát.";
+    error.textContent =
+      err.message;
 
 
-    errorBox
+    error
       .classList
       .remove("hidden");
 
   }
   finally{
 
-    checkBtn.disabled =
+    button.disabled =
       false;
 
 
-    checkBtn.textContent =
+    button.textContent =
       "Biléta ellenőrzése";
 
   }
@@ -1893,160 +1447,49 @@ async function checkExistingTag(){
 
 
 
-// ========================================================
-// BEILLESZTETT BILÉTA
-// ÉLESÍTÉSE
-// ========================================================
+// MEGLÉVŐ ÉLESÍTÉS
 
 async function activateExistingTag(){
 
   if(!existingAudioTag){
-
-    alert(
-      "Előbb ellenőrizd a bilétát."
-    );
-
     return;
-
   }
 
 
-  const confirmed =
-    confirm(
+  if(
+    !confirm(
       "Biztosan élesíted ezt a bilétát?\n\n" +
-      "Élesítés után az 1. napi hang azonnal elérhetővé válik."
-    );
-
-
-  if(!confirmed){
-
+      "Az 1. nap azonnal elérhetővé válik."
+    )
+  ){
     return;
-
   }
-
-
-  const activateBtn =
-    document.getElementById(
-      "activateExistingBtn"
-    );
-
-
-  const errorBox =
-    document.getElementById(
-      "existingError"
-    );
-
-
-  const successBox =
-    document.getElementById(
-      "existingSuccess"
-    );
-
-
-  activateBtn.disabled =
-    true;
-
-
-  activateBtn.textContent =
-    "Élesítés…";
-
-
-  errorBox
-    .classList
-    .add("hidden");
 
 
   try{
 
-    const data =
-      await callCreateAudioTag({
+    await callCreateAudioTag({
 
-        password:
-          adminPassword,
+      password:
+        adminPassword,
 
-        action:
-          "activate",
+      action:
+        "activate",
 
-        tag:
-          existingAudioTag
+      tag:
+        existingAudioTag
 
-      });
-
-
-    if(!data?.success){
-
-      throw new Error(
-        "Az élesítés nem sikerült."
-      );
-
-    }
+    });
 
 
-    document
-      .getElementById(
-        "statusMode"
-      )
-      .textContent =
-        "Éles";
-
-
-    document
-      .getElementById(
-        "statusMessage"
-      )
-      .textContent =
-        "1. nap";
-
-
-    document
-      .getElementById(
-        "statusActive"
-      )
-      .textContent =
-        "Igen";
-
-
-    successBox.textContent =
-      "✓ A biléta sikeresen élesítve. Az 1. nap elérhető.";
-
-
-    successBox
-      .classList
-      .remove("hidden");
-
-
-    activateBtn
-      .classList
-      .add("hidden");
-
-
-    existingAudioTag =
-      null;
+    await checkExistingTag();
 
   }
-  catch(error){
+  catch(err){
 
-    console.error(
-      error
+    alert(
+      err.message
     );
-
-
-    errorBox.textContent =
-      error.message ||
-      "Nem sikerült élesíteni a bilétát.";
-
-
-    errorBox
-      .classList
-      .remove("hidden");
-
-
-    activateBtn.disabled =
-      false;
-
-
-    activateBtn.textContent =
-      "Biléta élesítése";
 
   }
 
@@ -2054,21 +1497,64 @@ async function activateExistingTag(){
 
 
 
-// ========================================================
-// LINK MÁSOLÁSA
-//
-// Az NFC-író app automatikusan
-// eléteszi a https:// részt.
-// ========================================================
+// MEGLÉVŐ RESET
+
+async function resetExistingTag(){
+
+  if(!existingAudioTag){
+    return;
+  }
+
+
+  if(
+    !confirm(
+      "Biztosan visszaállítod ezt a bilétát teszt módba?\n\n" +
+      "A jelenlegi előrehaladás törlődik, és ismét csak a Bevezető lesz elérhető."
+    )
+  ){
+    return;
+  }
+
+
+  try{
+
+    await callCreateAudioTag({
+
+      password:
+        adminPassword,
+
+      action:
+        "reset",
+
+      tag:
+        existingAudioTag
+
+    });
+
+
+    await checkExistingTag();
+
+  }
+  catch(err){
+
+    alert(
+      err.message
+    );
+
+  }
+
+}
+
+
+
+// LINK MÁSOLÁS
 
 async function copyLink(){
 
   if(
     !window.generatedUrl
   ){
-
     return;
-
   }
 
 
@@ -2096,12 +1582,7 @@ async function copyLink(){
     );
 
   }
-  catch(error){
-
-    console.error(
-      error
-    );
-
+  catch{
 
     alert(
       "A link másolása nem sikerült."
