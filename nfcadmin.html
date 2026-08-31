@@ -81,6 +81,11 @@ button:disabled{
   color:white;
 }
 
+.activate-btn{
+  background:#c57a32;
+  color:white;
+}
+
 .hidden{
   display:none;
 }
@@ -116,6 +121,16 @@ button:disabled{
   background:#edf7ee;
   color:#2e7d32;
   font-size:13px;
+}
+
+.test-info{
+  margin-top:12px;
+  padding:10px;
+  border-radius:10px;
+  background:#fff4e5;
+  color:#8a531c;
+  font-size:13px;
+  line-height:1.4;
 }
 
 </style>
@@ -213,6 +228,25 @@ button:disabled{
       Link másolása
     </button>
 
+
+    <!-- LÉLEKVIRÁGZÁS TESZT / ÉLESÍTÉS -->
+
+    <div
+      id="testInfo"
+      class="test-info hidden"
+    >
+      A biléta jelenleg teszt módban van.
+      Teszteléskor mindig a Bevezető hang marad elérhető.
+    </div>
+
+    <button
+      class="activate-btn hidden"
+      id="activateBtn"
+      onclick="activateTag()"
+    >
+      Biléta élesítése
+    </button>
+
   </div>
 
 </div>
@@ -267,6 +301,14 @@ const categories = {
 // ======================
 
 let adminPassword = "";
+
+
+// ======================
+// AKTUÁLISAN GENERÁLT
+// LÉLEKVIRÁGZÁS TAG
+// ======================
+
+let generatedAudioTag = null;
 
 
 // ======================
@@ -449,10 +491,20 @@ function clearOutput(){
     .classList.add("hidden");
 
   document
+    .getElementById("testInfo")
+    .classList.add("hidden");
+
+  document
+    .getElementById("activateBtn")
+    .classList.add("hidden");
+
+  document
     .getElementById("hint")
     .textContent = "";
 
   window.generatedUrl = null;
+
+  generatedAudioTag = null;
 
 }
 
@@ -479,8 +531,8 @@ function showGeneratedUrl(
     document.getElementById("hint");
 
 
-  // A képernyőn is NFC-re kész,
-  // https:// nélküli link jelenjen meg.
+  // NFC-re kész,
+  // https:// nélküli link.
 
   const nfcUrl =
     String(url)
@@ -546,9 +598,6 @@ async function generate(){
 
     // ==================================
     // LÉLEKVIRÁGZÁS
-    //
-    // Ennél a Supabase-ben
-    // audio_progress rekord is készül.
     // ==================================
 
     if(category === "lelekviragzas"){
@@ -563,13 +612,20 @@ async function generate(){
         });
 
 
-      if(!data?.url){
+      if(
+        !data?.url ||
+        !data?.tag
+      ){
 
         throw new Error(
-          "A biléta létrejött, de nem érkezett vissza link."
+          "A biléta létrejött, de hiányos válasz érkezett."
         );
 
       }
+
+
+      generatedAudioTag =
+        data.tag;
 
 
       showGeneratedUrl(
@@ -579,11 +635,22 @@ async function generate(){
 
 
       generateMessage.textContent =
-        "A Lélekvirágzás biléta létrejött.";
+        "A Lélekvirágzás biléta létrejött teszt módban.";
 
       generateMessage
         .classList
         .remove("hidden");
+
+
+      document
+        .getElementById("testInfo")
+        .classList.remove("hidden");
+
+
+      document
+        .getElementById("activateBtn")
+        .classList.remove("hidden");
+
 
       return;
 
@@ -649,13 +716,148 @@ async function generate(){
 
 
 // ======================
+// BILÉTA ÉLESÍTÉSE
+// ======================
+
+async function activateTag(){
+
+  if(!generatedAudioTag){
+
+    alert(
+      "Nincs élesíthető Lélekvirágzás biléta."
+    );
+
+    return;
+
+  }
+
+
+  const confirmed =
+    confirm(
+      "Biztosan élesíted ezt a bilétát?\n\n" +
+      "Élesítés után az 1. napi hang azonnal elérhetővé válik."
+    );
+
+
+  if(!confirmed){
+
+    return;
+
+  }
+
+
+  const activateBtn =
+    document.getElementById(
+      "activateBtn"
+    );
+
+  const testInfo =
+    document.getElementById(
+      "testInfo"
+    );
+
+  const generateMessage =
+    document.getElementById(
+      "generateMessage"
+    );
+
+  const generateError =
+    document.getElementById(
+      "generateError"
+    );
+
+
+  activateBtn.disabled =
+    true;
+
+  activateBtn.textContent =
+    "Élesítés…";
+
+
+  generateError
+    .classList
+    .add("hidden");
+
+
+  try{
+
+    const data =
+      await callCreateAudioTag({
+
+        password:
+          adminPassword,
+
+        action:
+          "activate",
+
+        tag:
+          generatedAudioTag
+
+      });
+
+
+    if(!data?.success){
+
+      throw new Error(
+        "Az élesítés nem sikerült."
+      );
+
+    }
+
+
+    testInfo
+      .classList
+      .add("hidden");
+
+
+    activateBtn
+      .classList
+      .add("hidden");
+
+
+    generateMessage.textContent =
+      "✓ A Lélekvirágzás biléta élesítve. Az 1. nap elérhető.";
+
+    generateMessage
+      .classList
+      .remove("hidden");
+
+
+    generatedAudioTag =
+      null;
+
+  }
+  catch(error){
+
+    console.error(error);
+
+
+    generateError.textContent =
+      error.message ||
+      "Nem sikerült élesíteni a bilétát.";
+
+
+    generateError
+      .classList
+      .remove("hidden");
+
+
+    activateBtn.disabled =
+      false;
+
+    activateBtn.textContent =
+      "Biléta élesítése";
+
+  }
+
+}
+
+
+// ======================
 // LINK MÁSOLÁSA
 //
-// FONTOS:
 // Az NFC-író alkalmazás maga
 // teszi elé a https:// részt.
-// Ezért mindig protokoll nélkül
-// másolunk.
 // ======================
 
 async function copyLink(){
